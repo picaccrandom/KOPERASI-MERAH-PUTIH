@@ -6,41 +6,32 @@ use Illuminate\Http\Request;
 
 class SimpanPinjamController extends Controller
 {
-    /**
-     * Display the simpan pinjam dashboard
-     */
+    // Kembalikan halaman utama
     public function index()
     {
-        return view('simpanpinjam.index');
+        return view('simpanpinjam');
     }
 
-    /**
-     * Display the pinjaman index page
-     */
+    //kembalikan halaman pinjaman
     public function pinjamanIndex()
     {
-        return view('simpanpinjam.pinjaman.index');
+        return view('pinjaman');
     }
 
-    /**
-     * Display the create pinjaman form
-     */
-    public function createPinjaman()
-    {
-        return view('simpanpinjam.pinjaman.create');
-    }
-
-    /**
-     * Display the simpanan index page
-     */
+    //kembalikan halaman simpanan
     public function simpananIndex()
     {
-        return view('simpanpinjam.simpanan.index');
+        return view('simpanpinjam');
     }
 
-    /**
-     * Display the create simpanan form
-     */
+    //kembalikan halaman create pinjaman
+    public function createPinjaman()
+    {
+        return view('pinjaman');
+    }
+
+
+    //kembalikan halaman create simpanan
     public function createSimpanan()
     {
         return view('simpanpinjam.simpanan.create');

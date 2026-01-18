@@ -1,9 +1,10 @@
 <?php
-use App\Http\Controllers\MemberController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\BarangController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\KasirController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\MemberController;
+use App\Http\Controllers\SimpanPinjamController;
 
 // 1. Halaman Login
 Route::get('/login', function() { 
@@ -11,14 +12,14 @@ Route::get('/login', function() {
 })->name('login');
 
 Route::post('/login-proses', [MemberController::class, 'loginProses']);
-Route::get('/logout', [MemberController::class, 'logout']);
+Route::get('/logout', [MemberController::class, 'logout'])->name('logout');
 
 // 2. Middleware Auth
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', function () { 
         return redirect('/dashboard'); 
-    });
+    })->name('home');
 
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -53,9 +54,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin/gudang/{id}', [BarangController::class, 'update'])->name('gudang.update');
     Route::delete('/admin/gudang/{id}', [BarangController::class, 'destroy'])->name('gudang.destroy');
 
-    // Route Master Barang (yang sebelumnya Anda buat)
-    Route::get('/admin/gudang', [BarangController::class, 'index'])->name('gudang.index');
-
     // Route Stok Masuk
     Route::post('/admin/gudang/stok-masuk', [BarangController::class, 'storeStokMasuk'])->name('stok.masuk.store');
 
@@ -63,28 +61,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('/admin/kasir/proses', [KasirController::class, 'store'])->name('kasir.store');
 
-    // // Halaman utama
-    Route::get('/', function () {
-        return view('admin.simpanpinjam');
-    })->name('simpanpinjam.index');
-    
-    // Pinjaman
-    Route::get('/pinjaman', function () {
-        return view('admin.pinjaman');
-    })->name('pinjaman.index');
-    
-    // Simpanan
-    Route::get('/simpanan', function () {
-        return view('admin.simpanan');
-    })->name('simpanan.index');
-    
-    // Laporan (opsional)
-    Route::get('/laporan', function () {
-        return view('admin.laporan');
-    })->name('laporan.index');
 
-    // Dashboard link ke simpan pinjam
-    Route::get('/simpanpinjam', function () {
-    return redirect()->route('simpanpinjam.index');
-    });
+    // Modul Simpan Pinjam
+    Route::get('/simpanpinjam', [SimpanPinjamController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
+    Route::get('/pinjaman', [SimpanPinjamController::class, 'pinjamanIndex'])->name('pinjaman.index'); // Pinjaman
+    Route::get('/simpanan', [SimpanPinjamController::class, 'simpananIndex'])->name('simpanan.index'); // Simpanan
+    Route::get('/laporan', [SimpanPinjamController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
+
 });
