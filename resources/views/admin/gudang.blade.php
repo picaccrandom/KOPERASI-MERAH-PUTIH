@@ -14,12 +14,15 @@
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="fw-bold text-dark mb-0"><i class="fas fa-warehouse me-2"></i> MASTER GUDANG (BARANG)</h5>
-        <button class="btn btn-sm btn-danger fw-bold shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#modalTambahBarang">
-            <i class="fas fa-plus me-1"></i> TAMBAH BARANG
-        </button>
-        <button class="btn btn-sm btn-success fw-bold shadow-sm px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalStokMasuk">
-            <i class="fas fa-download me-1"></i> STOK MASUK
-        </button>
+        <div class="">
+            <button class="btn btn-sm btn-danger fw-bold shadow-sm px-3" data-bs-toggle="modal" data-bs-target="#modalTambahBarang">
+                <i class="fas fa-plus me-1"></i> TAMBAH BARANG
+            </button>
+            |
+            <button class="btn btn-sm btn-success fw-bold shadow-sm px-3 me-2" data-bs-toggle="modal" data-bs-target="#modalStokMasuk">
+                <i class="fas fa-download me-1"></i> STOK MASUK
+            </button>
+        </div>
     </div>
 
     @if (session('success'))

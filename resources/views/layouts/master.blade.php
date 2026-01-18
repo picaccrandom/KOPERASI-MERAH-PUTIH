@@ -162,6 +162,7 @@
             border-radius: 4px;
         }
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <div class="top-header">
