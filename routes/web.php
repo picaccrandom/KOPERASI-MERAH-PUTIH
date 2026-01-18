@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\SimpanPinjamController;
 use App\Http\Controllers\KasirController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +26,31 @@ Route::get('/logout', function() { return redirect('/login'); });
 
 
 Route::get('/kasir', [KasirController::class, 'index'])->name('kasir');
+
+// Simpan Pinjam Routes
+Route::prefix('simpanpinjam')->group(function () {
+    // Halaman utama
+    Route::get('/', function () {
+        return view('simpanpinjam');
+    })->name('simpanpinjam.index');
+    
+    // Pinjaman
+    Route::get('/pinjaman', function () {
+        return view('pinjaman');
+    })->name('pinjaman.index');
+    
+    // Simpanan
+    Route::get('/simpanan', function () {
+        return view('simpanan');
+    })->name('simpanan.index');
+    
+    // Laporan (opsional)
+    Route::get('/laporan', function () {
+        return view('laporan');
+    })->name('laporan.index');
+});
+
+// Dashboard link ke simpan pinjam
+Route::get('/dashboard/simpanpinjam', function () {
+    return redirect()->route('simpanpinjam.index');
+});
