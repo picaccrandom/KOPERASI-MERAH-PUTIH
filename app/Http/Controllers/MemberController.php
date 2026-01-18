@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Member; // Baris ini yang tadi hilang sehingga muncul error
+use App\Models\Member;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // WAJIB: Untuk menangani keamanan login
 
 class MemberController extends Controller
 {
@@ -17,40 +18,55 @@ class MemberController extends Controller
     }
 
     public function store(Request $request) {
-        // Validasi sederhana agar data tidak kosong
+        // Validasi input
         $request->validate([
             'nik' => 'required',
             'nama_lengkap' => 'required',
         ]);
 
         Member::create($request->all());
-        return redirect('/')->with('success', 'Anggota berhasil didaftarkan!');
+        return redirect('/anggota')->with('success', 'Anggota berhasil didaftarkan!');
     }
 
-        // Munculkan form edit
     public function edit($id) {
         $member = Member::findOrFail($id);
         return view('member_edit', compact('member'));
     }
 
-    // Proses update data
     public function update(Request $request, $id) {
         $member = Member::findOrFail($id);
         $member->update($request->all());
-        return redirect('/')->with('success', 'Data berhasil diperbarui!');
+        return redirect('/anggota')->with('success', 'Data berhasil diperbarui!');
     }
 
-    // Proses hapus data
     public function destroy($id) {
         Member::findOrFail($id)->delete();
-        return redirect('/anggota')->with('success', 'Data anggota berhasil dihapus dari sistem.');
+        return redirect('/anggota')->with('success', 'Data anggota berhasil dihapus.');
     }
 
+    // PROSES LOGIN NYATA
     public function loginProses(Request $request) {
-        // Logika login sederhana untuk simulasi
-        if($request->username == 'yoga' && $request->password == 'admin') {
-            return redirect('/dashboard');
+        // Ambil input username dan password
+        $credentials = $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+
+        // Cek ke database apakah user cocok
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate(); // Amankan session
+            return redirect()->intended('/dashboard'); // Masuk ke menu utama
         }
-        return back()->with('error', 'Akses Ditolak! Akun IT tidak ditemukan.');
+
+        // Jika salah, balik ke login dengan pesan error
+        return back()->with('error', 'Username atau Password salah!');
+    }
+
+    // PROSES LOGOUT
+    public function logout(Request $request) {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect('/login'); // Tendang balik ke login
     }
 }

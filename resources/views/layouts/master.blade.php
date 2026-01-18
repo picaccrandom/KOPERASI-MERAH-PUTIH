@@ -24,7 +24,7 @@
 
         /* --- HEADER SECTION --- */
         .top-header {
-            height: 95px; /* Sedikit lebih tinggi untuk 3 baris teks */
+            height: 95px; 
             display: flex;
             align-items: center;
             position: sticky;
@@ -51,12 +51,7 @@
             flex-direction: column;
             justify-content: center;
             text-align: center;
-            /* Abu-abu dipergelap ke #cccccc agar gradasi lebih kontras */
-            background: linear-gradient(90deg, 
-                #ffffff 0%, 
-                #9f0000 50%, 
-                #ffffff 100%
-            );
+            background: linear-gradient(90deg, #ffffff 0%, #b0b0b0 50%, #ffffff 100%);
         }
 
         .header-right {
@@ -72,32 +67,41 @@
         .main-title {
             font-size: 22px;
             letter-spacing: 3px;
-            color: var(--koperasi-dark-head);
+            color: #ffffff;
             font-weight: 850;
             margin: 0;
             margin-bottom: 5px;
-            text-shadow: 
-                -1px -1px 0 #000,  
-                1px -1px 0 #000,
-                -1px  1px 0 #000,
-                1px  1px 0 #000;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
         }
 
         .sub-title {
             font-size: 15px;
             letter-spacing: 5px;
-            color: var(--koperasi-red-head) !important;
+            margin-bottom: 5px;
             font-weight: 700;
             margin: 0;
             text-transform: uppercase;
         }
 
+        .txt-merah {
+            color: #ff0000 !important;
+            font-weight: 800;
+            text-shadow: 1px 1px 0px #000;
+        }
+
+        .txt-putih {
+            color: #ffffff !important;
+            font-weight: 800;
+            text-shadow: 1px 1px 0px #000;
+        }
+
         .sub-title2 {
             font-size: 13px;
             letter-spacing: 5px;
-            color: var(--koperasi-red-head) !important;
+            color: #000000 !important; 
             font-weight: 700;
             margin: 0;
+            margin-top: 6px; 
             text-transform: uppercase;
         }
 
@@ -110,9 +114,9 @@
         .btn-home { color: var(--koperasi-dark); font-size: 24px; transition: 0.3s; }
         .btn-home:hover { color: var(--koperasi-red); transform: scale(1.1); }
 
-        /* --- NAVIGATION LOG (Warna Hitam) --- */
+        /* --- NAVIGATION LOG --- */
         .nav-header {
-            background: rgba(255, 255, 255, 0.85); /* Lebih putih agar teks hitam jelas */
+            background: rgba(255, 255, 255, 0.85); 
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(0,0,0,0.1);
             padding: 8px 30px;
@@ -121,12 +125,10 @@
         #txtTanggal { 
             font-size: 11px; 
             font-weight: 600; 
-            color: #000000 !important; /* Teks Tanggal Hitam */
+            color: #000000 !important; 
         }
 
-        .fa-calendar-alt { 
-            color: #000000 !important; /* Ikon Kalender Hitam */
-        }
+        .fa-calendar-alt { color: #000000 !important; }
 
         .text-muted-custom {
             color: #333333;
@@ -135,29 +137,20 @@
             font-size: 9px;
         }
 
-        /* --- MENU CARD --- */
-        .cyber-card {
-            background: rgba(230, 57, 70, 0.4); 
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 12px;
-            padding: 15px 5px;
-            transition: 0.4s;
-            text-decoration: none !important;
-            backdrop-filter: blur(8px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 115px;
+        /* --- STYLE MENU ADMIN BARU --- */
+        .nav-link-admin { 
+            text-decoration: none; 
+            color: #000; 
+            font-weight: 800; 
+            font-size: 11px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            padding: 5px 10px;
         }
-
-        .cyber-card:hover {
-            background: rgba(230, 57, 70, 1); 
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(230, 57, 70, 0.5);
-        }
-
-        .card-title { font-size: 11px; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .nav-link-admin:hover, .show > .nav-link-admin { color: #e63946 !important; }
+        .dropdown-menu { background: #1d3557; border-radius: 0; border: none; }
+        .dropdown-item { color: white !important; font-size: 11px; font-weight: 600; padding: 8px 20px; }
+        .dropdown-item:hover { background: #e63946 !important; }
 
         .btn-logout {
             background: #c11111;
@@ -169,6 +162,7 @@
             border-radius: 4px;
         }
     </style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body>
     <div class="top-header">
@@ -178,7 +172,9 @@
 
         <div class="center-brand">
             <h1 class="main-title">SISTEM INFORMASI TERPADU</h1>
-            <h2 class="sub-title">KOPERASI MERAH PUTIH</h2>
+            <h2 class="sub-title">
+                KOPERASI <span class="txt-merah">MERAH</span> <span class="txt-putih">PUTIH</span>
+            </h2>
             <h2 class="sub-title2" style="font-size: 11px;">DESA NANGSRI</h2>
         </div>
 
@@ -192,10 +188,24 @@
     <div style="height: 3px; background: #e63946; width: 100%;"></div>
 
     <div class="nav-header d-flex align-items-center justify-content-between">
-        <div>
-            <small class="text-muted-custom text-uppercase">
-                YOGATECHSOLUTION | CORE SYSTEM V1.0
-            </small>
+        <div class="d-flex align-items-center">
+            <div id="default-status-text">
+                <small class="text-muted-custom text-uppercase">
+                    YOGATECHSOLUTION | CORE SYSTEM V1.0
+                </small>
+            </div>
+
+            <div id="admin-nav-menu" class="d-none">
+                <div class="dropdown">
+                    <a class="nav-link-admin dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Otorisasi User
+                    </a>
+                    <ul class="dropdown-menu shadow">
+                        <li><a class="dropdown-item" href="/admin/master-user">Master User</a></li>
+                        <li><a class="dropdown-item" href="/admin/ganti-password">Ganti Password</a></li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <div class="d-flex align-items-center">
@@ -214,6 +224,8 @@
         @yield('content')
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
         function updateClock() {
             const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
@@ -225,6 +237,19 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+        // Fungsi Ganti Menu (Dipanggil saat ADM. SISTEM di klik)
+        function showAdminMenu() {
+            const textDefault = document.getElementById('default-status-text');
+            const menuAdmin = document.getElementById('admin-nav-menu');
+
+            if(textDefault && menuAdmin) {
+                textDefault.classList.add('d-none');
+                menuAdmin.classList.remove('d-none');
+                menuAdmin.classList.add('d-block');
+            }
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 </html>

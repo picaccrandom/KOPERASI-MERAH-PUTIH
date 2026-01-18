@@ -81,7 +81,7 @@
         $menus = [
             ['icon' => 'fa-cash-register', 'title' => 'Kasir', 'color' => 'linear-gradient(135deg, #06b6d4, #0891b2)', 'link' => '/kasir', 'sub' => 'Point of Sales'],
             ['icon' => 'fa-users', 'title' => 'Data Anggota', 'color' => 'linear-gradient(135deg, #0ea5e9, #2563eb)', 'link' => '/anggota', 'sub' => 'Membership'],
-            ['icon' => 'fa-hand-holding-dollar', 'title' => 'Simpan Pinjam', 'color' => 'linear-gradient(135deg, #10b981, #059669)', 'link' => '/simpanpinjam', 'sub' => 'Credit & Saving'],
+            ['icon' => 'fa-hand-holding-dollar', 'title' => 'Simpan Pinjam', 'color' => 'linear-gradient(135deg, #10b981, #059669)', 'link' => '/', 'sub' => 'Credit & Saving'],
             
             ['icon' => 'fa-calculator', 'title' => 'Akuntansi', 'color' => 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 'link' => '#', 'sub' => 'General Ledger'],
             ['icon' => 'fa-wallet', 'title' => 'Keuangan', 'color' => 'linear-gradient(135deg, #f59e0b, #d97706)', 'link' => '#', 'sub' => 'Financial Flow'],
@@ -94,7 +94,10 @@
         @endphp
 
         @foreach($menus as $menu)
-        <a href="{{ $menu['link'] }}" class="cyber-card shadow">
+        <a href="{{ $menu['link'] }}" 
+            id="{{ $menu['id'] ?? '' }}" 
+            class="cyber-card shadow" 
+            @if(($menu['id'] ?? '') == 'btn-adm-sistem') onclick="showAdminMenu()" @endif>
             <div class="icon-wrapper text-white" style="background: {{ $menu['color'] }};">
                 <i class="fas {{ $menu['icon'] }}"></i>
             </div>
@@ -105,3 +108,20 @@
     </div>
 </div>
 @endsection
+
+<script>
+    function showAdminMenu() {
+        const textDefault = document.getElementById('default-status-text');
+        const menuAdmin = document.getElementById('admin-nav-menu');
+
+        // Jika elemen ditemukan, lakukan pertukaran
+        if(textDefault && menuAdmin) {
+            textDefault.classList.add('d-none');    // Sembunyikan teks lama
+            menuAdmin.classList.remove('d-none'); // Munculkan menu baru
+            menuAdmin.classList.add('d-flex');    // Pastikan sejajar
+        } else {
+            // Ini akan muncul jika ID di app.blade.php belum Anda pasang
+            console.error("ID default-status-text atau admin-nav-menu tidak ditemukan di layout!");
+        }
+    }
+</script>
