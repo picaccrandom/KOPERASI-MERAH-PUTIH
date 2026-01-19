@@ -189,7 +189,7 @@
 
     <div class="nav-header d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center">
-            <div id="default-status-text" class="cursor-pointer" onclick="showAdminMenu()">
+            <div id="default-status-text">
                 <small class="text-muted-custom text-uppercase">
                     YOGATECHSOLUTION | CORE SYSTEM V1.0
                 </small>
@@ -245,6 +245,10 @@
     <div class="container-fluid py-4">
         @yield('content')
     </div>
+
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 

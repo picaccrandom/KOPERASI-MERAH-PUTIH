@@ -1,4 +1,4 @@
-@extends('layouts.third')
+@extends('layouts.master')
 
 @section('title', 'Simpanan - Koperasi Merah Putih')
 
