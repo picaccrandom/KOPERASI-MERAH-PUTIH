@@ -79,13 +79,13 @@
         @php
         // Struktur Menu 3x3 Sesuai Instruksi
         $menus = [
-            ['icon' => 'fa-cash-register', 'title' => 'Kasir', 'color' => 'linear-gradient(135deg, #06b6d4, #0891b2)', 'link' => '/kasir', 'sub' => 'Point of Sales'],
+            ['icon' => 'fa-cash-register', 'title' => 'Kasir', 'color' => 'linear-gradient(135deg, #06b6d4, #0891b2)', 'link' => route('kasir.index'), 'sub' => 'Point of Sales'],
             ['icon' => 'fa-users', 'title' => 'Data Anggota', 'color' => 'linear-gradient(135deg, #0ea5e9, #2563eb)', 'link' => '/anggota', 'sub' => 'Membership'],
             ['icon' => 'fa-hand-holding-dollar', 'title' => 'Simpan Pinjam', 'color' => 'linear-gradient(135deg, #10b981, #059669)', 'link' => '/', 'sub' => 'Credit & Saving'],
             
             ['icon' => 'fa-calculator', 'title' => 'Akuntansi', 'color' => 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 'link' => '#', 'sub' => 'General Ledger'],
             ['icon' => 'fa-wallet', 'title' => 'Keuangan', 'color' => 'linear-gradient(135deg, #f59e0b, #d97706)', 'link' => '#', 'sub' => 'Financial Flow'],
-            ['icon' => 'fa-warehouse', 'title' => 'Gudang', 'color' => 'linear-gradient(135deg, #6366f1, #4338ca)', 'link' => '#', 'sub' => 'Inventory Control'],
+            ['icon' => 'fa-warehouse', 'title' => 'Gudang', 'color' => 'linear-gradient(135deg, #6366f1, #4338ca)', 'link' => route('gudang.index'), 'sub' => 'Inventory Control'],
             
             ['icon' => 'fa-chart-line', 'title' => 'Dashboard', 'color' => 'linear-gradient(135deg, #ec4899, #be185d)', 'link' => '#', 'sub' => 'Statistic Chart'],
             ['icon' => 'fa-file-invoice-dollar', 'title' => 'Laporan', 'color' => 'linear-gradient(135deg, #ef4444, #dc2626)', 'link' => '#', 'sub' => 'Reporting System'],
