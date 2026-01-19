@@ -378,23 +378,26 @@
             total_bon: 0,
             cart: keranjang
         };
+        
+        if(data.metode_bayar === 'tunai') {
+            data.total_tunai = parseFloat(document.getElementById('nominal').value);
+        } else if(data.metode_bayar === 'bon') {
+            data.total_tunai = parseFloat(document.getElementById('nominal').value);    
+            data.status = 'open';
+            data.total_bon = data.total_harga - data.total_tunai;
+        }
 
+        console.log(data.total_harga)
+
+        if(data.total_tunai < data.total_harga && data.metode_bayar === 'tunai' || isNaN(data.total_tunai)) {
+            return Swal.fire('Error', 'Nominal tunai kurang / tidak valid!', 'error');
+        }
 
         if(data.metode_bayar === 'bon' && !data.member_id) {
             return Swal.fire('Error', 'Metode BON hanya untuk Anggota terdaftar!', 'error');
         }
 
-        if(data.metode_bayar === 'tunai') {
-            data.total_tunai = document.getElementById('nominal').value;
-        } else if(data.metode_bayar === 'bon') {
-            data.total_tunai = document.getElementById('nominal').value;    
-            data.status = 'open';
-            data.total_bon = data.total_harga - data.total_tunai;
-        }
 
-        if(data.total_tunai < data.total_harga && data.metode_bayar === 'tunai' || isNaN(data.total_tunai)) {
-            return Swal.fire('Error', 'Nominal tunai kurang / tidak valid!', 'error');
-        }
 
         if(data.metode_bayar === 'bon' && data.total_bon > limitBon) {
             return Swal.fire({

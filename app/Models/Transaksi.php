@@ -18,10 +18,11 @@ class Transaksi extends Model
 
     public function barang()
     {
-        return $this->hasMany(TransaksiDetail::class, 'transaksi_id');
+        return $this->hasMany(TransaksiDetail::class, 'kode_transaksi');
     }
 
     public function kasir() {
         return $this->belongsTo(User::class, 'user_id');
     }
+
 }
