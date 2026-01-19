@@ -118,7 +118,7 @@
                             <div class=" w-[80%] rounded-lg">
                                 <label for="kalkulasi" class="text-xs" id="label-ket">Keterangan</label>
                                 <h5 class="bg-gray-500/10 backdrop-blur-2xl rounded-md px-2 py-1">Rp. <span id="kalkulasi">0</span></h5>
-                                <p class="text-xs text-slate-400 tracking-wide justify-self-center left-60 uppercase mt-1 hidden" id="info-ket-bill">*Kekurangan akan diBON-kan ke anggota</p>
+                                <p class="text-xs font-bold tracking-wide justify-self-center left-60 uppercase mt-1 hidden" id="info-ket-bill"></p>
                             </div>
                         </div>
 
@@ -137,6 +137,7 @@
     let keranjang = [];
     let member = @json($members);
     let barang = @json($barangs);
+    const limitBon = {{ $limitBon }};
 
     // Toggle muncul Form NIK Member
     document.getElementById('kategori_yes').addEventListener('change', function() {
@@ -155,16 +156,14 @@
         // const splitForm = document.getElementById('split-bill-form');
         if(this.value === 'tunai') {
             document.getElementById('nominal-label').textContent = 'Nominal (Tunai)';
-            document.getElementById('split-bill').setAttribute('name', 'nominal');
-            document.getElementById('split-bill').setAttribute('id', 'nominal');
             document.getElementById('info-bill').classList.add('hidden');
             document.getElementById('info-ket-bill').classList.add('hidden');
         } else {
             document.getElementById('nominal-label').textContent = 'Split Bill (Pembayaran Tunai)';
-            document.getElementById('nominal').setAttribute('name', 'split-bill');
-            document.getElementById('nominal').setAttribute('id', 'split-bill');
             document.getElementById('info-bill').classList.remove('hidden');
             document.getElementById('info-ket-bill').classList.remove('hidden');
+            document.getElementById('info-ket-bill').innerText = '*Maksimal Rp ' + limitBon.toLocaleString() + ' untuk BON Anggota';
+            document.getElementById('nominal').classList.remove('text-greyed-600');
         }
     });
 
@@ -248,6 +247,7 @@
     document.getElementById('nominal').addEventListener('input', function() {
         KalkulasiNominal();
     });
+
 
     
     // Fungsi Tambah Barang ke Keranjang
@@ -352,6 +352,16 @@
         renderTable();
     }
 
+    // Format Rupiah
+    function formatRupiah(angka) {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(angka);
+}
+
     // Proses Simpan ke Database
     document.getElementById('btn-proses').addEventListener('click', function() {
         if(keranjang.length === 0) return Swal.fire('Error', 'Keranjang masih kosong!', 'error');
@@ -377,13 +387,24 @@
         if(data.metode_bayar === 'tunai') {
             data.total_tunai = document.getElementById('nominal').value;
         } else if(data.metode_bayar === 'bon') {
-            data.total_tunai = document.getElementById('split-bill').value;
+            data.total_tunai = document.getElementById('nominal').value;    
             data.status = 'open';
             data.total_bon = data.total_harga - data.total_tunai;
         }
 
         if(data.total_tunai < data.total_harga && data.metode_bayar === 'tunai' || isNaN(data.total_tunai)) {
             return Swal.fire('Error', 'Nominal tunai kurang / tidak valid!', 'error');
+        }
+
+        if(data.metode_bayar === 'bon' && data.total_bon > limitBon) {
+            return Swal.fire({
+                    icon: 'error',
+                    title: 'Nominal BON Melebihi Batas',
+                    text: 'Nominal BON melebihi !' + limitBon.toLocaleString() + '. Silakan sesuaikan nominal tunai atau pilih metode tunai.',
+                }).then(() => {
+                    document.getElementById('nominal').value = data.total_harga - limitBon;
+                    document.getElementById('kalkulasi').innerText = formatRupiah(limitBon) + ' (Kurang)';
+                });
         }
 
         Swal.fire({

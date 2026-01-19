@@ -15,7 +15,8 @@ class KasirController extends Controller {
     public function index() {
         $barangs = Barang::where('stok', '>', 0)->get(); // Hanya ambil barang yang ada stoknya
         $members = Member::all(); // Untuk fitur pilih anggota
-        return view('admin.kasir', compact('barangs', 'members'));
+        $limitBon = 20000; // dummy limit harga barang yang bisa dibon
+        return view('admin.kasir', compact('barangs', 'members', 'limitBon'));
     }
 
     public function store(Request $request) {
