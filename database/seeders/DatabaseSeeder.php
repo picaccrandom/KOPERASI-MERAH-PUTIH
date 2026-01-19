@@ -2,11 +2,6 @@
 
 namespace Database\Seeders;
 
-<<<<<<< HEAD
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-=======
 use Psy\Util\Str;
 use App\Models\User;
 use App\Models\Barang;
@@ -14,7 +9,6 @@ use App\Models\Member;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
->>>>>>> main2
 
 class DatabaseSeeder extends Seeder
 {
@@ -25,13 +19,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-<<<<<<< HEAD
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-=======
         Member::factory(10)->create();
         Barang::factory(10)->create();
 
@@ -49,7 +36,6 @@ class DatabaseSeeder extends Seeder
             'name' => 'Hendra Test',
             'username' => 'hendra@example.com',
             'password' => Hash::make('password'),
->>>>>>> main2
         ]);
     }
 }

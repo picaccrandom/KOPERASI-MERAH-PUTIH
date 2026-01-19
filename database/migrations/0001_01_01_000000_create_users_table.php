@@ -5,39 +5,22 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
-<<<<<<< HEAD
-{
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-=======
     {
         /**
          * Run the migrations.
          */
         public function up(): void
->>>>>>> main2
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-<<<<<<< HEAD
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-=======
             $table->string('username')->unique(); // Ganti email menjadi username
             $table->string('password');           // Untuk menyimpan password terenkripsi
->>>>>>> main2
             $table->rememberToken();
             $table->timestamps();
         });
 
-<<<<<<< HEAD
-=======
         // Bagian password_reset_tokens dan sessions biarkan saja apa adanya
->>>>>>> main2
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
@@ -53,7 +36,6 @@ return new class extends Migration
             $table->integer('last_activity')->index();
         });
     }
-<<<<<<< HEAD
 
     /**
      * Reverse the migrations.
@@ -64,6 +46,4 @@ return new class extends Migration
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }
-=======
->>>>>>> main2
 };

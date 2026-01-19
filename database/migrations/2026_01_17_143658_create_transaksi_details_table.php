@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use League\CommonMark\Reference\Reference;
 
 return new class extends Migration
 {
@@ -13,7 +14,8 @@ return new class extends Migration
     {
         Schema::create('transaksi_details', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaksi_id')->constrained('transaksis');
+            $table->string('kode_transaksi');
+            $table->foreign('kode_transaksi')->references('kode_transaksi')->on('transaksis')->onDelete('cascade');
             $table->foreignId('barang_id')->constrained('barangs');
             $table->integer('qty');
             $table->decimal('harga_satuan', 15, 2);
