@@ -197,7 +197,7 @@
 
             <div class="flex justify-center items-center {{request()->routeIs('home', 'logout') ? 'hidden' : ''}} hidden [&>a:hover]:bg-sky-400/40 [&>a:hover]:backdrop-blur-2xl" id="simpan-pinjam-nav">
                 <span class="ml-2">|</span>
-                <a href="{{ route('simpanpinjam.index') }}" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-dashboard">
+                <a href="#" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-dashboard">
                     <i class="fas fa-chart-line mr-2"></i>
                     DASHBOARD
                 </a>
@@ -277,5 +277,7 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    @yield('scripts')
 </body>
 </html>

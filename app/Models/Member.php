@@ -10,4 +10,14 @@ class Member extends Model
     use HasFactory;
     // Ini agar Laravel mengizinkan kolom-kolom ini diisi secara massal
     protected $fillable = ['nik', 'nama_lengkap', 'nomor_hp', 'alamat'];
-}
+
+    public function pinjamans()
+    {
+        return $this->hasMany(Pinjaman::class);
+    }
+
+    public function kreditAnggota()
+    {
+        return $this->hasOne(KreditAnggota::class);
+    }
+};

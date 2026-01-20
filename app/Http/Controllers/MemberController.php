@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Member;
 use Illuminate\Http\Request;
+use App\Models\KreditAnggota;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; // WAJIB: Untuk menangani keamanan login
 
 class MemberController extends Controller
@@ -24,7 +26,13 @@ class MemberController extends Controller
             'nama_lengkap' => 'required',
         ]);
 
-        Member::create($request->all());
+        DB::transaction(function () use ($request) {
+            Member::create($request->all());
+            KreditAnggota::create([
+                'member_id' => Member::latest()->first()->id,
+                'limit' => 1000000,
+            ]);
+        });
         return redirect('/anggota')->with('success', 'Anggota berhasil didaftarkan!');
     }
 

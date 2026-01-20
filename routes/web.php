@@ -4,7 +4,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\MemberController;
-use App\Http\Controllers\SimpanPinjamController;
+use App\Http\Controllers\PinjamanController;
 
 // 1. Halaman Login
 Route::get('/login', function() { 
@@ -63,9 +63,14 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Modul Simpan Pinjam
-    Route::get('/simpanpinjam', [SimpanPinjamController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
-    Route::get('/pinjaman', [SimpanPinjamController::class, 'pinjamanIndex'])->name('pinjaman.index'); // Pinjaman
-    Route::get('/simpanan', [SimpanPinjamController::class, 'simpananIndex'])->name('simpanan.index'); // Simpanan
-    Route::get('/laporan', [SimpanPinjamController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
+    // Route::get('/simpanpinjam', [PinjamanController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
+    Route::get('/simpanpinjam', [PinjamanController::class, 'simpanpinjam'])->name('simpanpinjam.index'); // Simpan Pinjam  
+    Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('pinjaman.index'); // Pinjaman
+    Route::get('/pinjaman/create', [PinjamanController::class, 'create'])->name('pinjaman.create'); // Pinjaman
+    Route::get('/pinjaman/detail/{id}', [PinjamanController::class, 'detail'])->name('pinjaman.detail'); // Detail Pinjaman
+    Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran'); // Pinjaman
+    Route::post('/pinjaman/create', [PinjamanController::class, 'store'])->name('pinjaman.store'); // Pinjaman
+    Route::get('/simpanan', [PinjamanController::class, 'simpananIndex'])->name('simpanan.index'); // Simpanan
+    Route::get('/laporan', [PinjamanController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
 
 });
