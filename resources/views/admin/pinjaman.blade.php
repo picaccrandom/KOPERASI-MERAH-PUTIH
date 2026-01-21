@@ -1,546 +1,198 @@
-@extends('layouts.third')
+@extends('layouts.master')
 
 @section('title', 'Pinjaman - Koperasi Merah Putih')
 
 @section('content')
-<!-- Header Card -->
-<div class="mb-6 bg-white rounded-lg border border-gray-200">
-    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-        <div>
-            <h2 class="text-xl font-bold text-gray-800">Data Pinjaman</h2>
-            <p class="text-sm text-gray-600">Kelola data pinjaman anggota</p>
-        </div>
-        <div class="flex items-center space-x-3">
-            <div class="relative">
-                <input type="text" placeholder="Search..." 
-                       class="pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
-                <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+
+    <div class="mx-10 px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
+        <!-- Header Card -->
+        <div class="mb-2">
+            <div class=" px-6 py-2  flex justify-between items-center">
+                <div class="border-l-8 border-l-red-600 pl-4">
+                    <div class=" text-white text-4xl text-shadow-lg uppercase font-extrabold tracking-wider">Data
+                        Pinjaman</div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <input type="text" placeholder="Search nama, status..." id="search-pinjaman"
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                    </div>
+                    <a type="a" href="{{ route('pinjaman.create') }}"
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center  text-decoration-none shadow-md text-lg uppercase font-semibold">
+                        <i class="fas fa-plus mr-2"></i>
+                        Tambah Pinjaman
+                    </a>
+                </div>
             </div>
-            <button onclick="showAddPinjamanModal()" 
-                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center text-sm">
-                <i class="fas fa-plus mr-2"></i>
-                Tambah Pinjaman
-            </button>
         </div>
-    </div>
-</div>
+        <hr class="m-0 p-0 mb-4">
+        <p class="text-slate-600 pl-4 ">Kelola Data Peminjaman dengan Teliti</p>
+        <!-- Data Table -->
+        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
 
-<!-- Data Table -->
-<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-        <div class="text-sm text-gray-600">
-            Show 
-            <select class="ml-1 border border-gray-300 rounded px-2 py-1 text-sm">
-                <option>10</option>
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
-            </select>
-            entries
-        </div>
-    </div>
-    
-    <div class="overflow-x-auto">
-        <table class="table-gudang">
-            <thead>
-                <tr>
-                    <th class="text-left">NO.</th>
-                    <th class="text-left">NAMA ANGGOTA</th>
-                    <th class="text-left">TANGGAL</th>
-                    <th class="text-left">TOTAL PINJAMAN</th>
-                    <th class="text-left">JENIS PINJAMAN</th>
-                    <th class="text-left">LAMA BAYAR</th>
-                    <th class="text-left">JATUH TEMPO</th>
-                    <th class="text-left">STATUS</th>
-                    <th class="text-left">ACTION</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr class="hover:bg-gray-50">
-                    <td class="font-medium">1</td>
-                    <td>
-                        <div class="flex items-center">
-                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                                <span class="text-blue-600 font-bold text-sm">P</span>
-                            </div>
-                            <div>
-                                <div class="font-medium text-gray-900">Putra Pratama</div>
-                                <div class="text-xs text-gray-500">085748278940</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>24 September 2024</td>
-                    <td class="font-bold text-red-600">Rp 1.000.000</td>
-                    <td>
-                        <span class="px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800">
-                            Jangka Panjang
-                        </span>
-                    </td>
-                    <td>24x</td>
-                    <td>-</td>
-                    <td>
-                        <span class="status-badge status-aktif">AKTIF</span>
-                    </td>
-                    <td>
-                        <div class="flex space-x-2">
-                            <button onclick="viewDetail(1)" class="text-blue-600 hover:text-blue-900" title="Detail">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button onclick="editPinjaman(1)" class="text-yellow-600 hover:text-yellow-900" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deletePinjaman(1)" class="text-red-600 hover:text-red-900" title="Hapus">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-                
-                <tr class="hover:bg-gray-50">
-                    <td class="font-medium">2</td>
-                    <td>
-                        <div class="flex items-center">
-                            <div class="h-8 w-8 rounded-full bg-pink-100 flex items-center justify-center mr-3">
-                                <span class="text-pink-600 font-bold text-sm">S</span>
-                            </div>
-                            <div>
-                                <div class="font-medium text-gray-900">Sindi Nur Amelia</div>
-                                <div class="text-xs text-gray-500">081234567890</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>23 September 2024</td>
-                    <td class="font-bold text-red-600">Rp 100.000</td>
-                    <td>
-                        <span class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800">
-                            Jangka Pendek
-                        </span>
-                    </td>
-                    <td>10x</td>
-                    <td>-</td>
-                    <td>
-                        <span class="status-badge status-selesai">SELESAI/LUNAS</span>
-                    </td>
-                    <td>
-                        <div class="flex space-x-2">
-                            <button onclick="viewDetail(2)" class="text-blue-600 hover:text-blue-900" title="Detail">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button onclick="editPinjaman(2)" class="text-yellow-600 hover:text-yellow-900" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="deletePinjaman(2)" class="text-red-600 hover:text-red-900" title="Hapus">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    
-    <div class="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
-        <div class="text-sm text-gray-600">
-            Showing 1 to 2 of 2 entries
-        </div>
-        <div class="flex items-center space-x-2">
-            <button class="px-3 py-1 border border-gray-300 rounded text-sm disabled:opacity-50" disabled>
-                Previous
-            </button>
-            <button class="px-3 py-1 bg-red-600 text-white rounded text-sm">
-                1
-            </button>
-            <button class="px-3 py-1 border border-gray-300 rounded text-sm">
-                Next
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Summary Cards -->
-<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 hidden" id="detailCards">
-    <!-- Cards will be shown when viewing details -->
-</div>
-
-<!-- Modals -->
-<div id="addPinjamanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-lg bg-white">
-        <!-- Modal content will be loaded by JavaScript -->
-    </div>
-</div>
-
-<div id="detailPinjamanModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-4/5 lg:w-3/4 shadow-lg rounded-lg bg-white">
-        <!-- Modal content will be loaded by JavaScript -->
-    </div>
-</div>
-
-<!-- Template for Detail Cards -->
-<template id="detailCardTemplate">
-    <div class="bg-white rounded-lg border border-gray-200 p-4">
-        <div class="flex items-start justify-between">
-            <div>
-                <p class="text-sm text-gray-500">#TITLE#</p>
-                <p class="text-2xl font-bold #COLOR#">#VALUE#</p>
+            <div class="overflow-x-auto flex p-10 px-10">
+                <table class="text-center min-w-full overflow-hidden space-y-4">
+                    <thead class="bg-orange-300">
+                        <tr
+                            class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                            <th>NO.</th>
+                            <th>NAMA ANGGOTA</th>
+                            <th>TANGGAL PINJAM</th>
+                            <th>TOTAL PINJAMAN</th>
+                            <th>JENIS PINJAMAN</th>
+                            <th>LAMA BAYAR</th>
+                            <th>JATUH TEMPO</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($peminjamans as $peminjaman)
+                            <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50">
+                                <td class="font-medium">{{ $loop->iteration }}</td>
+                                <td>
+                                    <div class="flex items-center">
+                                        <div>
+                                            <div class="font-medium text-gray-900">{{ $peminjaman->member->nama_lengkap }}
+                                            </div>
+                                            <div class="text-xs text-gray-500">{{ $peminjaman->member->no_hp }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal)->format('d F Y') }}</td>
+                                <td class="font-bold text-red-600 text-left text-sm">Rp.
+                                    {{ number_format($peminjaman->total_pinjaman, 0, ',', '.') }}</td>
+                                <td>
+                                    @if ($peminjaman->jenis == 'uang')
+                                        <span
+                                            class="px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800 uppercase">{{ ucfirst($peminjaman->jenis) }}</span>
+                                    @else
+                                        <span
+                                            class="px-2 py-1 text-xs font-semibold rounded bg-green-100 text-green-800 uppercase">{{ ucfirst($peminjaman->jenis) }}</span>
+                                    @endif
+                                </td>
+                                <td>{{ $peminjaman->tenor }} Bulan</td>
+                                <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo)->format('d F Y') }}</td>
+                                <td>
+                                    @if ($peminjaman->status == 'aktif')
+                                        <span
+                                            class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">{{ $peminjaman->status }}</span>
+                                    @elseif ($peminjaman->status == 'lunas')
+                                        <span
+                                            class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">{{ $peminjaman->status }}</span>
+                                    @else
+                                        <span
+                                            class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">{{ $peminjaman->status }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ route('pinjaman.detail', $peminjaman->id) }}"
+                                            class="text-blue-600 hover:text-blue-900" title="Detail">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="" class="text-yellow-600 hover:text-yellow-900" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                            <form action="{{ route('pinjaman.destroy', $peminjaman->id) }}" 
+                                                onclick="confirmDelete(event, this)" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            <i class="fas #ICON# text-2xl text-gray-300"></i>
+
         </div>
+
     </div>
-</template>
+
 @endsection
 
+
 @section('scripts')
-<script>
-// Pinjaman data
-const pinjamanData = [
-    {
-        id: 1,
-        nama: "Putra Pratama",
-        telepon: "085748278940",
-        tanggal: "24 September 2024",
-        total_pinjaman: 1000000,
-        jenis_pinjaman: "Jangka Panjang",
-        lama_bayar: "24x",
-        jatuh_tempo: "-",
-        status: "AKTIF",
-        angsuran_per_bulan: 46500,
-        total_bunga: 116000,
-        total_pembayaran: 1116000,
-        catatan: "",
-        jenis_kelamin: "Laki-Laki",
-        ttl: "Sidoarjo, 24-09-2024",
-        alamat: "Waru",
-        angsuran: [
-            { ke: 1, batas_bayar: "24 Oktober 2024", nominal: 46500, tanggal_bayar: "", status: "BELUM LUNAS" },
-            { ke: 2, batas_bayar: "24 November 2024", nominal: 46500, tanggal_bayar: "", status: "BELUM LUNAS" },
-            { ke: 3, batas_bayar: "24 Desember 2024", nominal: 46500, tanggal_bayar: "", status: "BELUM LUNAS" }
-        ]
-    },
-    {
-        id: 2,
-        nama: "Sindi Nur Amelia",
-        telepon: "081234567890",
-        tanggal: "23 September 2024",
-        total_pinjaman: 100000,
-        jenis_pinjaman: "Jangka Pendek",
-        lama_bayar: "10x",
-        jatuh_tempo: "-",
-        status: "SELESAI/LUNAS",
-        angsuran_per_bulan: 10500,
-        total_bunga: 5000,
-        total_pembayaran: 105000,
-        catatan: "Tes edit catatan",
-        jenis_kelamin: "Perempuan",
-        ttl: "Surabaya, 23-09-2024",
-        alamat: "Jl. Melati No. 5",
-        angsuran: [
-            { ke: 1, batas_bayar: "23 Oktober 2024", nominal: 10500, tanggal_bayar: "20 Oktober 2024", status: "LUNAS" },
-            { ke: 2, batas_bayar: "23 November 2024", nominal: 10500, tanggal_bayar: "22 November 2024", status: "LUNAS" }
-        ]
-    }
-];
 
-// Show add pinjaman modal
-function showAddPinjamanModal() {
-    const modalContent = `
-        <div class="relative bg-white rounded-lg">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-bold text-gray-800">Tambah Pinjaman Baru</h3>
-                <button onclick="closeModal('addPinjamanModal')" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <div class="p-6">
-                <form onsubmit="savePinjaman(event)">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Anggota *</label>
-                            <select class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm" required>
-                                <option value="">Pilih Anggota</option>
-                                <option value="1">Putra Pratama</option>
-                                <option value="2">Sindi Nur Amelia</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Pinjaman *</label>
-                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm" placeholder="1000000" required>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Pinjaman *</label>
-                            <select class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm" required>
-                                <option value="pendek">Jangka Pendek</option>
-                                <option value="panjang">Jangka Panjang</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Lama (Bulan) *</label>
-                            <input type="number" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm" placeholder="12" required>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Bunga per Tahun (%) *</label>
-                        <input type="number" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm" placeholder="12" required>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Catatan</label>
-                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm" rows="2" placeholder="Tambahkan catatan jika perlu"></textarea>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeModal('addPinjamanModal')" class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 text-sm">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm">
-                            Simpan
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('addPinjamanModal').querySelector('.relative').innerHTML = modalContent;
-    document.getElementById('addPinjamanModal').classList.remove('hidden');
-}
+    <script>
+        document.getElementById('search-pinjaman').addEventListener('input', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('table tbody tr    ');
 
-// View detail pinjaman
-function viewDetail(id) {
-    const data = pinjamanData.find(p => p.id === id);
-    if (!data) return;
-    
-    // Show detail cards
-    const detailCards = document.getElementById('detailCards');
-    const template = document.getElementById('detailCardTemplate');
-    
-    detailCards.innerHTML = '';
-    
-    // Card 1: Bayar per Angsuran
-    let card1 = template.content.cloneNode(true);
-    let html1 = card1.querySelector('div').outerHTML;
-    html1 = html1.replace('#TITLE#', 'Bayar per Angsuran')
-                 .replace('#VALUE#', formatCurrency(data.angsuran_per_bulan))
-                 .replace('#COLOR#', 'text-red-600')
-                 .replace('#ICON#', 'fa-money-bill-wave');
-    detailCards.innerHTML += html1;
-    
-    // Card 2: Total Bunga
-    let card2 = template.content.cloneNode(true);
-    let html2 = card2.querySelector('div').outerHTML;
-    html2 = html2.replace('#TITLE#', 'Total Bunga')
-                 .replace('#VALUE#', formatCurrency(data.total_bunga))
-                 .replace('#COLOR#', 'text-yellow-600')
-                 .replace('#ICON#', 'fa-percentage');
-    detailCards.innerHTML += html2;
-    
-    // Card 3: Total Pembayaran
-    let card3 = template.content.cloneNode(true);
-    let html3 = card3.querySelector('div').outerHTML;
-    html3 = html3.replace('#TITLE#', 'Total Pembayaran')
-                 .replace('#VALUE#', formatCurrency(data.total_pembayaran))
-                 .replace('#COLOR#', 'text-green-600')
-                 .replace('#ICON#', 'fa-calculator');
-    detailCards.innerHTML += html3;
-    
-    detailCards.classList.remove('hidden');
-    
-    // Show catatan jika ada
-    if (data.catatan) {
-        const catatanCard = `
-            <div class="col-span-1 md:col-span-3 bg-white rounded-lg border border-gray-200 p-4 mt-4">
-                <p class="text-sm text-gray-500 mb-2">Catatan:</p>
-                <p class="text-gray-700">${data.catatan}</p>
-            </div>
-        `;
-        detailCards.innerHTML += catatanCard;
-    }
-    
-    // Show detail modal
-    const modalContent = `
-        <div class="relative bg-white rounded-lg">
-            <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-bold text-gray-800">Detail Pinjaman & Angsuran : ${data.nama}</h3>
-                <button onclick="closeModal('detailPinjamanModal')" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            
-            <div class="p-6">
-                <!-- Info Anggota -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div class="space-y-3">
-                        <div>
-                            <p class="text-sm text-gray-500">NAMA ANGGOTA</p>
-                            <p class="text-lg font-bold text-gray-800">${data.nama}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">JENIS KELAMIN</p>
-                            <p class="text-lg text-gray-800">${data.jenis_kelamin}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">TEMPAT, TANGGAL LAHIR</p>
-                            <p class="text-lg text-gray-800">${data.ttl}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">NO. TELP/WA</p>
-                            <p class="text-lg text-gray-800">${data.telepon} / WhatsApp</p>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-3">
-                        <div>
-                            <p class="text-sm text-gray-500">TOTAL PINJAMAN</p>
-                            <p class="text-lg font-bold text-red-600">${formatCurrency(data.total_pinjaman)}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">JENIS PINJAMAN</p>
-                            <p class="text-lg text-gray-800">${data.jenis_pinjaman} (${data.lama_bayar})</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-500">TOTAL DIBAYAR</p>
-                            <p class="text-lg font-bold text-green-600">Rp 0</p>
-                        </div>
-                        <div class="flex space-x-4">
-                            <div>
-                                <p class="text-sm text-gray-500">JATUH TEMPO</p>
-                                <p class="text-lg text-gray-800">-</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-500">STATUS PINJAMAN</p>
-                                <span class="status-badge ${data.status === 'AKTIF' ? 'status-aktif' : 'status-selesai'}">
-                                    ${data.status === 'AKTIF' ? 'AKTIF/BELUM LUNAS' : data.status}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Alamat -->
-                <div class="mb-6 p-4 bg-gray-50 rounded">
-                    <p class="text-sm text-gray-500 mb-1">ALAMAT</p>
-                    <p class="text-gray-800">${data.alamat}</p>
-                </div>
-                
-                <!-- Angsuran Table -->
-                <div class="mb-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-lg font-bold text-gray-800">Rincian Angsuran</h4>
-                        <div class="flex items-center space-x-3">
-                            <select class="px-3 py-1 border border-gray-300 rounded text-sm">
-                                <option>Show: 100 entries</option>
-                            </select>
-                            <input type="text" placeholder="Search..." class="px-3 py-1 border border-gray-300 rounded text-sm">
-                        </div>
-                    </div>
-                    
-                    <div class="overflow-x-auto">
-                        <table class="table-gudang">
-                            <thead>
-                                <tr>
-                                    <th>ANGSURAN KE</th>
-                                    <th>BATAS BAYAR</th>
-                                    <th>NOMINAL HARUS DIBAYAR</th>
-                                    <th>TANGGAL BAYAR</th>
-                                    <th>STATUS BAYAR</th>
-                                    <th>TRANSAKSI</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${data.angsuran.map(item => {
-                                    const statusClass = item.status === 'LUNAS' ? 'status-aktif' : 'status-belum';
-                                    return `
-                                        <tr>
-                                            <td class="text-center">${item.ke}</td>
-                                            <td>${item.batas_bayar}</td>
-                                            <td class="font-bold text-red-600">${formatCurrency(item.nominal)}</td>
-                                            <td>${item.tanggal_bayar || '-'}</td>
-                                            <td>
-                                                <span class="status-badge ${statusClass}">
-                                                    ${item.status}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="flex space-x-2">
-                                                    ${item.status === 'BELUM LUNAS' ? `
-                                                    <button onclick="bayarAngsuran(${data.id}, ${item.ke})" class="text-green-600 hover:text-green-900" title="Bayar">
-                                                        <i class="fas fa-money-bill-wave"></i>
-                                                    </button>
-                                                    ` : ''}
-                                                    <button class="text-blue-600 hover:text-blue-900" title="Cetak">
-                                                        <i class="fas fa-print"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="flex justify-end">
-                    <button onclick="closeModal('detailPinjamanModal')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded text-sm">
-                        Tutup
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    document.getElementById('detailPinjamanModal').querySelector('.relative').innerHTML = modalContent;
-    document.getElementById('detailPinjamanModal').classList.remove('hidden');
-}
+            rows.forEach(function(row) {
+                let namaAnggota = row.cells[1].textContent.toLowerCase();
+                let jatuhtempo = row.cells[2].textContent.toLowerCase();
+                let status = row.cells[7].textContent.toLowerCase();
+                let lamaBayar = row.cells[5].textContent.toLowerCase();
+                if (namaAnggota.indexOf(filter) > -1 || jatuhtempo.indexOf(filter) > -1 || status.indexOf(
+                        filter) > -1 || lamaBayar.indexOf(filter) > -1) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
 
-// Edit pinjaman
-function editPinjaman(id) {
-    showAlert('Fitur edit dalam pengembangan', 'info');
-}
+        @if (session('success'))
+            {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sukses',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirma: false
+                });
+            }
+        @elseif (session('error')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: '{{ session('error') }}',
+                    timer: 3000,
+                    showConfirma: true
+                });
+            }
+        @endif
 
-// Delete pinjaman
-function deletePinjaman(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus pinjaman ini?')) {
-        showAlert('Pinjaman berhasil dihapus', 'success');
-    }
-}
+        function confirmDelete(event, form) {
+            event.preventDefault(); // Prevent form submission
 
-// Bayar angsuran
-function bayarAngsuran(pinjamanId, angsuranKe) {
-    if (confirm(`Bayar angsuran ke-${angsuranKe}?`)) {
-        showAlert(`Angsuran ke-${angsuranKe} berhasil dibayar`, 'success');
-    }
-}
-
-// Save pinjaman
-function savePinjaman(event) {
-    event.preventDefault();
-    closeModal('addPinjamanModal');
-    showAlert('Pinjaman berhasil ditambahkan', 'success');
-}
-
-// Modal functions
-function closeModal(modalId) {
-    document.getElementById(modalId).classList.add('hidden');
-}
-
-// Close modal when clicking outside
-document.getElementById('addPinjamanModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeModal('addPinjamanModal');
-    }
-});
-
-document.getElementById('detailPinjamanModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeModal('detailPinjamanModal');
-    }
-});
-</script>
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data pinjaman akan dihapus secara permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form
+                    form.submit();
+                }
+            });
+            // }).then(response => {
+            //     if (response.ok) {
+            //         Swal.fire(
+            //             'Dihapus!',
+            //             'Data pinjaman telah dihapus.',
+            //             'success'
+            //         )
+            //     } else {
+            //         Swal.fire(
+            //             'Gagal!',
+            //             'Terjadi kesalahan saat menghapus data pinjaman.',
+            //             'error'
+            //         );
+            //     }
+            // });
+        }
+    </script>
 @endsection

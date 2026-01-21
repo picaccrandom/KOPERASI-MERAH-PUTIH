@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Psy\Util\Str;
 use App\Models\User;
 use App\Models\Barang;
+use App\Models\KreditAnggota;
 use App\Models\Member;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -17,10 +18,12 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      */
+    
     public function run(): void
     {
         Member::factory(10)->create();
         Barang::factory(10)->create();
+        KreditAnggota::factory(10)->create();
 
         User::factory()->create([
             'name' => 'Yoga Test',

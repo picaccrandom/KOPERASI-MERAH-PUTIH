@@ -60,7 +60,7 @@ class KasirController extends Controller {
         // });
 
         // dd($request->all());
-        try {
+        // try {
             DB::transaction(function () use ($request) {
 
                 // Simpan Header Penjualan
@@ -76,7 +76,7 @@ class KasirController extends Controller {
                     'total_tunai' => $request->total_tunai,
                     'total_bon' => $request->total_bon,
                 ]);
-
+    
                 // Loop barang yang dibeli
                 foreach ($request->cart as $item) {
                     TransaksiDetail::create([
@@ -95,10 +95,11 @@ class KasirController extends Controller {
             });
 
             return response()->json(['success' => true, 'message' => 'Transaksi Berhasil!']);
-
-        } catch (\Exception $e) {
-            \Log::error($e);
-            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        }
-    }
+    
+        // } catch (\Exception $e) {
+        //     \Log::error($e);
+        //     return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        // }
+        // };
+    }   
 }

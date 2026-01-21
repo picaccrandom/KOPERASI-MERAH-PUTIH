@@ -179,7 +179,7 @@
         </div>
 
         <div class="header-right">
-            <a href="/dashboard" class="btn-home">
+            <a href="/dashboard" class="btn-home" id="home">
                 <i class="fas fa-home"></i>
             </a>
         </div>
@@ -195,11 +195,33 @@
                 </small>
             </div>
 
+            <div class="flex justify-center items-center {{request()->routeIs('home', 'logout') ? 'hidden' : ''}} hidden [&>a:hover]:bg-sky-400/40 [&>a:hover]:backdrop-blur-2xl" id="simpan-pinjam-nav">
+                <span class="ml-2">|</span>
+                <a href="#" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-dashboard">
+                    <i class="fas fa-chart-line mr-2"></i>
+                    DASHBOARD
+                </a>
+                <a href="{{ route('pinjaman.index') }}" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-pinjaman">
+                    <i class="fas fa-hand-holding-usd mr-2"></i>
+                    PINJAMAN
+                </a>
+                <a href="{{ route('simpanan.index') }}" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-simpanan">
+                    <i class="fas fa-piggy-bank mr-2"></i>
+                    SIMPANAN
+                </a>
+                <a href="{{ route('laporan.index') }}" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-laporan">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    LAPORAN
+                </a>
+            </div>
+
+
             <div id="admin-nav-menu" class="d-none">
                 <div class="dropdown">
                     <a class="nav-link-admin dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                         Otorisasi User
                     </a>
+
                     <ul class="dropdown-menu shadow">
                         <li><a class="dropdown-item" href="/admin/master-user">Master User</a></li>
                         <li><a class="dropdown-item" href="/admin/ganti-password">Ganti Password</a></li>
@@ -214,7 +236,7 @@
             
             <div style="width: 1px; height: 18px; background: rgba(0, 0, 0, 0.2); margin: 0 15px;"></div>
             
-            <a href="/logout">
+            <a href="/logout" id="logout">
                 <button class="btn-logout">LOGOUT</button>
             </a>
         </div>
@@ -223,6 +245,10 @@
     <div class="container-fluid py-4">
         @yield('content')
     </div>
+
+    <!-- Modals Container -->
+    <div id="modals-container"></div>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -251,5 +277,7 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    @yield('scripts')
 </body>
 </html>
