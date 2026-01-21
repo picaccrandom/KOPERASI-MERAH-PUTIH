@@ -137,7 +137,7 @@
     let keranjang = [];
     let member = @json($members);
     let barang = @json($barangs);
-    const limitBon = {{ $limitBon }};
+    const limitBon =  @json($limitBon) ;
 
     // Toggle muncul Form NIK Member
     document.getElementById('kategori_yes').addEventListener('change', function() {
@@ -162,7 +162,7 @@
             document.getElementById('nominal-label').textContent = 'Split Bill (Pembayaran Tunai)';
             document.getElementById('info-bill').classList.remove('hidden');
             document.getElementById('info-ket-bill').classList.remove('hidden');
-            document.getElementById('info-ket-bill').innerText = '*Maksimal Rp ' + limitBon.toLocaleString() + ' untuk BON Anggota';
+            document.getElementById('info-ket-bill').innerText = '*Maksimal Rp ' + limitBon + ' untuk BON Anggota';
             document.getElementById('nominal').classList.remove('text-greyed-600');
         }
     });

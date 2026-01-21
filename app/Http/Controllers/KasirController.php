@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Barang;
+use App\Models\KreditAnggota;
 use App\Models\Member;
 use App\Models\Penjualan;
 use App\Models\PenjualanDetail;
@@ -15,7 +16,7 @@ class KasirController extends Controller {
     public function index() {
         $barangs = Barang::where('stok', '>', 0)->get(); // Hanya ambil barang yang ada stoknya
         $members = Member::all(); // Untuk fitur pilih anggota
-        $limitBon = 20000; // dummy limit harga barang yang bisa dibon
+        $limitBon = KreditAnggota::all(); // dummy limit harga barang yang bisa dibon
         return view('admin.kasir', compact('barangs', 'members', 'limitBon'));
     }
 
