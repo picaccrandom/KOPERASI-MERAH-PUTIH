@@ -9,25 +9,25 @@ class SimpanPinjamController extends Controller
     // Kembalikan halaman utama
     public function index()
     {
-        return view('admin.simpanpinjam');
+        return view('simpanpinjam');
     }
 
     //kembalikan halaman pinjaman
     public function pinjamanIndex()
     {
-        return view('admin.pinjaman');
+        return view('pinjaman');
     }
 
     //kembalikan halaman simpanan
     public function simpananIndex()
     {
-        return view('admin.simpanpinjam');
+        return view('simpanpinjam');
     }
 
     //kembalikan halaman create pinjaman
     public function createPinjaman()
     {
-        return view('admin.pinjaman');
+        return view('pinjaman');
     }
 
 

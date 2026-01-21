@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Member;
 use App\Models\Simpanan;
+use App\Models\SimpananDetail;
 use Illuminate\Http\Request;
 use App\Models\SimpananTransaksi;
+use App\Models\Transaksi_SP;
 use Illuminate\Support\Facades\DB;
 
 class SimpananController extends Controller
@@ -15,8 +17,8 @@ class SimpananController extends Controller
      */
     public function index()
     {
-        $simpanans = Simpanan::with('member', 'transaksi')->orderBy('created_at', 'desc')->get();
-        return view('admin.simpanan', compact('simpanans'));
+        $simpanans = Transaksi_SP::with('member', 'simpananDetails')->where('COA', 'Simpan')->orderBy('created_at', 'desc')->get();
+        return view('simpanan', compact('simpanans'));
     }
 
     /**
@@ -25,7 +27,7 @@ class SimpananController extends Controller
     public function create()
     {
         $members = Member::all();
-        $SimpanansPokok = SimpananTransaksi::where('jenis', 'pokok')->with('simpanan')->get();
+        $SimpanansPokok = SimpananDetail::where('jenis', 'pokok')->with('transaksiSP')->get();
         return view('simpanan-create', compact('members', 'SimpanansPokok'));
     }
 
@@ -44,25 +46,46 @@ class SimpananController extends Controller
 
         DB::transaction(function () use ($request) {
 
-            $transaksi = Simpanan::create([
-                'kode_simpanan' => 'SPS'. date('YmdHis'),
-                'member_id' => $request->member_id,
-                'status' => 'aktif',
-                ]);
+            // $transaksi = Simpanan::create([
+            //     'kode_simpanan' => 'SPS'. date('YmdHis'),
+            //     'member_id' => $request->member_id,
+            //     'status' => 'aktif',
+            //     ]);
 
-            SimpananTransaksi::create([
-                'kode_simpanan' => $transaksi->kode_simpanan,
+            // SimpananTransaksi::create([
+            //     'kode_simpanan' => $transaksi->kode_simpanan,
+            //     'tanggal' => now(),
+            //     'jenis' => $request->jenis,
+            //     'tipe' => 'kredit',
+            //     'nominal' => (float)$request->nominal,
+            //     'catatan' => $request->catatan,
+            // ]);
+
+            // if ($request->jenis == 'Sukarela') {
+            //     $saldoBaru = $transaksi->saldo + (float)$request->nominal;
+            //     $transaksi->increment('saldo', $saldoBaru);
+            // }
+
+
+            $transaksi = Transaksi_SP::create([
+                $namaMember = Member::where('id', $request->member_id)->first(),
+                'no_transaksi_sp' => 'SP-S-'. date('YmdHis'),
                 'tanggal' => now(),
-                'jenis' => $request->jenis,
-                'tipe' => 'kredit',
-                'nominal' => (float)$request->nominal,
-                'catatan' => $request->catatan,
+                'member_id' => $request->member_id,
+                'nama' => $namaMember->nama_lengkap,
+                'COA' => 'Simpan',
+                'Debit/Credit' => 'Debit',
+                'Nominal' => (float)$request->nominal,
+                'Keterangan' => 'Simpanan anggota :'.$request->catatan,
             ]);
 
-            if ($request->jenis == 'Sukarela') {
-                $saldoBaru = $transaksi->saldo + (float)$request->nominal;
-                $transaksi->increment('saldo', $saldoBaru);
-            }
+            SimpananDetail::create([
+                'no_transaksi_sp' => $transaksi->no_transaksi_sp,
+                'tanggal' => now(),
+                'saldo' => (float)$request->nominal,
+                'jenis' => $request->jenis,
+                'status' => 'aktif',
+            ]);
         });
 
         return redirect()->route('simpanan.index')->with('success', 'Simpanan berhasil ditambahkan.');

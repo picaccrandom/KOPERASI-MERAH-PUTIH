@@ -59,18 +59,18 @@
                                 </div>
                             </td>
                             <td>
-                                @if ($simpanan->transaksi->first()->jenis == 'wajib')
+                                @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
                                     <span class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
-                                @elseif ($simpanan->transaksi->first()->jenis == 'pokok')
+                                @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
                                     <span class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
                                 @else
                                     <span class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
                                 @endif
-                                            {{ $simpanan->transaksi->first()->jenis }}
+                                            {{ $simpanan->simpananDetails->first()->jenis }}
                                 </span>
                             </td>
-                            <td>{{ Carbon\Carbon::parse($simpanan->transaksi->first()->tanggal)->format('d F Y') }}</td>
-                            <td class="font-bold text-red-600">Rp {{ number_format($simpanan->transaksi->sum('nominal'), 0, ',', '.') }}</td>
+                            <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}</td>
+                            <td class="font-bold text-red-600">Rp {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
                             <td>
                                 <div class="flex justify-center items-center gap-3">
                                     <button onclick="detailSimpanan(1)" class="text-blue-600 hover:text-blue-900"

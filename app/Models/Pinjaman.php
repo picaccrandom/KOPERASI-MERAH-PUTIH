@@ -13,17 +13,15 @@ class Pinjaman extends Model
     protected $table = 'pinjaman';
 
     protected $fillable = [
-        'user_id',
         'kode_pinjaman',
         'member_id',
-        'jenis',
+        'user_id',
+        'jumlah_pinjaman',
+        'tenor',
+        'bunga',
+        'denda',
         'total_pinjaman',
         'tanggal_pinjaman',
-        'tanggal_jatuh_tempo',
-        'bunga',
-        'tenor',
-        'jumlah_pinjaman',
-        'catatan',
         'status',
     ];
 

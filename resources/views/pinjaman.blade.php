@@ -3,7 +3,9 @@
 @section('title', 'Pinjaman - Koperasi Merah Putih')
 
 @section('content')
-
+    {{-- @php
+        dd($peminjamans)
+    @endphp --}}
     <div class="mx-10 px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
         <div class="mb-2">
@@ -54,9 +56,9 @@
                                 <td>
                                     <div class="flex items-center">
                                         <div>
-                                            <div class="font-medium text-gray-900">{{ $peminjaman->member->nama_lengkap }}
+                                            <div class="font-medium text-gray-900">{{ $peminjaman->nama_lengkap }}
                                             </div>
-                                            <div class="text-xs text-gray-500">{{ $peminjaman->member->no_hp }}</div>
+                                            <div class="text-xs text-gray-500">{{ $peminjaman->no_hp }}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -88,7 +90,7 @@
                                 </td>
                                 <td>
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('pinjaman.detail', $peminjaman->id) }}"
+                                        <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}"
                                             class="text-blue-600 hover:text-blue-900" title="Detail">
                                             <i class="fas fa-eye"></i>
                                         </a>
