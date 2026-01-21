@@ -5,6 +5,7 @@ use App\Http\Controllers\KasirController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PinjamanController;
+use App\Http\Controllers\SimpananController;
 
 // 1. Halaman Login
 Route::get('/login', function() { 
@@ -65,12 +66,20 @@ Route::middleware(['auth'])->group(function () {
     // Modul Simpan Pinjam
     // Route::get('/simpanpinjam', [PinjamanController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
     Route::get('/simpanpinjam', [PinjamanController::class, 'simpanpinjam'])->name('simpanpinjam.index'); // Simpan Pinjam  
+    
+    // Pinjaman Routes
     Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('pinjaman.index'); // Pinjaman
     Route::get('/pinjaman/create', [PinjamanController::class, 'create'])->name('pinjaman.create'); // Pinjaman
+    Route::post('/pinjaman/create', [PinjamanController::class, 'store'])->name('pinjaman.store'); // Pinjaman
     Route::get('/pinjaman/detail/{id}', [PinjamanController::class, 'detail'])->name('pinjaman.detail'); // Detail Pinjaman
     Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran'); // Pinjaman
-    Route::post('/pinjaman/create', [PinjamanController::class, 'store'])->name('pinjaman.store'); // Pinjaman
-    Route::get('/simpanan', [PinjamanController::class, 'simpananIndex'])->name('simpanan.index'); // Simpanan
+    Route::delete('/pinjaman/{id}', [PinjamanController::class, 'destroy'])->name('pinjaman.destroy');
+        
+    
+    // Simpanan Routes
+    Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index'); // Simpanan
+    Route::get('/simpanan/create', [SimpananController::class, 'create'])->name('simpanan.create'); // Simpanan
+    Route::post('/simpanan/create', [SimpananController::class, 'store'])->name('simpanan.store'); // Simpanan
     Route::get('/laporan', [PinjamanController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
 
 });

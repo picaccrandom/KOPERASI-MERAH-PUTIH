@@ -8,7 +8,7 @@ use App\Models\Pinjaman;
 use Illuminate\Http\Request;
 use App\Models\KreditAnggota;
 use App\Models\AngsuranPeminjaman;
-
+use Illuminate\Container\Attributes\Log;
 use Illuminate\Support\Facades\DB;
 use function Symfony\Component\Clock\now;
 
@@ -79,7 +79,7 @@ class PinjamanController extends Controller
                 'tanggal_jatuh_tempo' => Carbon::now()->addMonths(floatval($request->tenor)),
                 'jenis' => $request->jenis,
                 'bunga' => $request->bunga,
-                'jumlah_pinjaman' => $request->jumlah_pinjaman,
+                'jumlah_pinjaman' => (float)$request->jumlah_pinjaman,
                 'total_pinjaman' => $totalPinjam,
                 'tenor' => $request->tenor,
                 'status' => 'aktif',
@@ -113,16 +113,28 @@ class PinjamanController extends Controller
     public function bayarAngsuran($memberId, $id_angsuran) {
         DB::transaction(function () use ($id_angsuran, $memberId) {
             $angsuran = AngsuranPeminjaman::findOrFail($id_angsuran);
+            $tanggal_bayar = Carbon::parse(now());
+            $durasiDenda = max(0,Carbon::parse($angsuran->batas_bayar)->diffInDays($tanggal_bayar, false));
+            if($durasiDenda > 0) {
+                $denda = 5000 * $durasiDenda;
+                $angsuran->jumlah_angsuran += $denda;
+            }else {
+                $denda = 0;
+            }
+            
             $angsuran->update([
                 'tanggal_bayar' => now(),
-                'status' => 'lunas'
+                'status' => 'lunas',
+                'jumlah_bayar' => $angsuran->jumlah_angsuran,
+                'denda' => $denda
             ]);
 
-            // if($angsuran->pinjaman->angsuranPeminjamans()->where('status', 'belum')->count() == 0) {
-            //     $angsuran->pinjaman->update([
-            //         'status' => 'lunas'
-            //     ]);
-            // }
+            if(AngsuranPeminjaman::where('kode_pinjaman', $angsuran->kode_pinjaman)->where('status', 'belum')->count() == 0) {
+                $pinjaman = Pinjaman::where('kode_pinjaman', $angsuran->kode_pinjaman)->first();
+                $pinjaman->update([
+                    'status' => 'lunas'
+                ]);
+            }
             
             $limitKredit = KreditAnggota::where('member_id', $memberId)->first();
             $limitKredit->increment('limit', $angsuran->jumlah_angsuran);
@@ -157,8 +169,10 @@ class PinjamanController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pinjaman $pinjaman)
+    public function destroy($id_pinjaman)
     {
-        //
+        $peminjaman = Pinjaman::find($id_pinjaman);
+        $peminjaman->delete();
+        return redirect()->route('pinjaman.index')->with('success', 'Pinjaman berhasil dihapus.');
     }
 }

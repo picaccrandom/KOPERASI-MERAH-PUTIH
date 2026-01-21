@@ -9,17 +9,17 @@
         <div class="mb-2">
             <div class=" px-6 py-2  flex justify-between items-center">
                 <div class="border-l-8 border-l-red-600 pl-4">
-                    <div class="text-2xl text-white text-4xl text-shadow-lg uppercase font-extrabold tracking-wider">Data
+                    <div class=" text-white text-4xl text-shadow-lg uppercase font-extrabold tracking-wider">Data
                         Pinjaman</div>
                 </div>
                 <div class="flex items-center space-x-3">
                     <div class="relative">
-                        <input type="text" placeholder="Search..."
+                        <input type="text" placeholder="Search nama, status..." id="search-pinjaman"
                             class="pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
                         <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                     </div>
                     <a type="a" href="{{ route('pinjaman.create') }}"
-                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center text-sm">
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center  text-decoration-none shadow-md text-lg uppercase font-semibold">
                         <i class="fas fa-plus mr-2"></i>
                         Tambah Pinjaman
                     </a>
@@ -31,24 +31,25 @@
         <!-- Data Table -->
         <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
 
-            <div class="overflow-x-auto flex p-10">
-                <table class="text-center min-w-full  overflow-hidden">
+            <div class="overflow-x-auto flex p-10 px-10">
+                <table class="text-center min-w-full overflow-hidden space-y-4">
                     <thead class="bg-orange-300">
-                        <tr>
-                            <th class="text-left">NO.</th>
-                            <th class="text-left">NAMA ANGGOTA</th>
-                            <th class="text-left">TANGGAL PINJAM</th>
-                            <th class="text-left">TOTAL PINJAMAN</th>
-                            <th class="text-left">JENIS PINJAMAN</th>
-                            <th class="text-left">LAMA BAYAR</th>
-                            <th class="text-left">JATUH TEMPO</th>
-                            <th class="text-left">STATUS</th>
-                            <th class="text-left">ACTION</th>
+                        <tr
+                            class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                            <th>NO.</th>
+                            <th>NAMA ANGGOTA</th>
+                            <th>TANGGAL PINJAM</th>
+                            <th>TOTAL PINJAMAN</th>
+                            <th>JENIS PINJAMAN</th>
+                            <th>LAMA BAYAR</th>
+                            <th>JATUH TEMPO</th>
+                            <th>STATUS</th>
+                            <th>ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($peminjamans as $peminjaman)
-                            <tr>
+                            <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50">
                                 <td class="font-medium">{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="flex items-center">
@@ -60,7 +61,8 @@
                                     </div>
                                 </td>
                                 <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal)->format('d F Y') }}</td>
-                                <td class="font-bold text-red-600 text-left">Rp. {{ $peminjaman->total_pinjaman }}</td>
+                                <td class="font-bold text-red-600 text-left text-sm">Rp.
+                                    {{ number_format($peminjaman->total_pinjaman, 0, ',', '.') }}</td>
                                 <td>
                                     @if ($peminjaman->jenis == 'uang')
                                         <span
@@ -93,9 +95,14 @@
                                         <a href="" class="text-yellow-600 hover:text-yellow-900" title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <a href="" class="text-red-600 hover:text-red-900" title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
+                                            <form action="{{ route('pinjaman.destroy', $peminjaman->id) }}" 
+                                                onclick="confirmDelete(event, this)" method="POST" class="inline">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
                                     </div>
                                 </td>
                             </tr>
@@ -108,27 +115,30 @@
 
     </div>
 
-
-
-    <!-- Template for Detail Cards -->
-    <template id="detailCardTemplate">
-        <div class="bg-white rounded-lg border border-gray-200 p-4">
-            <div class="flex items-start justify-between">
-                <div>
-                    <p class="text-sm text-gray-500">#TITLE#</p>
-                    <p class="text-2xl font-bold #COLOR#">#VALUE#</p>
-                </div>
-                <i class="fas #ICON# text-2xl text-gray-300"></i>
-            </div>
-        </div>
-
-    </template>
 @endsection
 
 
 @section('scripts')
 
     <script>
+        document.getElementById('search-pinjaman').addEventListener('input', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('table tbody tr    ');
+
+            rows.forEach(function(row) {
+                let namaAnggota = row.cells[1].textContent.toLowerCase();
+                let jatuhtempo = row.cells[2].textContent.toLowerCase();
+                let status = row.cells[7].textContent.toLowerCase();
+                let lamaBayar = row.cells[5].textContent.toLowerCase();
+                if (namaAnggota.indexOf(filter) > -1 || jatuhtempo.indexOf(filter) > -1 || status.indexOf(
+                        filter) > -1 || lamaBayar.indexOf(filter) > -1) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
         @if (session('success'))
             {
                 Swal.fire({
@@ -149,5 +159,40 @@
                 });
             }
         @endif
+
+        function confirmDelete(event, form) {
+            event.preventDefault(); // Prevent form submission
+
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data pinjaman akan dihapus secara permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Submit the form
+                    form.submit();
+                }
+            });
+            // }).then(response => {
+            //     if (response.ok) {
+            //         Swal.fire(
+            //             'Dihapus!',
+            //             'Data pinjaman telah dihapus.',
+            //             'success'
+            //         )
+            //     } else {
+            //         Swal.fire(
+            //             'Gagal!',
+            //             'Terjadi kesalahan saat menghapus data pinjaman.',
+            //             'error'
+            //         );
+            //     }
+            // });
+        }
     </script>
 @endsection

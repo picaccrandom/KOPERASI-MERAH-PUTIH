@@ -10,8 +10,8 @@
         <div class=" border-l-8 border-l-green-400 pl-4 mb-8">
             <div
                 class="border-b-2 pb-2 mb-2 border-b-slate-500 inline-block text-4xl font-bold text-white text-shadow-lg uppercase tracking-wider">
-                Detail Pinjaman & Angsuran</div>
-            <p class="text-sm text-slate-400">Detail Transaksi Member</p>
+                Detail <span class="px-1 bg-black text-white rounded-md shadow-md">Pinjaman & Angsuran</span></div>
+            <p class="text-sm text-slate-400">Detail Peminjaman Member</p>
         </div>
         <div class="bg-white rounded-lg shadow-lg px-14 py-8">
             <div class="p-6">
@@ -19,12 +19,12 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                     <div class="space-y-3">
                         <div>
-                            <p class="text-sm text-gray-500">NAMA ANGGOTA</p>
-                            <p class="text-lg font-bold text-gray-800">{{ $pinjaman->member->nama_lengkap }}</p>
+                            <p class="text-sm text-gray-500">NIK</p>
+                            <p class="text-lg text-gray-800">{{ $pinjaman->member->nik }}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-500">JENIS KELAMIN</p>
-                            <p class="text-lg text-gray-800">{{ $pinjaman->member->jenis_kelamin }}</p>
+                            <p class="text-sm text-gray-500">NAMA ANGGOTA</p>
+                            <p class="text-lg font-bold text-gray-800">{{ $pinjaman->member->nama_lengkap }}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">TEMPAT, TANGGAL LAHIR</p>
@@ -102,9 +102,9 @@
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto hidden" id="rincian-angsuran">
+                    <div class="overflow-x-auto hidden max-h-48 overflow-y-auto relative" id="rincian-angsuran">
                         <table class="w-full table-auto border-collapse text-center">
-                            <thead class="bg-black text-white rounded-md">
+                            <thead class="bg-black text-white sticky top-0">
                                 <tr>
                                     <th>ANGSURAN KE</th>
                                     <th>BATAS BAYAR</th>
@@ -116,7 +116,7 @@
                             </thead>
                             <tbody>
                                 @foreach ($pinjaman->angsuranPeminjamans as $angsuran)
-                                    <tr>
+                                    <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50">
                                         {{-- @php
                                             dd($angsuran);
                                         @endphp --}}
@@ -204,13 +204,17 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}',
                             'Content-Type': 'application/json'
                         }
-                        // return response.json();
-                    })
-                    .then(() => {
-                    location.reload();
-                    })
+                    }).then(response => response.json());
+                    swal.fire(
+                        'Berhasil!',
+                        'Angsuran ke - ' + angsuranKe + ' telah dibayar.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
                 }
             });
-        }
+                
+        };
     </script>
 @endsection
