@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('simpanans', function (Blueprint $table) {
+        Schema::create('simpanan_details', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_simpanan')->unique();
-            $table->foreignId('member_id')->constrained()->cascadeOnDelete();
+            $table->string('no_transaksi_sp')->unique();
+            $table->foreign('no_transaksi_sp')->references('no_transaksi_sp')->on('transaksi__s_p_s')->cascadeOnDelete();
+            $table->date('tanggal');
             $table->decimal('saldo', 15, 2)->default(0);
+            $table->enum('jenis', ['pokok', 'wajib', 'sukarela']);
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('simpanans');
+        Schema::dropIfExists('simpanan_details');
     }
 };

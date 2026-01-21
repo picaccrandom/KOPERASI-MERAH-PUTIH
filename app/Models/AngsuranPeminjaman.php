@@ -9,20 +9,27 @@ class AngsuranPeminjaman extends Model
     protected $table = 'angsuran_peminjamen';
 
     protected $fillable = [
-        'kode_pinjaman',
+        'no_transaksi_sp',
+        'user_id',
         'angsuran_ke',
-        'tanggal_pinjaman',
-        'tanggal_jatuh_tempo',
-        'tanggal_bayar',
         'jumlah_angsuran',
-        'jumlah_bayar',
+        'total_pinjaman',
+        'tanggal_bayar',
         'denda',
+        'bunga',
+        'tenor',
+        'tanggal_pinjaman',
         'status',
     ];
 
-
     public function pinjaman()
     {
-        return $this->belongsTo(Pinjaman::class, 'kode_pinjaman');
+        return $this->belongsTo(Transaksi_SP::class, 'no_transaksi_SP', 'no_transaksi_SP');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
 }

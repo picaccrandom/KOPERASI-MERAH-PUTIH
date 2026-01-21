@@ -137,7 +137,8 @@
     let keranjang = [];
     let member = @json($members);
     let barang = @json($barangs);
-    const limitBon =  @json($limitBon) ;
+    const kreditMember =  @json($limitBon) ;
+    let limitBon = 0;
 
     // Toggle muncul Form NIK Member
     document.getElementById('kategori_yes').addEventListener('change', function() {
@@ -162,7 +163,7 @@
             document.getElementById('nominal-label').textContent = 'Split Bill (Pembayaran Tunai)';
             document.getElementById('info-bill').classList.remove('hidden');
             document.getElementById('info-ket-bill').classList.remove('hidden');
-            document.getElementById('info-ket-bill').innerText = '*Maksimal Rp ' + limitBon + ' untuk BON Anggota';
+            document.getElementById('info-ket-bill').innerText = '*Maksimal Rp ' + limitBon.toLocaleString() + ' untuk BON Anggota';
             document.getElementById('nominal').classList.remove('text-greyed-600');
         }
     });
@@ -178,6 +179,7 @@
         }
 
         const memberInfo = member.find(m => m.nik === nik);
+        checkLimit(memberInfo.id);
         if(memberInfo) {
             document.getElementById('member-info').textContent = `Member: ${memberInfo.nama_lengkap} (diskon 10% berlaku)`;
             document.getElementById('member-info').classList.remove('hidden');
@@ -276,6 +278,11 @@
         });
     }
 
+    // fungsi checkLimit
+    function checkLimit(memberId){
+        return limitBon = kreditMember.find(m => m.member_id === memberId)?.limit || 0;
+    }
+
     function renderTable() {
         const tbody = document.querySelector('#table-keranjang tbody');
         tbody.innerHTML = '';
@@ -354,13 +361,13 @@
 
     // Format Rupiah
     function formatRupiah(angka) {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }).format(angka);
-}
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(angka);
+    }
 
     // Proses Simpan ke Database
     document.getElementById('btn-proses').addEventListener('click', function() {
@@ -378,18 +385,21 @@
             total_bon: 0,
             cart: keranjang
         };
+
+        data.total_tunai = parseFloat(document.getElementById('nominal').value) || 0;
+        data.total_harga = parseFloat(document.getElementById('total_harga').value);
         
         if(data.metode_bayar === 'tunai') {
             data.total_tunai = parseFloat(document.getElementById('nominal').value);
         } else if(data.metode_bayar === 'bon') {
-            data.total_tunai = parseFloat(document.getElementById('nominal').value);    
+            // data.total_tunai = parseFloat(document.getElementById('nominal').value);    
             data.status = 'open';
             data.total_bon = data.total_harga - data.total_tunai;
         }
 
-        console.log(data.total_harga)
+        console.log(data.total_tunai, data.total_harga, data.metode_bayar);
 
-        if(data.total_tunai < data.total_harga && data.metode_bayar === 'tunai' || isNaN(data.total_tunai)) {
+        if(data.total_tunai < data.total_harga && data.metode_bayar === 'tunai') {
             return Swal.fire('Error', 'Nominal tunai kurang / tidak valid!', 'error');
         }
 

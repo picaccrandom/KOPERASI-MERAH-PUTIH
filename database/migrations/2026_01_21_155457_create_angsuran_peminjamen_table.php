@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('angsuran_peminjamen', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_pinjaman');
-            $table->foreign('kode_pinjaman')->references('kode_pinjaman')->on('pinjaman')->onDelete('cascade');
-
+            $table->string('no_transaksi_sp');
+            $table->foreign('no_transaksi_sp')->references('no_transaksi_sp')->on('transaksi__s_p_s')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users');
             // Angsuran ke berapa
             $table->unsignedInteger('angsuran_ke');
 
@@ -25,10 +25,11 @@ return new class extends Migration
 
             // Nominal
             $table->decimal('jumlah_angsuran', 15, 2); // pokok + bunga
-            $table->decimal('jumlah_bayar', 15, 2)->default(0);
+            $table->decimal('total_pinjaman', 15, 2)->default(0);
             $table->decimal('denda', 15, 2)->default(0);
-
-            // Status angsuran
+            $table->decimal('bunga', 5, 2)->default(0);
+            $table->unsignedInteger('tenor'); // dalam bulan
+            $table->date('tanggal_pinjaman');
             $table->enum('status', ['belum', 'lunas'])->default('belum');
 
             $table->timestamps();

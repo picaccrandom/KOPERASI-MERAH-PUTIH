@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Barang;
-use App\Models\KreditAnggota;
 use App\Models\Member;
 use App\Models\Penjualan;
-use App\Models\PenjualanDetail;
 use App\Models\Transaksi;
+use App\Models\Transaksi_SP;
+use Illuminate\Http\Request;
+use App\Models\KreditAnggota;
+use Illuminate\Support\Carbon;
+use App\Models\PenjualanDetail;
 use App\Models\TransaksiDetail;
 use Illuminate\Support\Facades\DB;
+use SebastianBergmann\Environment\Console;
 
 class KasirController extends Controller {
     public function index() {
@@ -63,7 +66,7 @@ class KasirController extends Controller {
         // dd($request->all());
         // try {
             DB::transaction(function () use ($request) {
-
+                $namaMember = Member::where('id', $request->member_id)->first();
                 // Simpan Header Penjualan
                 $transaksi = Transaksi::create([
                     'kode_transaksi' => 'INV-' . date('YmdHis'),
@@ -74,10 +77,10 @@ class KasirController extends Controller {
                     'grand_total' => $request->total_harga,
                     'tipe_pembayaran' => $request->metode_bayar,
                     'status' => $request->status,
-                    'total_tunai' => $request->total_tunai,
+                    'total_tunai' => $request->total_tunai ?? 0,
                     'total_bon' => $request->total_bon,
                 ]);
-    
+
                 // Loop barang yang dibeli
                 foreach ($request->cart as $item) {
                     TransaksiDetail::create([
@@ -88,8 +91,23 @@ class KasirController extends Controller {
                         'subtotal' => $item['qty'] * $item['harga'],
                     ]);
 
-                    // OTOMATIS POTONG STOK GUDANG
                     $barang = Barang::find($item['id']);
+                    
+
+                    if ($request->kategori == 'member' && $request->metode_bayar == 'bon') {
+
+                        Transaksi_SP::create([
+                            'no_transaksi_sp' => 'SP-B-'. date('YmdHis'),
+                            'tanggal' => $transaksi->tgl_transaksi,
+                            'member_id' => $request->member_id,
+                            'nama' => $namaMember->nama_lengkap,
+                            'COA' => 'Bon',
+                            'Debit/Credit' => 'Credit',
+                            'Nominal' => $transaksi->total_bon,
+                            'Keterangan' => 'Bon Anggota: ' . $request->catatan ?? '-',
+                        ]);
+                    }
+                    // OTOMATIS POTONG STOK GUDANG
                     $barang->decrement('stok', $item['qty']);
                 }
 
