@@ -27,7 +27,12 @@ class SimpananController extends Controller
     public function create()
     {
         $members = Member::all();
-        $SimpanansPokok = SimpananDetail::where('jenis', 'pokok')->with('transaksiSP')->get();
+        $SimpanansPokok = SimpananDetail::where('jenis', 'pokok')
+            ->whereHas('transaksiSP', function ($q) {
+                $q->whereNotNull('member_id');
+            })
+            ->with('transaksiSP.member')
+            ->get();
         return view('simpanan-create', compact('members', 'SimpanansPokok'));
     }
 
@@ -94,32 +99,90 @@ class SimpananController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Simpanan $simpanan)
+    public function show($id)
     {
-        //
+        $transaksi = Transaksi_SP::with(['member', 'simpananDetails'])
+            ->where('id', $id)
+            ->where('COA', 'Simpan')
+            ->firstOrFail();
+        
+        return view('detailsimpanan', compact('transaksi'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Simpanan $simpanan)
+    public function edit($id)
     {
-        //
+        $transaksi = Transaksi_SP::with(['member', 'simpananDetails'])
+            ->where('id', $id)
+            ->where('COA', 'Simpan')
+            ->firstOrFail();
+        
+        $members = Member::all(); // Untuk dropdown jika perlu
+        return view('simpanan-edit', compact('transaksi', 'members'));
     }
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Simpanan $simpanan)
+    public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'tanggal' => 'required|date',
+            'nominal' => 'required|numeric|min:1000',
+            'jenis' => 'required|in:wajib,pokok,sukarela',
+            'keterangan' => 'nullable|string|max:255',
+            'status' => 'nullable|in:aktif,nonaktif',
+        ]);
+
+        DB::transaction(function () use ($request, $id) {
+            // Update transaksi utama
+            $transaksi = Transaksi_SP::where('id', $id)
+                ->where('COA', 'Simpan')
+                ->firstOrFail();
+
+            $transaksi->update([
+                'tanggal' => $request->tanggal,
+                'Nominal' => (float)$request->nominal,
+                'Keterangan' => $request->keterangan,
+            ]);
+
+            // Update detail simpanan
+            $detail = SimpananDetail::where('no_transaksi_sp', $transaksi->no_transaksi_sp)
+                ->firstOrFail();
+
+            $detail->update([
+                'tanggal' => $request->tanggal,
+                'saldo' => (float)$request->nominal,
+                'jenis' => $request->jenis,
+                'status' => $request->status ?? $detail->status,
+            ]);
+        });
+
+        return redirect()->route('simpanan.show', $id)
+            ->with('success', 'Data simpanan berhasil diperbarui.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Simpanan $simpanan)
+    public function destroy($id)
     {
-        //
+        $transaksi = Transaksi_SP::where('id', $id)
+            ->where('COA', 'Simpan')
+            ->firstOrFail();
+
+        DB::transaction(function () use ($transaksi) {
+            // Hapus detail simpanan terlebih dahulu
+            SimpananDetail::where('no_transaksi_sp', $transaksi->no_transaksi_sp)->delete();
+            
+            // Hapus transaksi utama
+            $transaksi->delete();
+        });
+
+        return redirect()->route('simpanan.index')
+            ->with('success', 'Data simpanan berhasil dihapus.');
     }
 }

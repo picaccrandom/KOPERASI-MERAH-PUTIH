@@ -120,6 +120,9 @@
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(0,0,0,0.1);
             padding: 8px 30px;
+            position: sticky;
+            top: 95px; 
+            z-index: 999;
         }
 
         #txtTanggal { 
@@ -136,6 +139,27 @@
             letter-spacing: 1px; 
             font-size: 9px;
         }
+
+        /* ===== SIMPAN PINJAM NAV ===== */
+        #simpan-pinjam-nav a {
+            text-decoration: none !important;
+            color: #000;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+
+        #simpan-pinjam-nav a:hover {
+            text-decoration: none !important;
+            color: #e63946 !important; 
+            background: transparent !important;
+        }
+
+        #simpan-pinjam-nav a.active {
+            color: #e63946 !important;
+            font-weight: 800;
+            background: transparent !important;
+        }
+
 
         /* --- STYLE MENU ADMIN BARU --- */
         .nav-link-admin { 
@@ -187,7 +211,7 @@
 
     <div style="height: 3px; background: #e63946; width: 100%;"></div>
 
-    <div class="nav-header d-flex align-items-center justify-content-between">
+    <div class="nav-header d-flex align-items-center justify-content-between ">
         <div class="d-flex align-items-center">
             <div id="default-status-text">
                 <small class="text-muted-custom text-uppercase">
@@ -195,25 +219,43 @@
                 </small>
             </div>
 
-            <div class="flex justify-center items-center {{request()->routeIs('home', 'logout') ? 'hidden' : ''}} hidden [&>a:hover]:bg-sky-400/40 [&>a:hover]:backdrop-blur-2xl" id="simpan-pinjam-nav">
+            @php
+                $showSimpanPinjamNav = request()->routeIs(
+                    'simpanpinjam.*',
+                    'pinjaman.*',
+                    'simpanan.*',
+                );
+            @endphp
+
+            @if ($showSimpanPinjamNav)
+            <div class="flex justify-center items-center
+                        [&>a:hover]:bg-sky-400/40
+                        [&>a:hover]:backdrop-blur-2xl"
+                id="simpan-pinjam-nav">
                 <span class="ml-2">|</span>
-                <a href="#" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-dashboard">
+
+                <a href="{{ route('simpanpinjam.index') }}"
+                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                {{ request()->routeIs('simpanpinjam.*') ? 'active' : '' }}">
                     <i class="fas fa-chart-line mr-2"></i>
                     DASHBOARD
                 </a>
-                <a href="{{ route('pinjaman.index') }}" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-pinjaman">
+
+                <a href="{{ route('pinjaman.index') }}"
+                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                {{ request()->routeIs('pinjaman.*') ? 'active' : '' }}">>
                     <i class="fas fa-hand-holding-usd mr-2"></i>
                     PINJAMAN
                 </a>
-                <a href="{{ route('simpanan.index') }}" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-simpanan">
+
+                <a href="{{ route('simpanan.index') }}"
+                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                {{ request()->routeIs('simpanan.*') ? 'active' : '' }}">
                     <i class="fas fa-piggy-bank mr-2"></i>
                     SIMPANAN
                 </a>
-                <a href="{{ route('laporan.index') }}" class="tab-nav mx-4 px-2 py-0.5 rounded-md text-sm text-black font-medium transition-colors duration-200" id="tab-laporan">
-                    <i class="fas fa-chart-bar mr-2"></i>
-                    LAPORAN
-                </a>
             </div>
+            @endif
 
 
             <div id="admin-nav-menu" class="d-none">

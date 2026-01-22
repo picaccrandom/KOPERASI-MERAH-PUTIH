@@ -3,7 +3,6 @@
 @section('title', 'Simpanan - Koperasi Merah Putih')
 
 @section('content')
-
     <div class="mx-10 px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
         <div class="mb-2">
@@ -12,12 +11,22 @@
                     <div class="text-2xl text-white text-4xl text-shadow-lg uppercase font-extrabold tracking-wider">Data
                         Simpanan</div>
                 </div>
+                            
                 <div class="flex items-center space-x-3">
                     <div class="relative">
                         <input type="text" placeholder="Search..." id="search-simpanan"
                             class="pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
                         <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                     </div>
+                    <div>
+                    <select id="filter-kategori"
+                        class="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm">
+                        <option value="">Semua Kategori</option>
+                        <option value="wajib">Wajib</option>
+                        <option value="pokok">Pokok</option>
+                        <option value="sukarela">Sukarela</option>
+                    </select>
+                </div>    
                     <a type="a" href="{{ route('simpanan.create') }}"
                         class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center  text-decoration-none shadow-md text-lg uppercase font-semibold">
                         <i class="fas fa-plus mr-2"></i>
@@ -50,9 +59,6 @@
                             <td class="font-medium">{{ $loop->iteration }}</td>
                             <td>
                                 <div class="flex items-center">
-                                    <div class="h-8 w-8 rounded-full bg-pink-100 flex items-center justify-center mr-3">
-                                        <span class="text-pink-600 font-bold text-sm">S</span>
-                                    </div>
                                     <div class="w-full">
                                         <div class=" text-gray-900 font-semibold">{{ $simpanan->member->nama_lengkap }}</div>
                                     </div>
@@ -73,18 +79,28 @@
                             <td class="font-bold text-red-600">Rp {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
                             <td>
                                 <div class="flex justify-center items-center gap-3">
-                                    <button onclick="detailSimpanan(1)" class="text-blue-600 hover:text-blue-900"
-                                        title="Detail">
+                                    <a href="{{ route('simpanan.show', $simpanan->id) }}" 
+                                    class="text-blue-600 hover:text-blue-900"
+                                    title="Detail">
                                         <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button onclick="editSimpanan(1)" class="text-yellow-600 hover:text-yellow-900"
-                                        title="Edit">
+                                    </a>
+                                    <a href="{{ route('simpanan.edit', $simpanan->id) }}" 
+                                    class="text-yellow-600 hover:text-yellow-900"
+                                    title="Edit">
                                         <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button onclick="deleteSimpanan(1)" class="text-red-600 hover:text-red-900"
-                                        title="Hapus">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    </a>
+                                    <form action="{{ route('simpanan.destroy', $simpanan->id) }}" 
+                                        method="POST" 
+                                        class="d-inline delete-form"
+                                        data-name="{{ $simpanan->member->nama_lengkap }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="text-red-600 hover:text-red-900 bg-transparent border-0"
+                                                title="Hapus">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>
@@ -105,22 +121,62 @@
 
 @section('scripts')
     <script>
-        // Search fungsi
-        document.getElementById('search-simpanan').addEventListener('input', function() {
-            let filter = this.value.toLowerCase();
-            let rows = document.querySelectorAll('table tbody tr    ');
 
-            rows.forEach(function(row) {
-                let namaAnggota = row.cells[1].textContent.toLowerCase();
-                let jenis = row.cells[2].textContent.toLowerCase();
-                let tanggal = row.cells[3].textContent.toLowerCase();
-                if (namaAnggota.indexOf(filter) > -1 || jenis.indexOf(filter) > -1 || tanggal.indexOf(filter) > -1) {
+         // SweetAlert untuk konfirmasi hapus
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const memberName = this.getAttribute('data-name');
+                
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    html: `Data simpanan untuk <strong>${memberName}</strong> akan dihapus permanen!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
+            });
+        });
+        // Search fungsi
+        const searchInput = document.getElementById('search-simpanan');
+        const kategoriFilter = document.getElementById('filter-kategori');
+
+        function filterTable() {
+            const searchValue = searchInput.value.toLowerCase();
+            const kategoriValue = kategoriFilter.value.toLowerCase();
+            const rows = document.querySelectorAll('table tbody tr');
+
+            rows.forEach(row => {
+                const namaAnggota = row.cells[1].textContent.toLowerCase();
+                const kategori = row.cells[2].textContent.toLowerCase();
+                const tanggal = row.cells[3].textContent.toLowerCase();
+
+                const cocokSearch =
+                    namaAnggota.includes(searchValue) ||
+                    kategori.includes(searchValue) ||
+                    tanggal.includes(searchValue);
+
+                const cocokKategori =
+                    kategoriValue === '' || kategori.includes(kategoriValue);
+
+                if (cocokSearch && cocokKategori) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';
                 }
             });
-        });
+        }
+
+        searchInput.addEventListener('input', filterTable);
+        kategoriFilter.addEventListener('change', filterTable);
 
         @if (session('success'))
             {

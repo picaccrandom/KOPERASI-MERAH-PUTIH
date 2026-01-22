@@ -104,7 +104,7 @@ class KasirController extends Controller {
                             'COA' => 'Bon',
                             'Debit/Credit' => 'Credit',
                             'Nominal' => $transaksi->total_bon,
-                            'Keterangan' => 'Bon Anggota: ' . $request->catatan ?? '-',
+                            'Keterangan' => 'Bon Anggota: ' . ($request->catatan ? $request->catatan : $namaMember->nama_lengkap),
                         ]);
                     }
                     // OTOMATIS POTONG STOK GUDANG

@@ -18,9 +18,15 @@ class PinjamanController extends Controller
     /**
      * Display a listing of the resource.
      */
+    // public function dashboard()
+    // {
+    //     return view('dashboard');
+    // }
+    
+    
     public function index()
     {
-        $peminjamans = Transaksi_SP::with('member', 'angsuranPeminjamans')->where('COA', 'Pinjam')->orderBy('created_at', 'desc')->get();
+        $peminjamans = Transaksi_SP::with('member', 'angsuranPeminjamans', 'angsuranBelum')->whereIn('COA', ['Pinjam', 'Bon'])->orderBy('created_at', 'desc')->get();
         return view('Pinjaman', compact('peminjamans'));
     }   
 
@@ -50,6 +56,11 @@ class PinjamanController extends Controller
         }
 
         return view('DetailPinjaman', compact('pinjaman', 'transaksiInduk'));
+    }
+
+    public function detailBon($no_transaksi_sp){
+        $bon = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->with('member')->first();
+        return view('DetailBon', compact('bon'));
     }
 
      /**
@@ -204,6 +215,53 @@ class PinjamanController extends Controller
             }
 
             return redirect()->back()->with('success', 'Angsuran berhasil dibayar.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => $e->getMessage()
+                ], 500);
+            }
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
+        }
+    }
+
+    public function bayarBon($no_transaksi_sp) {
+        try {
+            DB::beginTransaction();
+            $bon = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->first();
+            if (!$bon) {
+                throw new \Exception('Data bon tidak ditemukan.');
+            }
+            // dd($bon);
+
+            Transaksi_SP::create([
+                'no_transaksi_sp' => 'SP-LB-'. date('YmdHis'),
+                'tanggal' => Carbon::now(),
+                'member_id' => $bon->member_id,
+                'nama' => $bon->nama ?? 'Anggota',
+                'COA' => 'Lunas Bon',
+                'Debit/Credit' => 'Debit',
+                'Nominal' => $bon->Nominal,
+                'Keterangan' => 'Pelunasan Bon: ' . ($bon->Keterangan ?? '-'),
+            ]);
+
+            KreditAnggota::where('member_id', $bon->member_id)->increment('limit', $bon->Nominal);
+            // Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->delete();
+
+            DB::commit();
+
+            // PENTING: Respon JSON untuk AJAX
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pembayaran Berhasil Dicatat'
+                ]);
+            }
+
+            return redirect()->route('pinjaman.index')->with('success', 'Bon berhasil dibayar.');
 
         } catch (\Exception $e) {
             DB::rollBack();

@@ -80,7 +80,7 @@
         // Struktur Menu 3x3 Sesuai Instruksi
         $menus = [
             ['icon' => 'fa-cash-register', 'title' => 'Kasir', 'color' => 'linear-gradient(135deg, #06b6d4, #0891b2)', 'link' => route('kasir.index'), 'sub' => 'Point of Sales'],
-            ['icon' => 'fa-users', 'title' => 'Data Anggota', 'color' => 'linear-gradient(135deg, #0ea5e9, #2563eb)', 'link' => '/anggota', 'sub' => 'Membership'],
+            ['icon' => 'fa-users', 'title' => 'Data Anggota', 'color' => 'linear-gradient(135deg, #0ea5e9, #2563eb)', 'link' => route('member.index'), 'sub' => 'Membership'],
             ['icon' => 'fa-hand-holding-dollar', 'title' => 'Simpan Pinjam', 'color' => 'linear-gradient(135deg, #10b981, #059669)', 'link' => route('simpanpinjam.index'), 'sub' => 'Credit & Saving'],
             
             ['icon' => 'fa-calculator', 'title' => 'Akuntansi', 'color' => 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 'link' => '#', 'sub' => 'General Ledger'],
@@ -89,7 +89,7 @@
             
             ['icon' => 'fa-chart-line', 'title' => 'Dashboard', 'color' => 'linear-gradient(135deg, #ec4899, #be185d)', 'link' => '#', 'sub' => 'Statistic Chart'],
             ['icon' => 'fa-file-invoice-dollar', 'title' => 'Laporan', 'color' => 'linear-gradient(135deg, #ef4444, #dc2626)', 'link' => '#', 'sub' => 'Reporting System'],
-            ['icon' => 'fa-user-gear', 'title' => 'Adm. Sistem', 'color' => 'linear-gradient(135deg, #475569, #1e293b)', 'link' => '#', 'sub' => 'Control Panel']
+            ['icon' => 'fa-user-gear', 'title' => 'Adm. Sistem', 'color' => 'linear-gradient(135deg, #475569, #1e293b)', 'link' => route('user.index'), 'sub' => 'Control Panel']
         ];
         @endphp
 

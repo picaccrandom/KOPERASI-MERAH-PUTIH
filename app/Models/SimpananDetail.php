@@ -20,6 +20,7 @@ class SimpananDetail extends Model
     {
         return $this->belongsTo(Transaksi_SP::class, 'no_transaksi_sp', 'no_transaksi_sp'); 
     }
+
     
 
 }

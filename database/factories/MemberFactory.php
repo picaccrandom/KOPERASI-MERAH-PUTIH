@@ -21,6 +21,7 @@ class MemberFactory extends Factory
             'nik' => fake()->unique()->numerify('3313############'),
             'alamat' => fake()->address(),
             'nomor_hp' => fake()->phoneNumber(),
+
         ];
     }
 }

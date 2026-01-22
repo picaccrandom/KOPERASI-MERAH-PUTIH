@@ -4,8 +4,10 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\SimpanPinjamController;
 use App\Http\Controllers\PinjamanController;
 use App\Http\Controllers\SimpananController;
+
 
 // 1. Halaman Login
 Route::get('/login', function() { 
@@ -27,7 +29,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Modul Anggota
-    Route::get('/anggota', [MemberController::class, 'index']);
+    Route::get('/anggota', [MemberController::class, 'index'])->name('member.index');
     Route::get('/tambah', [MemberController::class, 'create']);
     Route::post('/simpan', [MemberController::class, 'store']);
     Route::get('/edit/{id}', [MemberController::class, 'edit']);
@@ -64,8 +66,10 @@ Route::middleware(['auth'])->group(function () {
 
 
     // Modul Simpan Pinjam
-    // Route::get('/simpanpinjam', [PinjamanController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
-    Route::get('/simpanpinjam', [PinjamanController::class, 'simpanpinjam'])->name('simpanpinjam.index'); // Simpan Pinjam  
+    Route::get('/simpanpinjam', [SimpanPinjamController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
+    // Route::get('/simpanpinjam', [SimpanPinjamController::class, 'simpanpinjam'])->name('simpanpinjam.index'); // Simpan Pinjam  
+    
+    // dashboard simpan pinjam
     
     // Pinjaman Routes
     Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('pinjaman.index'); // Pinjaman
@@ -74,12 +78,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pinjaman/detail/{no_transaksi_sp}', [PinjamanController::class, 'detail'])->name('pinjaman.detail'); // Detail Pinjaman
     Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran'); // Pinjaman
     Route::delete('/pinjaman/{id}', [PinjamanController::class, 'destroy'])->name('pinjaman.destroy');
+
+    // detail bon
+    Route::get('/bon/detail/{no_transaksi_sp}', [PinjamanController::class, 'detailBon'])->name('pinjaman.detailBon'); // Detail Bon
+    Route::post('/bon/bayarBon/{no_transaksi_sp}', [PinjamanController::class, 'bayarBon'])->name('pinjaman.bayarBon'); // Lunasi Bon
         
     
     // Simpanan Routes
     Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index'); // Simpanan
     Route::get('/simpanan/create', [SimpananController::class, 'create'])->name('simpanan.create'); // Simpanan
     Route::post('/simpanan/create', [SimpananController::class, 'store'])->name('simpanan.store'); // Simpanan
+    Route::get('/simpanan/{id}', [SimpananController::class, 'show'])->name('simpanan.show');
+    Route::get('/simpanan/{id}/edit', [SimpananController::class, 'edit'])->name('simpanan.edit');
+    Route::put('/simpanan/{id}', [SimpananController::class, 'update'])->name('simpanan.update');
+    Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy'])->name('simpanan.destroy');
     Route::get('/laporan', [PinjamanController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
 
 });

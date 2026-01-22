@@ -17,8 +17,5 @@ class SimpananTransaksi extends Model
         'catatan'
     ];
 
-    public function simpanan()
-    {
-        return $this->belongsTo(Simpanan::class , 'kode_simpanan', 'kode_simpanan');
-    }
+    
 }

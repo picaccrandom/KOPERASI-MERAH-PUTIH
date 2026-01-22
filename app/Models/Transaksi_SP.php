@@ -26,11 +26,18 @@ class Transaksi_SP extends Model
 
     public function angsuranPeminjamans()
     {
-        return $this->hasMany(AngsuranPeminjaman::class, 'no_transaksi_SP', 'no_transaksi_SP');
+        return $this->hasMany(AngsuranPeminjaman::class, 'no_transaksi_sp', 'no_transaksi_sp');
     }
 
     public function simpananDetails()
     {
         return $this->hasMany(SimpananDetail::class, 'no_transaksi_sp', 'no_transaksi_sp');
     }
+
+    public function angsuranBelum()
+    {
+        return $this->hasOne(AngsuranPeminjaman::class, 'no_transaksi_sp', 'no_transaksi_sp')
+                    ->where('status', 'belum');
+    }
+
 }

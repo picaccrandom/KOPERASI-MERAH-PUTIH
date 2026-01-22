@@ -389,16 +389,14 @@
         data.total_tunai = parseFloat(document.getElementById('nominal').value) || 0;
         data.total_harga = parseFloat(document.getElementById('total_harga').value);
         
-        if(data.metode_bayar === 'tunai') {
-            data.total_tunai = parseFloat(document.getElementById('nominal').value);
-        } else if(data.metode_bayar === 'bon') {
+        if(data.metode_bayar === 'bon') {
             // data.total_tunai = parseFloat(document.getElementById('nominal').value);    
             data.status = 'open';
             data.total_bon = data.total_harga - data.total_tunai;
         }
-
+        
         console.log(data.total_tunai, data.total_harga, data.metode_bayar);
-
+        
         if(data.total_tunai < data.total_harga && data.metode_bayar === 'tunai') {
             return Swal.fire('Error', 'Nominal tunai kurang / tidak valid!', 'error');
         }

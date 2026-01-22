@@ -46,52 +46,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Quick Actions -->
-        <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-lg">
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Aksi Cepat</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <a href="{{ route('pinjaman.index') }}"
-                    class="p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition duration-200">
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
-                            <i class="fas fa-hand-holding-usd text-red-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium text-gray-800">Tambah Pinjaman</p>
-                            <p class="text-sm text-gray-600">Buat pinjaman baru</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="{{ route('simpanan.index') }}"
-                    class="p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition duration-200">
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center mr-3">
-                            <i class="fas fa-piggy-bank text-blue-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium text-gray-800">Tambah Simpanan</p>
-                            <p class="text-sm text-gray-600">Catat setoran simpanan</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="{{ route('laporan.index') }}"
-                    class="p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition duration-200">
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                            <i class="fas fa-chart-bar text-green-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium text-gray-800">Lihat Laporan</p>
-                            <p class="text-sm text-gray-600">Analisis keuangan</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
         <!-- Recent Activities -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 shadow-lg">
             <!-- Recent Pinjaman -->

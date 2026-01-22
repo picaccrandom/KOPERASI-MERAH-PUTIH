@@ -1,6 +1,9 @@
 @extends('layouts.master')
 
 @section('content')
+    {{-- @php
+        dd($SimpanansPokok);
+    @endphp --}}
     <div class="bg-white/40 backdrop-blur-2xl mx-14 py-8 px-24 rounded-2xl">
 
         <div class="mb-10 border-l-8 border-green-600 pl-4">
@@ -88,7 +91,6 @@
     <script>
         const members = @json($members);
         const simpanansPokok = @json($SimpanansPokok);
-        console.log('Simpanan Pokok:', simpanansPokok);
 
         // inisialisasi elemen input nominal
         const nominalInput = document.getElementById('nominal');
@@ -250,8 +252,9 @@
 
 
         // fungsi mengecek apakah member sudah punya simpanan pokok
-        function checkMemberSimpananPokok(memberId) {
-            return simpanansPokok.some(s => s.member_id == memberId);
-        }
+        const hasPokok = simpanansPokok.some(
+            s => s.transaksi_sp && s.transaksi_sp.member_id == selectedId
+        );
+
     </script>
 @endsection

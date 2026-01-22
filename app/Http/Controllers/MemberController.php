@@ -32,6 +32,11 @@ class MemberController extends Controller
                 'member_id' => Member::latest()->first()->id,
                 'limit' => 1000000,
             ]);
+
+            KreditAnggota::create([
+                'member_id' => Member::latest()->first()->id,
+                'limit' => 5000000,
+            ]);
         });
         return redirect('/anggota')->with('success', 'Anggota berhasil didaftarkan!');
     }
