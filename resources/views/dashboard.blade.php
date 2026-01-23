@@ -108,13 +108,13 @@
         @php
         $unitMenus = [
             ['icon' => 'fa-store', 'title' => 'Gerai', 'color' => 'linear-gradient(135deg, #06b6d4, #0891b2)', 'link' => route('kasir.index'), 'sub' => 'Point of Sales'],
-            ['icon' => 'fa-pills', 'title' => 'Apotik', 'color' => 'linear-gradient(135deg, #0ea5e9, #2563eb)', 'link' => '#', 'sub' => 'Pharmacy'],
-            ['icon' => 'fa-clinic-medical', 'title' => 'Klinik', 'color' => 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 'link' => '#', 'sub' => 'Medical Services'],
+            ['icon' => 'fa-pills', 'title' => 'Apotik', 'color' => 'linear-gradient(135deg, #0ea5e9, #2563eb)', 'link' => route('apotek.index'), 'sub' => 'Pharmacy'],
+            ['icon' => 'fa-clinic-medical', 'title' => 'Klinik', 'color' => 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 'link' => route('klinik.index'), 'sub' => 'Medical Services'],
             ['icon' => 'fa-hand-holding-dollar', 'title' => 'Simpan Pinjam', 'color' => 'linear-gradient(135deg, #10b981, #059669)', 'link' => route('simpanpinjam.index'), 'sub' => 'Credit & Saving'],
             
             ['icon' => 'fa-warehouse', 'title' => 'Gudang Gerai', 'color' => 'linear-gradient(135deg, #6366f1, #4338ca)', 'link' => route('gudang.index'), 'sub' => 'Retail Stock'],
-            ['icon' => 'fa-capsules', 'title' => 'Gudang Apotik', 'color' => 'linear-gradient(135deg, #ec4899, #be185d)', 'link' => '#', 'sub' => 'Medicine Stock'],
-            ['icon' => 'fa-truck-ramp-box', 'title' => 'Gudang Distribusi', 'color' => 'linear-gradient(135deg, #f59e0b, #d97706)', 'link' => '#', 'sub' => 'Central Hub'],
+            ['icon' => 'fa-capsules', 'title' => 'Gudang Apotik', 'color' => 'linear-gradient(135deg, #ec4899, #be185d)', 'link' => route('apotek.gudang'), 'sub' => 'Medicine Stock'],
+            ['icon' => 'fa-truck-ramp-box', 'title' => 'Gudang Distribusi', 'color' => 'linear-gradient(135deg, #f59e0b, #d97706)', 'link' => route('distribusi.gudang'), 'sub' => 'Central Hub'],
             ['icon' => 'fa-users', 'title' => 'Data Anggota', 'color' => 'linear-gradient(135deg, #4b5563, #1f2937)', 'link' => route('member.index'), 'sub' => 'Membership']
         ];
         @endphp

@@ -7,6 +7,9 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\SimpanPinjamController;
 use App\Http\Controllers\PinjamanController;
 use App\Http\Controllers\SimpananController;
+use App\Http\Controllers\KlinikController;
+use App\Http\Controllers\ApotekController;
+use App\Http\Controllers\DistribusiController;
 
 
 // 1. Halaman Login
@@ -95,5 +98,42 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/simpanan/{id}', [SimpananController::class, 'update'])->name('simpanan.update');
     Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy'])->name('simpanan.destroy');
     Route::get('/laporan', [PinjamanController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
+
+    //Klinik
+    Route::prefix('klinik')->group(function () {
+        Route::get('/', [KlinikController::class, 'index'])->name('klinik.index');
+        Route::get('/pendaftaran', [KlinikController::class, 'pendaftaran'])->name('klinik.pendaftaran');
+        Route::post('/simpan-pemeriksaan', [KlinikController::class, 'store'])->name('klinik.store');
+    });
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/klinik', [KlinikController::class, 'index'])->name('klinik.index');
+    });
+
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/klinik/periksa/{id}', [KlinikController::class, 'periksa'])->name('klinik.periksa');
+        Route::post('/klinik/simpan-tindakan/{id}', [KlinikController::class, 'simpanTindakan'])->name('klinik.simpanTindakan');
+    });
+
+    Route::get('/klinik/detail/{id}', [KlinikController::class, 'show'])->name('klinik.show');
+
+    Route::get('/apotek-retail', [ApotekController::class, 'apotekIndex'])->name('apotek.index');
+
+    Route::get('/gudang-apotek', [ApotekController::class, 'gudangIndex'])->name('apotek.gudang');
+    Route::post('/gudang/store', [ApotekController::class, 'storeObat'])->name('apotek.store');
+    Route::post('/gudang/mutasi/{id}', [ApotekController::class, 'kirimKeApotek'])->name('apotek.kirim');
+
+    Route::get('/apotek/jual/{id}', [ApotekController::class, 'jualObat'])->name('apotek.formJual');
+    Route::post('/apotek/proses-jual/{id}', [ApotekController::class, 'prosesJual'])->name('apotek.prosesJual');
+
+    Route::prefix('gudang-distribusi')->group(function () {
+        Route::get('/', [DistribusiController::class, 'index'])->name('distribusi.gudang');
+        Route::post('/store', [DistribusiController::class, 'store'])->name('distribusi.store');
+        Route::post('/kirim-luar/{id}', [DistribusiController::class, 'kirimLuarDesa'])->name('distribusi.kirimLuar');
+        Route::post('/mutasi-gerai/{id}', [DistribusiController::class, 'mutasiKeGerai'])->name('distribusi.mutasi');
+    });
+
+    Route::post('/gudang-distribusi/kirim-luar/{id}', [DistribusiController::class, 'prosesFaktur'])->name('distribusi.prosesFaktur');
+    Route::post('/gudang-distribusi/mutasi-gerai/{id}', [DistribusiController::class, 'prosesMutasi'])->name('distribusi.prosesMutasi');
 
 });
