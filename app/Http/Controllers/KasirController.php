@@ -12,6 +12,7 @@ use App\Models\KreditAnggota;
 use Illuminate\Support\Carbon;
 use App\Models\PenjualanDetail;
 use App\Models\TransaksiDetail;
+use App\Models\BonDetail;
 use Illuminate\Support\Facades\DB;
 use SebastianBergmann\Environment\Console;
 
@@ -24,46 +25,6 @@ class KasirController extends Controller {
     }
 
     public function store(Request $request) {
-        // return DB::transaction(function () use ($request) {
-        //     // 1. Simpan Header Penjualan
-        //     $penjualan = Penjualan::create([
-        //         'no_invoice' => 'INV-' . date('YmdHis'),
-        //         'member_id' => $request->member_id,
-        //         'total_harga' => $request->total_harga,
-        //         'metode_bayar' => $request->metode_bayar,
-        //     ]);
-
-        //     // 2. Loop barang yang dibeli
-        //     foreach ($request->cart as $item) {
-        //         TransaksiDetail::create([
-        //             'penjualan_id' => $penjualan->id,
-        //             'barang_id' => $item['id'],
-        //             'qty' => $item['qty'],
-        //             'harga_satuan' => $item['harga'],
-        //             'subtotal' => $item['qty'] * $item['harga'],
-        //         ]);
-
-        //         // OTOMATIS POTONG STOK GUDANG
-        //         $barang = Barang::find($item['id']);
-        //         $barang->decrement('stok', $item['qty']);
-        //     }
-
-        //     // 3. INTEGRASI SIMPAN PINJAM (Jika Metode Bon)
-        //     if ($request->metode_bayar == 'Bon' && $request->member_id) {
-        //         // Tambahkan catatan piutang ke tabel pinjaman/piutang anggota
-        //         DB::table('pinjamans')->insert([
-        //             'member_id' => $request->member_id,
-        //             'jumlah' => $request->total_harga,
-        //             'keterangan' => 'Bon Kasir: ' . $penjualan->no_invoice,
-        //             'status' => 'Belum Lunas',
-        //             'created_at' => now(),
-        //         ]);
-        //     }
-
-        //     return response()->json(['success' => true, 'message' => 'Transaksi Berhasil!']);
-        // });
-
-        // dd($request->all());
         // try {
             DB::transaction(function () use ($request) {
                 $namaMember = Member::where('id', $request->member_id)->first();
@@ -92,11 +53,12 @@ class KasirController extends Controller {
                     ]);
 
                     $barang = Barang::find($item['id']);
+                    $limitBon = KreditAnggota::find($request->member_id);
                     
 
                     if ($request->kategori == 'member' && $request->metode_bayar == 'bon') {
 
-                        Transaksi_SP::create([
+                        $Transaksi_SP = Transaksi_SP::create([
                             'no_transaksi_sp' => 'SP-B-'. date('YmdHis'),
                             'tanggal' => $transaksi->tgl_transaksi,
                             'member_id' => $request->member_id,
@@ -106,8 +68,15 @@ class KasirController extends Controller {
                             'Nominal' => $transaksi->total_bon,
                             'Keterangan' => 'Bon Anggota: ' . ($request->catatan ? $request->catatan : $namaMember->nama_lengkap),
                         ]);
+
+                        BonDetail::create([
+                            'no_transaksi_sp' => $Transaksi_SP->no_transaksi_sp,
+                            'status' => 'belum'
+                        ]);
+                        // otomatis potong limit
+                        $limitBon->decrement('limit', $transaksi->total_bon);
                     }
-                    // OTOMATIS POTONG STOK GUDANG
+                    // OTOMATIS POTONG STOK GUDANG 
                     $barang->decrement('stok', $item['qty']);
                 }
 

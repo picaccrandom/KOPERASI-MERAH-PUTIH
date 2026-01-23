@@ -4,7 +4,7 @@
 
 @section('content')
     {{-- @php
-        dd($peminjamans)
+        dd($Bons)
     @endphp --}}
     <div class="mx-28  px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
@@ -12,14 +12,12 @@
             <div class=" px-6 py-2  flex justify-between items-center">
                 <div class="border-l-8 border-l-red-600 pl-4">
                     <div class=" text-white text-4xl text-shadow-lg uppercase font-extrabold tracking-wider">Data
-                        Pinjaman</div>
+                        Bon</div>
                 </div>
             </div>
         </div>
         <hr class="m-0 p-0 mb-4">
-        <p class="text-slate-600 pl-4 ">Kelola Data Peminjaman dengan Teliti</p>
-        <main class="flex gap-3 h-[80dvh]">
-            <div class="w-3/4">
+        <p class="text-slate-600 pl-4 ">Kelola Data bon dengan Teliti</p>
                 <div class="relative w-2/3 mb-4">
                     <input type="text" placeholder="Search nama, status..." id="search-pinjaman"
                         class="bg-white pl-10 pr-4 py-2 w-full border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
@@ -37,59 +35,37 @@
                                     <th>TANGGAL PINJAM</th>
                                     <th>TOTAL PINJAMAN</th>
                                     <th>JENIS</th>
-                                    <th>LAMA BAYAR</th>
-                                    <th>JATUH TEMPO</th>
                                     <th>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody class="hidden">
-                                @foreach ($peminjamans as $peminjaman)
-                                    <tr class="pinjaman-row [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
-                                        data-index="{{ $loop->index }}">
+                                @foreach ($Bons as $bon)
+                                    <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
+                                        id="pinjaman-row" data-index="{{ $loop->index }}">
                                         <td class="font-medium">{{ $loop->iteration }}</td>
                                         <td>
-                                            <div class="flex items-center">
+                                            <div class="flex justify-center items-center">
                                                 <div>
                                                     <div class="font-medium text-gray-900">
-                                                        {{ $peminjaman->member->nama_lengkap }}
+                                                        {{ $bon->member->nama_lengkap }}
                                                     </div>
-                                                    <div class="text-xs text-gray-500">{{ $peminjaman->no_hp }}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal)->format('d F Y') }}</td>
-                                    <td class="font-bold text-red-600 text-left text-sm">Rp.
-                                            {{ number_format($peminjaman->Nominal, 0, ',', '.') }}
+                                        <td>{{ \Carbon\Carbon::parse($bon->tanggal)->format('d F Y') }}</td>
+                                    <td class="font-bold text-red-600 text-center text-sm">Rp.
+                                            {{ number_format($bon->Nominal, 0, ',', '.') }}
                                         </td>
                                         <td>
-                                            @if ($peminjaman->COA == 'Pinjam')
-                                                <span
-                                                    class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">Peminjaman</span>
-                                            @else
-                                                <span
-                                                    class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">BON</span>
-                                            @endif
+                                            <span class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">BON</span>
                                         </td>
                                         <td>
-                                            @if ($peminjaman->COA == 'Pinjam')
-                                                {{ $peminjaman->angsuranPeminjamans->count() }} Bulan
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo)->format('d F Y') }}
-                                        </td>
-                                        <td>
-                                            <div class="flex space-x-2">
-                                                @if ($peminjaman->COA == 'Pinjam')
-                                                <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}"
-                                                @else
-                                                <a href="{{ route('pinjaman.detailBon', $peminjaman->no_transaksi_sp) }}"
-                                                @endif
+                                            <div class="flex justify-center space-x-2">
+                                                <a href="{{ route('bon.detailBon', $bon->no_transaksi_sp) }}"
                                                     class="text-blue-600 hover:text-blue-900" title="Detail">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
-                                                <form action="{{ route('pinjaman.destroy', $peminjaman->id) }}"
+                                                <form action="{{ route('bon.destroy', $bon->id) }}"
                                                     onclick="confirmDelete(event, this)" method="POST" class="inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -100,34 +76,12 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    @if ($peminjaman->COA == 'Pinjam')
-                                        <tr class="bg-slate-100 ket-pinjaman" data-index="{{ $loop->index }}">
-                                            <td colspan="8"  class="text-start  pl-12 py-4" >
-                                                <i class="bi bi-arrow-return-right text-black"></i>
-                                                Angsuran Terdekat: 
-                                                <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}" class="text-blue-600 hover:underline">
-                                                    {{ $peminjaman->angsuranBelum->batas_bayar ?? 'Belum ada angsuran' }} - Rp. {{ number_format($peminjaman->angsuranBelum->jumlah_angsuran ?? 0, 0, ',', '.') }} | Angsuran Ke - {{ $peminjaman->angsuranBelum->angsuran_ke ?? 'Belum ada angsuran' }}
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endif
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
 
                 </div>
-            </div>
-            <div class="flex flex-col w-1/4 justify-center items-center">
-                <div class="flex justify-center items-center h-full w-full">
-                    <a type="a" href="{{ route('pinjaman.create') }}"
-                        class="w-full h-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex justify-center items-center  text-decoration-none shadow-md text-lg uppercase font-semibold">
-                        <i class="fas fa-plus mr-2"></i>
-                        Tambah Pinjaman
-                    </a>
-                </div>
-            </div>
-        </main>
     </div>
 
 @endsection

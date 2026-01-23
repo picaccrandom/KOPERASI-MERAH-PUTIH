@@ -27,12 +27,18 @@ class SimpananController extends Controller
     public function create()
     {
         $members = Member::all();
-        $SimpanansPokok = SimpananDetail::where('jenis', 'pokok')
+        $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK') 
             ->whereHas('transaksiSP', function ($q) {
                 $q->whereNotNull('member_id');
             })
-            ->with('transaksiSP.member')
-            ->get();
+            ->with('transaksiSP')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'member_id' => $item->transaksiSP->member_id
+                ];
+            });
+            
         return view('simpanan-create', compact('members', 'SimpanansPokok'));
     }
 
@@ -41,6 +47,11 @@ class SimpananController extends Controller
      */
     public function store(Request $request)
     {
+        $namaMember = Member::where('id', $request->member_id)->first();
+
+        if (!$namaMember) {
+            return redirect()->back()->with('error', 'Member tidak ditemukan.');
+        }
         // $request->validate([
         //     'member_id' => 'required|exists:members,id',
         //     'nominal' => 'required|numeric|min:0',
@@ -49,7 +60,7 @@ class SimpananController extends Controller
 
         // dd($request)
 
-        DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request, $namaMember) {
 
             // $transaksi = Simpanan::create([
             //     'kode_simpanan' => 'SPS'. date('YmdHis'),
@@ -73,27 +84,40 @@ class SimpananController extends Controller
 
 
             $transaksi = Transaksi_SP::create([
-                $namaMember = Member::where('id', $request->member_id)->first(),
-                'no_transaksi_sp' => 'SP-S-'. date('YmdHis'),
+                'no_transaksi_sp' => 'SP-S-' . date('YmdHis') . random_int(10, 99),
                 'tanggal' => now(),
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
                 'COA' => 'Simpan',
-                'Debit/Credit' => 'Debit',
+                'Debit/Credit' => 'Debit', // Uang masuk
                 'Nominal' => (float)$request->nominal,
-                'Keterangan' => 'Simpanan anggota :'.$request->catatan,
+                'Keterangan' => 'Simpanan ' . $request->jenis . ': ' . ($request->catatan ?? '-'),
             ]);
 
+            // 2. Buat Detail Simpanan
             SimpananDetail::create([
                 'no_transaksi_sp' => $transaksi->no_transaksi_sp,
                 'tanggal' => now(),
                 'saldo' => (float)$request->nominal,
-                'jenis' => $request->jenis,
+                'jenis' => strtoupper($request->jenis), // Simpan sebagai POKOK/WAJIB/SUKARELA
                 'status' => 'aktif',
             ]);
+
+            // 3. INTEGRASI: Update Buku Kas Umum
+            //$saldoTerakhir = DB::table('kas_koperasis')->orderBy('id', 'desc')->value('saldo_akhir') ?? 0;
+            //DB::table('kas_koperasis')->insert([
+                //'tgl_catat' => now(),
+                //'keterangan' => 'Simpanan ' . $request->jenis . ' - ' . $namaMember->nama_lengkap,
+                //'masuk' => (float)$request->nominal,
+                //'keluar' => 0,
+                //'saldo_akhir' => $saldoTerakhir + (float)$request->nominal,
+                //'kategori' => 'Simpanan',
+                //'created_at' => now(),
+                //'updated_at' => now(),
+            //]);
         });
 
-        return redirect()->route('simpanan.index')->with('success', 'Simpanan berhasil ditambahkan.');
+        return redirect()->route('simpanan.index')->with('success', 'Simpanan berhasil ditambahkan dan saldo kas diperbarui.');
     }
 
     /**

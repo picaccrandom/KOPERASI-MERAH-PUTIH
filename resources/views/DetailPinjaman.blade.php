@@ -2,6 +2,7 @@
 @section('title', 'Detail Pinjaman')
 
 @section('content')
+
     <div class="relative bg-white/40 backdrop-blur-2xl rounded-lg mx-32 p-16">
         <div class="border-l-8 border-l-green-400 pl-4 mb-8">
             <div class="border-b-2 pb-2 mb-2 border-b-slate-500 inline-block text-4xl font-bold text-white uppercase shadow-sm">
@@ -11,13 +12,69 @@
 
         <div class="bg-white rounded-lg shadow-lg px-14 py-8">
             <div class="p-6">
+            
+                <!-- Info Anggota -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-500">KODE PINJAMAN</p>
+                            <p class="text-lg text-gray-800">{{ $transaksiInduk->no_transaksi_sp }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">NAMA ANGGOTA</p>
+                            <p class="text-lg font-bold text-gray-800">{{ $transaksiInduk->nama }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">NIK</p>
+                            <p class="text-lg text-gray-800">{{ $transaksiInduk->member->nik }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">NO. TELP/WA</p>
+                            <p class="text-lg text-gray-800">{{ $transaksiInduk->member->nomor_hp }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-sm text-gray-500">TOTAL PINJAMAN</p>
+                            <p class="text-lg font-bold text-red-600">
+                                Rp {{ number_format($pinjaman->first()->total_pinjaman ?? 0, 0, ',', '.') }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">JENIS PINJAMAN</p>
+                            <div class="bg-orange-600 px-2 shadow-md inline-block rounded-md">
+                                <p class="text-white m-0">{{ $transaksiInduk->COA }}</p>
+                            </div>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">BUNGA / TENOR</p>
+                            <p class="text-lg text-gray-800">
+                                {{ $pinjaman->first()->bunga ?? 0 }}% / {{ $pinjaman->first()->tenor ?? 0 }} Bulan
+                            </p>
+                        </div>
+                        <div class="flex space-x-4">
+                            <div>
+                                <p class="text-sm text-gray-500">JATUH TEMPO TERDEKAT</p>
+                                <p class="text-lg text-gray-800">
+                                    {{ \Carbon\Carbon::parse($pinjaman->where('status', 'belum')->first()->batas_bayar ?? now())->format('d M Y') }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alamat -->
+                <div class="mb-6 p-4 bg-gray-50 rounded">
+                    <p class="text-sm text-gray-500 mb-1">ALAMAT</p>
+                    <p class="text-gray-800">{{ $transaksiInduk->member->alamat }}</p>
+                </div>
                 <div class="mb-4">
                     <div class="flex justify-between items-center mb-4">
                         <h4 class="text-lg font-bold text-gray-800">Rincian Angsuran</h4>
-                        <button id="btn-rincian-angsuran" class="px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">Buka Rincian Angsuran</button>
                     </div>
 
-                    <div class="overflow-x-auto hidden max-h-64 relative border rounded" id="rincian-angsuran">
+                    <div class="overflow-x-auto max-h-64 relative border rounded" id="rincian-angsuran">
                         <table class="w-full table-auto text-center border-collapse">
                             <thead class="bg-black text-white sticky top-0 z-10">
                                 <tr>
@@ -62,17 +119,6 @@
 
 @section('scripts')
 <script>
-    // Toggle Rincian
-    document.getElementById('btn-rincian-angsuran').addEventListener('click', function() {
-        var rincianAngsuran = document.getElementById('rincian-angsuran');
-        if (rincianAngsuran.classList.contains('hidden')) {
-            rincianAngsuran.classList.remove('hidden');
-            this.textContent = 'Tutup Rincian Angsuran';
-        } else {
-            rincianAngsuran.classList.add('hidden');
-            this.textContent = 'Buka Rincian Angsuran';
-        }
-    });
 
     // Fungsi Bayar
     function bayarAngsuran(angsuranId, angsuranKe, memberId) {

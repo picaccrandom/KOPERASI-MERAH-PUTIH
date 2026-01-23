@@ -224,6 +224,7 @@
                     'simpanpinjam.*',
                     'pinjaman.*',
                     'simpanan.*',
+                    'bon.*'
                 );
             @endphp
 
@@ -243,9 +244,16 @@
 
                 <a href="{{ route('pinjaman.index') }}"
                 class="tab-nav mx-4 px-2 py-0.5 text-sm 
-                {{ request()->routeIs('pinjaman.*') ? 'active' : '' }}">>
+                {{ request()->routeIs('pinjaman.*') ? 'active' : '' }}">
                     <i class="fas fa-hand-holding-usd mr-2"></i>
                     PINJAMAN
+                </a>
+
+                <a href="{{ route('bon.indexBon') }}"
+                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                {{ request()->routeIs('bon.*') ? 'active' : '' }}">
+                    <i class="fas fa-piggy-bank mr-2"></i>
+                    BON
                 </a>
 
                 <a href="{{ route('simpanan.index') }}"
@@ -254,6 +262,7 @@
                     <i class="fas fa-piggy-bank mr-2"></i>
                     SIMPANAN
                 </a>
+
             </div>
             @endif
 

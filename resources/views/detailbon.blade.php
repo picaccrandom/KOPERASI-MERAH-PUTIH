@@ -26,7 +26,7 @@
                 <tbody>
                     <tr class="border-b hover:bg-gray-50 text-sm">
                         <td class="py-4">{{ $bon->no_transaksi_sp }}</td>
-                        <td>{{ $bon->member->nama_lengkap }}</td>
+                        <td class="text-center">{{ $bon->member->nama_lengkap }}</td>
                         <td>{{ \Carbon\Carbon::parse($bon->created_at)->format('d M Y') }}</td>
                         <td class="font-bold text-red-600">Rp {{ number_format($bon->Nominal, 0, ',', '.') }}</td>
                         <td>{{ $bon->keterangan ?? 'tidak ada keterangan' }}</td>
@@ -34,8 +34,8 @@
                 </tbody>
             </table>
             <div class="mt-4 flex gap-3 justify-end">
-                <a href="{{ route('pinjaman.index') }}" class="text-decoration-none  mt-4 inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Kembali</a>
-                <form action="{{ route('pinjaman.bayarBon', $bon->no_transaksi_sp) }}" method="POST">
+                <a href="{{ route('bon.indexBon') }}" class="text-decoration-none  mt-4 inline-block bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">Kembali</a>
+                <form action="{{ route('bon.bayarBon', $bon->no_transaksi_sp) }}" method="POST">
                     @csrf
                     @method('POST')
                     <button type="submit" class="text-decoration-none  mt-4 inline-block bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded">Lunasi Bon</button>

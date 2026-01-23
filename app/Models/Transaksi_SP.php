@@ -34,10 +34,16 @@ class Transaksi_SP extends Model
         return $this->hasMany(SimpananDetail::class, 'no_transaksi_sp', 'no_transaksi_sp');
     }
 
+    public function bonBelum()
+    {
+        return $this->hasOne(BonDetail::class, 'no_transaksi_sp', 'no_transaksi_sp')->where('status', 'belum');
+    }
+
     public function angsuranBelum()
     {
         return $this->hasOne(AngsuranPeminjaman::class, 'no_transaksi_sp', 'no_transaksi_sp')
                     ->where('status', 'belum');
     }
+    
 
 }
