@@ -72,6 +72,8 @@ Route::middleware(['auth'])->group(function () {
     // dashboard simpan pinjam
     
     // Pinjaman Routes
+    Route::get('/pinjaman/dashboard', [PinjamanController::class, 'dashboardSP'])->name('pinjaman.dashboardSP'); // Pinjaman
+
     Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('pinjaman.index'); // Pinjaman
     Route::get('/pinjaman/create', [PinjamanController::class, 'create'])->name('pinjaman.create'); // Pinjaman
     Route::post('/pinjaman/create', [PinjamanController::class, 'store'])->name('pinjaman.store'); // Pinjaman
@@ -88,9 +90,11 @@ Route::middleware(['auth'])->group(function () {
     
     // Simpanan Routes
     Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index'); // Simpanan
-    Route::get('/simpanan/create', [SimpananController::class, 'create'])->name('simpanan.create'); // Simpanan
-    Route::post('/simpanan/create', [SimpananController::class, 'store'])->name('simpanan.store'); // Simpanan
-    Route::get('/simpanan/{id}', [SimpananController::class, 'show'])->name('simpanan.show');
+    Route::get('/simpanan/create', [SimpananController::class, 'create'])->name('simpanan.create'); // Simpanan tampil form tambah
+    Route::post('/simpanan/create', [SimpananController::class, 'store'])->name('simpanan.store'); // Simpanan tambah
+    Route::get('/simpanan/tarik', [SimpananController::class, 'createTarik'])->name('simpanan.tarik'); // Simpanan tampil form tarik
+    Route::post('/simpanan/tarik', [SimpananController::class, 'reduce'])->name('simpanan.reduce'); // Simpanan tampil form tarik
+    Route::get('/simpanan/show/{id}', [SimpananController::class, 'show'])->name('simpanan.show');
     Route::get('/simpanan/{id}/edit', [SimpananController::class, 'edit'])->name('simpanan.edit');
     Route::put('/simpanan/{id}', [SimpananController::class, 'update'])->name('simpanan.update');
     Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy'])->name('simpanan.destroy');

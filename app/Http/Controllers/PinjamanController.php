@@ -23,6 +23,11 @@ class PinjamanController extends Controller
     // {
     //     return view('dashboard');
     // }
+
+    public function dashboardSP()
+    {
+        return view('simpanpinjam');
+    }
     
     
     public function index()

@@ -8,13 +8,13 @@
 
         <div class="mb-10 border-l-8 border-green-600 pl-4">
             <h1 class="fw-bolder text-shadow-lg text-white uppercase tracking-wider">Formulir <span
-                    class="bg-green-600 px-2 rounded-md">tambah simpanan</span></h1>
+                    class="bg-orange-400 px-2 rounded-md">Penarikan Simpanan</span></h1>
             <hr class="my-0 mb-2">
             <p class="pl-1 text-slate-600">Isi dengan cermat sesuai format dan ketentuan <span
-                    class="text-green-600 font-semibold">Simpanan !</span></p>
+                    class="text-orange-400 font-semibold">Penarikan Simpanan !</span></p>
 
         </div>
-        <form action="{{ route('simpanan.store') }}" method="POST" id="form-pinjaman"
+        <form action="{{ route('simpanan.reduce') }}" method="POST" id="form-pinjaman"
             class="bg-white px-12 py-12 [&_label]:text-[1rem] [&_label]:pl-1 rounded-md shadow-xl">
             @csrf
             
@@ -30,14 +30,9 @@
                         </div>
 
                         <div>
-                            <label class="mb-1 after:content-['*'] after:text-red-500 after:pl-1">Kategori</label>
-                            <select class="text-center w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
-                                    name="jenis" id="jenis" required>
-                                <option value="">Pilih Jenis</option>
-                                <option id="option-pokok" value="Pokok">Pokok</option>
-                                <option id="option-wajib" value="Wajib">Wajib</option>
-                                <option id="option-sukarela" value="Sukarela">Sukarela</option>
-                            </select>
+                            <label class="mb-1 ">Saldo Simpanan Sukarela</label>
+                            <input type="text" class="w-full px-3 py-2 cursor-not-allowed text-slate-400 roundedtext-sm"
+                                placeholder="Saldo Sukarela" name="saldo-sukarela" id="saldo-sukarela" disabled value="Rp. 0">
                         </div>
                     </div>
 
@@ -55,7 +50,7 @@
                         <div class="col-span-2 h-full row-span-2">
                             <label class="mb-1">Catatan/Keterangan (Opsional)</label>
                             <textarea class="w-full px-3 outline-none py-2 border border-slate-200 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm h-full"
-                                    rows="6" placeholder="Contoh: Simpanan wajib..." name="catatan"></textarea>
+                                    rows="6" placeholder="Contoh: untuk beli motor..." name="catatan"></textarea>
                         </div>
                     </div>
                 </div>
@@ -65,8 +60,8 @@
                 <a href="{{ route('simpanan.index') }}" class="no-underline px-8 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm text-black">
                     Batal
                 </a>
-                <button type="button" id="btn-simpan" class="px-8 py-2 bg-green-700 hover:bg-green-800 text-white rounded text-sm">
-                    Simpan Data Simpanan
+                <button type="button" id="btn-simpan" class="px-8 py-2 bg-orange-700 hover:bg-orange-800 text-white rounded text-sm">
+                    Tarik Simpanan
                 </button>
             </div>
         </form>
@@ -76,10 +71,10 @@
 @section('scripts')
     <script>
         const members = @json($members);
-        const simpanansPokok = @json($SimpanansPokok);
+        const simpanansPokok = @json($saldoSimpanan);
 
         const nominalInput = document.getElementById('nominal');
-        const jenisSelect = document.getElementById('jenis');
+        const saldoSukarelaInput = document.getElementById('saldo-sukarela');
         const ketInputNominal = document.getElementById('ket-input-nominal');
 
         nominalInput.addEventListener('input', function() {
@@ -107,32 +102,6 @@
             return rupiah;
         }
 
-        jenisSelect.addEventListener('change', function() {
-            const selectedJenis = this.value;
-            
-            nominalInput.readOnly = false; 
-            nominalInput.classList.remove('cursor-not-allowed', 'text-gray-500');
-            ketInputNominal.classList.add('hidden');
-
-            if (selectedJenis === 'Wajib') {
-                nominalInput.value = "20.000"; 
-                nominalInput.readOnly = true;
-                nominalInput.classList.add('cursor-not-allowed', 'text-gray-500');
-                ketInputNominal.textContent = '*Simpanan Wajib Sejumlah Rp. 20.000';
-                ketInputNominal.classList.remove('hidden');
-
-            } else if (selectedJenis === 'Pokok') {
-                nominalInput.value = "50.000";
-                nominalInput.readOnly = true;
-                nominalInput.classList.add('cursor-not-allowed', 'text-gray-500');
-                ketInputNominal.textContent = '*Simpanan Pokok Sejumlah Rp. 50.000';
-                ketInputNominal.classList.remove('hidden');
-
-            } else if (selectedJenis === 'Sukarela') {
-                nominalInput.value = '';
-                nominalInput.placeholder = 'Masukkan Nominal Bebas...';
-            }
-        });
 
         document.getElementById('search-member').addEventListener('input', function() {
             const query = this.value.toLowerCase();
@@ -156,24 +125,11 @@
                         document.getElementById('search-member').value = m.nama_lengkap;
                         memberIdInput.value = m.id;
                         dropdown.classList.remove('show', 'hidden');
-
-                        const hasPokok = simpanansPokok.some(s => s.member_id == m.id);
-                        const optPokok = document.getElementById('option-pokok');
-                        const optWajib = document.getElementById('option-wajib');
-                        const optSukarela = document.getElementById('option-sukarela');
-
-                        jenisSelect.value = "";
-                        nominalInput.value = "";
-
-                        if (hasPokok) {
-                            optPokok.style.display = 'none';
-                            optWajib.style.display = 'block';
-                            optSukarela.style.display = 'block';
-                        } else {
-                            optPokok.style.display = 'block';
-                            optWajib.style.display = 'none';
-                            optSukarela.style.display = 'none';
-                        }
+                        // Set saldo sukarela
+                        const simpanan = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.saldo), 0);
+                        const saldo = simpanan ? simpanan : 0;
+                        saldoSukarelaInput.value = 'Rp. ' + saldo;
+                        nominalInput.placeholder = 'Maksimal: ' + saldo;
                     });
                     dropdown.appendChild(option);
                 });
@@ -184,9 +140,27 @@
             }
         });
 
+        nominalInput.addEventListener('input', function() {
+            const memberId = document.getElementById('member_id').value;
+            const rawNominal = this.value.replace(/[^\d]/g, '');
+            if (memberId) {
+                const simpanan = simpanansPokok.filter(s => s.member_id === parseInt(memberId)).reduce((total, s) => total + Number(s.saldo), 0);
+                const saldo = simpanan ? simpanan : 0;
+
+                if (parseInt(rawNominal) > saldo) {
+                    ketInputNominal.textContent = 'Nominal melebihi saldo simpanan sukarela.';
+                    ketInputNominal.classList.remove('hidden');
+                } else {
+                    ketInputNominal.classList.add('hidden');
+                }
+            }
+        });
+
         document.getElementById('btn-simpan').addEventListener('click', function() {
             const memberId = document.getElementById('member_id').value;
             const rawNominal = nominalInput.value.replace(/[^\d]/g, '');
+            const simpanan = simpanansPokok.filter(s => s.member_id === parseInt(memberId)).reduce((total, s) => total + Number(s.saldo), 0);
+            const saldo = simpanan ? simpanan : 0;
 
             if (!memberId) {
                 swal.fire('Error', 'Silahkan pilih member dari daftar yang tersedia.', 'error');
@@ -198,12 +172,17 @@
                 return;
             }
 
+            if (parseInt(rawNominal) > saldo) {
+                swal.fire('Error', 'Nominal melebihi saldo simpanan sukarela.', 'error');
+                return;
+            }
+
             swal.fire({
                 title: 'Konfirmasi',
-                text: 'Simpan data simpanan ini ke sistem?',
-                icon: 'question',
+                text: 'Simpan data penarikan ini ke sistem?',
+                icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya, Simpan!',
+                confirmButtonText: 'Ya, Tarik!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {

@@ -19,7 +19,7 @@ class KreditAnggotaFactory extends Factory
     {
         return [
             'member_id' =>  Member::inRandomOrder()->value('id'),
-            'limit' => 10000000
+            'limit' => 5000000
         ];
     }
 }

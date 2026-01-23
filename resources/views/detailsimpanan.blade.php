@@ -36,8 +36,8 @@
                         <span class="w-2/3">{{ $transaksi->member->nama_lengkap }}</span>
                     </div>
                     <div class="flex">
-                        <span class="w-1/3 font-semibold text-gray-700">Nomor Anggota:</span>
-                        <span class="w-2/3">{{ $transaksi->member->nomor_anggota ?? '-' }}</span>
+                        <span class="w-1/3 font-semibold text-gray-700">NIK</span>
+                        <span class="w-2/3">{{ $transaksi->member->nik ?? '-' }}</span>
                     </div>
                     <div class="flex">
                         <span class="w-1/3 font-semibold text-gray-700">Alamat:</span>
@@ -45,7 +45,7 @@
                     </div>
                     <div class="flex">
                         <span class="w-1/3 font-semibold text-gray-700">Telepon:</span>
-                        <span class="w-2/3">{{ $transaksi->member->telepon ?? '-' }}</span>
+                        <span class="w-2/3">{{ $transaksi->member->nomor_hp ?? '-' }}</span>
                     </div>
                 </div>
             </div>
