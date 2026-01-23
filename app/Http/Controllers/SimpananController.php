@@ -17,8 +17,9 @@ class SimpananController extends Controller
      */
     public function index()
     {
-        $simpanans = Transaksi_SP::with('member', 'simpananDetails')->where('COA', 'Simpan')->orderBy('created_at', 'desc')->get();
-        return view('simpanan', compact('simpanans'));
+        $members = Member::all();
+        $simpanans = Transaksi_SP::with('member', 'simpananDetails')->whereIn('COA', ['Simpan', 'Tarik'])->orderBy('created_at', 'desc')->get();
+        return view('simpanan', compact('simpanans', 'members'));
     }
 
     /**
@@ -62,29 +63,9 @@ class SimpananController extends Controller
 
         DB::transaction(function () use ($request, $namaMember) {
 
-            // $transaksi = Simpanan::create([
-            //     'kode_simpanan' => 'SPS'. date('YmdHis'),
-            //     'member_id' => $request->member_id,
-            //     'status' => 'aktif',
-            //     ]);
-
-            // SimpananTransaksi::create([
-            //     'kode_simpanan' => $transaksi->kode_simpanan,
-            //     'tanggal' => now(),
-            //     'jenis' => $request->jenis,
-            //     'tipe' => 'kredit',
-            //     'nominal' => (float)$request->nominal,
-            //     'catatan' => $request->catatan,
-            // ]);
-
-            // if ($request->jenis == 'Sukarela') {
-            //     $saldoBaru = $transaksi->saldo + (float)$request->nominal;
-            //     $transaksi->increment('saldo', $saldoBaru);
-            // }
-
-
+            // 1. Buat Transaksi Simpanan
             $transaksi = Transaksi_SP::create([
-                'no_transaksi_sp' => 'SP-S-' . date('YmdHis') . random_int(10, 99),
+                'no_transaksi_sp' => 'SP-S-' . date('YmdHis'),
                 'tanggal' => now(),
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
@@ -125,12 +106,24 @@ class SimpananController extends Controller
      */
     public function show($id)
     {
-        $transaksi = Transaksi_SP::with(['member', 'simpananDetails'])
-            ->where('id', $id)
-            ->where('COA', 'Simpan')
-            ->firstOrFail();
-        
-        return view('detailsimpanan', compact('transaksi'));
+        // Jika request AJAX / ingin JSON, kembalikan data member + total simpanan
+        if (request()->wantsJson() || request()->expectsJson()) {
+            $member = Member::findOrFail($id);
+
+            $total_simpanan = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
+                $q->where('member_id', $id);
+            })->sum('saldo');
+            $status = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
+                $q->where('member_id', $id);
+            })->exists() ? 'aktif' : 'nonaktif';
+
+            return response()->json([
+                'member' => $member,
+                'status' => $status,
+                'total_simpanan' => $total_simpanan,
+            ]);
+        }
+
     }
 
     /**
@@ -209,4 +202,64 @@ class SimpananController extends Controller
         return redirect()->route('simpanan.index')
             ->with('success', 'Data simpanan berhasil dihapus.');
     }
+
+    public function createTarik()
+    {
+        $members = Member::all();
+        
+        $saldoSimpanan = SimpananDetail::whereIn('jenis', ['sukarela'])
+            ->whereHas('transaksiSP', function ($q) {
+                $q->whereNotNull('member_id');
+            })
+            ->with('transaksiSP')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'member_id' => $item->transaksiSP->member_id,
+                    'jenis_simpanan' => $item->jenis,
+                    'saldo' => $item->saldo,
+                ];
+            });
+        return view('TarikSimpanan', compact('members', 'saldoSimpanan'));
+    }
+
+    public function reduce(Request $request)
+    {
+        $request->validate([
+            'member_id' => 'required|exists:members,id',
+            'nominal' => 'required|numeric|min:1000',
+            'catatan' => 'nullable|string|max:255',
+        ]);
+
+        $namaMember = Member::where('id', $request->member_id)->first();
+
+        if (!$namaMember) {
+            return redirect()->back()->with('error', 'Member tidak ditemukan.');
+        }
+
+        DB::transaction(function () use ($request, $namaMember) {
+            // 1. Buat Transaksi Simpanan
+            $transaksi = Transaksi_SP::create([
+                'no_transaksi_sp' => 'SP-ST-' . date('YmdHis'),
+                'tanggal' => now(),
+                'member_id' => $request->member_id,
+                'nama' => $namaMember->nama_lengkap,
+                'COA' => 'Tarik',
+                'Debit/Credit' => 'Credit', // Uang keluar
+                'Nominal' => (float)$request->nominal,
+                'Keterangan' => 'Penarikan Simpanan Sukarela: ' . ($request->catatan ?? '-'),
+            ]);
+
+            // 2. Buat Detail Simpanan
+            SimpananDetail::create([
+                'no_transaksi_sp' => $transaksi->no_transaksi_sp,
+                'tanggal' => now(),
+                'saldo' => -(float)$request->nominal, // Saldo negatif untuk penarikan
+                'jenis' => 'sukarela',
+                'status' => 'aktif',
+            ]);
+        }); 
+        return redirect()->route('simpanan.index')->with('success', 'Penarikan simpanan berhasil diproses.');
+    }
+
 }

@@ -28,10 +28,10 @@ class MemberController extends Controller
 
         DB::transaction(function () use ($request) {
             Member::create($request->all());
-            KreditAnggota::create([
-                'member_id' => Member::latest()->first()->id,
-                'limit' => 1000000,
-            ]);
+            // KreditAnggota::create([
+            //     'member_id' => Member::latest()->first()->id,
+            //     'limit' => 1000000,
+            // ]);
 
             KreditAnggota::create([
                 'member_id' => Member::latest()->first()->id,

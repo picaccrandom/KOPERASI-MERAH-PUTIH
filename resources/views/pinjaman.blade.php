@@ -6,28 +6,158 @@
     {{-- @php
         dd($peminjamans)
     @endphp --}}
-    <div class="mx-28  px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
+    <div class="mx-12  px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
-        <div class="mb-2">
+        <div class="mb-2 flex justify-between items-center">
             <div class=" px-6 py-2  flex justify-between items-center">
                 <div class="border-l-8 border-l-red-600 pl-4">
-                    <div class=" text-white text-4xl text-shadow-lg uppercase font-extrabold tracking-wider">Data
+                    <div
+                        class=" text-white text-5xl text-shadow-md text-shadow-red-300 uppercase font-extrabold tracking-wider">
                         Pinjaman</div>
                 </div>
             </div>
+            <div class="flex justify-center items-center ">
+                <a type="a" href="{{ route('pinjaman.create') }}"
+                    class="w-full h-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex justify-center items-center  text-decoration-none shadow-md text-lg uppercase font-semibold">
+                    <i class="fas fa-plus mr-2"></i>
+                    Tambah Pinjaman
+                </a>
+            </div>
+
         </div>
         <hr class="m-0 p-0 mb-4">
-        <p class="text-slate-600 pl-4 ">Kelola Data Peminjaman dengan Teliti</p>
-        <main class="flex gap-3 h-[80dvh]">
-            <div class="w-3/4">
-                <div class="relative w-2/3 mb-4">
-                    <input type="text" placeholder="Search nama, status..." id="search-pinjaman"
-                        class="bg-white pl-10 pr-4 py-2 w-full border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
-                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
-                </div>
+        <main class="flex gap-3 ">
+            <div class="w-full flex flex-col  gap-4">
+                <section class="h-[80dvh] flex gap-2 mb-2" id="form-pencarian">
+                    <div class="w-[30%] flex flex-col justify-center items-start gap-y-6">
+                        <div class="h-1/2 bg-white w-full  rounded-3xl overflow-hidden shadow-md">
+                            {{-- Form Pencarian dan Filter akan ditempatkan di sini --}}
+                            <label for="search-pinjaman"
+                                class="uppercase bg-black text-white text-center font-semibold w-full px-4 py-2.5">
+                                <i class="fas fa-search"></i>
+                                Search Member
+                            </label>
+                            <div class="p-4 pt-10 flex flex-col w-full gap-y-6">
+                                <label for="" class="text-slate-400">Masukan Kode Pinjaman</label>
+                                <input type="text" id="search-pinjaman"
+                                    class="w-full ml-4 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64"
+                                    placeholder="Masukkan Kode Pinjaman...">
+                                <div class="dropdown-menu w-[20 %] text-base hidden" id="dropdown-member"></div>
+                                <a href="{{ route('pinjaman.index') }}"
+                                    class="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-decoration-none text-center font-semibold">Refresh</a>
+                            </div>
+                        </div>
+                        <div class="h-1/2 bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 shadow-md">
+                            {{-- Keterangan --}}
+                            <div class="">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <strong>Keterangan : </strong>
+                            </div>
+                            <p class="text-lg text-blue-800 flex flex-col  items-center pt-2">
+                                Penagihan pinjaman dapat dilakukan dengan mengakses detail pinjaman pada
+                                masing-masing anggota. Pastiakan untuk memeriksa data dengan teliti.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="bg-white w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
+                        <div class="overflow-x-auto flex p-10 px-10">
+                            <table class="text-center min-w-full space-y-4">
+                                <thead class="bg-orange-300">
+                                    <tr
+                                        class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                                        <th>KODE PINJAMAN</th>
+                                        <th>NAMA ANGGOTA</th>
+                                        <th>TOTAL PINJAMAN</th>
+                                        <th>LAMA BAYAR</th>
+                                        <th>JATUH TEMPO</th>
+                                        <th>ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="hidden">
+                                    @foreach ($peminjamans as $peminjaman)
+                                        <tr class="pinjaman-row [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
+                                            data-index="{{ $loop->index }}">
+                                            <td class="font-medium">{{ $peminjaman->no_transaksi_sp }}</td>
+                                            <td>
+                                                <div class="flex items-center">
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">
+                                                            {{ $peminjaman->member->nama_lengkap }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="font-bold text-red-600 text-left text-sm">Rp.
+                                                {{ number_format($peminjaman->Nominal, 0, ',', '.') }}
+                                            </td>
+                                            <td>
+                                                @if ($peminjaman->COA == 'Pinjam')
+                                                    {{ $peminjaman->angsuranPeminjamans->count() }} Bulan
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo)->format('d F Y') }}
+                                            </td>
+                                            <td>
+                                                <div class="flex space-x-2">
+                                                    @if ($peminjaman->COA == 'Pinjam')
+                                                        <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}"
+                                                        @else <a
+                                                            href="{{ route('pinjaman.detailBon', $peminjaman->no_transaksi_sp) }}"
+                                                            @endif
+                                                            class="text-blue-600 hover:text-blue-900" title="Detail">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <form action="{{ route('pinjaman.destroy', $peminjaman->id) }}"
+                                                            onclick="confirmDelete(event, this)" method="POST" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="text-red-600 hover:text-red-900">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        @if ($peminjaman->COA == 'Pinjam')
+                                            <tr class="bg-slate-100 ket-pinjaman" data-index="{{ $loop->index }}">
+                                                <td colspan="8" class="text-start  pl-12 py-4">
+                                                    <i class="bi bi-arrow-return-right text-black"></i>
+                                                    Angsuran Terdekat:
+                                                    <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}"
+                                                        class="text-blue-600 hover:underline">
+                                                        {{ $peminjaman->angsuranBelum->batas_bayar ?? 'Belum ada angsuran' }} -
+                                                        Rp.
+                                                        {{ number_format($peminjaman->angsuranBelum->jumlah_angsuran ?? 0, 0, ',', '.') }}
+                                                        | Angsuran Ke -
+                                                        {{ $peminjaman->angsuranBelum->angsuran_ke ?? 'Belum ada angsuran' }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
                 <!-- Data Table -->
-                <div class="bg-white h-[90%] overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
-                    <div class="overflow-x-auto flex p-10 px-10">
+                <hr>
+                <!--History Table -->
+                <div
+                    class="bg-white  w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
+
+                    <div class="flex justify-between items-center mb-2 mt-2 px-8">
+                        <p class=" bg-slate-400 text-white font-semibold px-4 py-2 text-2xl rounded-md shadow-md mt-2">
+                            Histori Pinjaman</p>
+                        <div class="relative">
+                            <input type="text" placeholder="Search..." id="search-pinjaman-history"
+                                class="pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    <div class="h-[70dvh] overflow-x-auto overflow-y-auto flex pb-10 pt-2 px-10">
                         <table class="text-center min-w-full space-y-4">
                             <thead class="bg-orange-300">
                                 <tr
@@ -39,12 +169,11 @@
                                     <th>JENIS</th>
                                     <th>LAMA BAYAR</th>
                                     <th>JATUH TEMPO</th>
-                                    <th>ACTION</th>
                                 </tr>
                             </thead>
-                            <tbody class="hidden">
+                            <tbody id="pinjaman-history">
                                 @foreach ($peminjamans as $peminjaman)
-                                    <tr class="pinjaman-row [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
+                                    <tr class=" [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
                                         data-index="{{ $loop->index }}">
                                         <td class="font-medium">{{ $loop->iteration }}</td>
                                         <td>
@@ -58,7 +187,7 @@
                                             </div>
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal)->format('d F Y') }}</td>
-                                    <td class="font-bold text-red-600 text-left text-sm">Rp.
+                                        <td class="font-bold text-red-600 text-left text-sm">Rp.
                                             {{ number_format($peminjaman->Nominal, 0, ',', '.') }}
                                         </td>
                                         <td>
@@ -79,52 +208,11 @@
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo)->format('d F Y') }}
                                         </td>
-                                        <td>
-                                            <div class="flex space-x-2">
-                                                @if ($peminjaman->COA == 'Pinjam')
-                                                <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}"
-                                                @else
-                                                <a href="{{ route('pinjaman.detailBon', $peminjaman->no_transaksi_sp) }}"
-                                                @endif
-                                                    class="text-blue-600 hover:text-blue-900" title="Detail">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <form action="{{ route('pinjaman.destroy', $peminjaman->id) }}"
-                                                    onclick="confirmDelete(event, this)" method="POST" class="inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
                                     </tr>
-                                    @if ($peminjaman->COA == 'Pinjam')
-                                        <tr class="bg-slate-100 ket-pinjaman" data-index="{{ $loop->index }}">
-                                            <td colspan="8"  class="text-start  pl-12 py-4" >
-                                                <i class="bi bi-arrow-return-right text-black"></i>
-                                                Angsuran Terdekat: 
-                                                <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}" class="text-blue-600 hover:underline">
-                                                    {{ $peminjaman->angsuranBelum->batas_bayar ?? 'Belum ada angsuran' }} - Rp. {{ number_format($peminjaman->angsuranBelum->jumlah_angsuran ?? 0, 0, ',', '.') }} | Angsuran Ke - {{ $peminjaman->angsuranBelum->angsuran_ke ?? 'Belum ada angsuran' }}
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endif
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-
-                </div>
-            </div>
-            <div class="flex flex-col w-1/4 justify-center items-center">
-                <div class="flex justify-center items-center h-full w-full">
-                    <a type="a" href="{{ route('pinjaman.create') }}"
-                        class="w-full h-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex justify-center items-center  text-decoration-none shadow-md text-lg uppercase font-semibold">
-                        <i class="fas fa-plus mr-2"></i>
-                        Tambah Pinjaman
-                    </a>
                 </div>
             </div>
         </main>
@@ -136,10 +224,10 @@
 @section('scripts')
 
     <script>
-       const pinjamanRows = document.querySelectorAll('.pinjaman-row');
+        const pinjamanRows = document.querySelectorAll('.pinjaman-row');
         const ketRows = document.querySelectorAll('.ket-pinjaman');
 
-        document.getElementById('search-pinjaman').addEventListener('input', function () {
+        document.getElementById('search-pinjaman').addEventListener('input', function() {
             const filter = this.value.toLowerCase();
             const tbody = document.querySelector('table tbody');
 
@@ -154,12 +242,14 @@
                 const index = row.dataset.index;
                 const ketRow = document.querySelector(`.ket-pinjaman[data-index="${index}"]`);
 
+                const kode = row.cells[0].textContent.toLowerCase();
                 const nama = row.cells[1].textContent.toLowerCase();
                 const tanggal = row.cells[2].textContent.toLowerCase();
-                const status = row.cells[4].textContent.toLowerCase();
-                const lamaBayar = row.cells[6].textContent.toLowerCase();
+                const lamaBayar = row.cells[3].textContent.toLowerCase();
+                const jatuhTempo = row.cells[4].textContent.toLowerCase();
 
                 const match =
+                    kode.includes(filter) ||
                     nama.includes(filter) ||
                     tanggal.includes(filter) ||
                     status.includes(filter) ||
@@ -175,6 +265,40 @@
             });
         });
 
+        document.getElementById('search-pinjaman-history').addEventListener('input', function() {
+            const filter = this.value.toLowerCase();
+            const tbody = document.getElementById('pinjaman-history');
+
+            console.log(filter);
+
+            if (filter === '') {
+                Array.from(tbody.rows).forEach(row => {
+                    row.style.display = '';
+                });
+                return;
+            }
+
+            Array.from(tbody.rows).forEach(row => {
+                const kode = row.cells[0].textContent.toLowerCase();
+                const nama = row.cells[1].textContent.toLowerCase();
+                const tanggal = row.cells[2].textContent.toLowerCase();
+                const lamaBayar = row.cells[4].textContent.toLowerCase();
+                const jatuhTempo = row.cells[6].textContent.toLowerCase();
+
+                const match =
+                    kode.includes(filter) ||
+                    nama.includes(filter) ||
+                    tanggal.includes(filter) ||
+                    lamaBayar.includes(filter) ||
+                    jatuhTempo.includes(filter);
+
+                if (match) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
 
         @if (session('success'))
             {

@@ -3,7 +3,7 @@
 
 @section('content')
 
-    <div class="relative bg-white/40 backdrop-blur-2xl rounded-lg mx-32 p-16">
+    <div class="relative bg-white/40 backdrop-blur-2xl rounded-lg mx-12 p-12">
         <div class="border-l-8 border-l-green-400 pl-4 mb-8">
             <div class="border-b-2 pb-2 mb-2 border-b-slate-500 inline-block text-4xl font-bold text-white uppercase shadow-sm">
                 Detail <span class="px-1 bg-black text-white rounded-md shadow-md">Pinjaman & Angsuran</span>

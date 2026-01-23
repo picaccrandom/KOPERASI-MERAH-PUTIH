@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('content')
-    <div class="bg-white/40 backdrop-blur-2xl mx-14 py-8 px-24 rounded-2xl">
+    <div class="bg-white/40 backdrop-blur-2xl mx-12 py-8 px-12 rounded-2xl">
 
         <div class="mb-10 border-l-8 border-red-600 pl-4">
             <h1 class="fw-bolder text-shadow-lg text-white uppercase tracking-wider">Formulir <span
@@ -57,7 +57,7 @@
                     <label
                         class="block text-sm font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">Lama
                         (Bulan)</label>
-                    <input type="number" name="tenor"
+                    <input type="number" name="tenor" id="tenor"
                         class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
                         placeholder="12" min="0" required>
                 </div>
@@ -90,7 +90,7 @@
         </form>
         <div class="mt-4 flex justify-end gap-4 font-bold">
             <a href="{{ route('pinjaman.index') }}"
-                class="no-underline px-8 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm text-decoration-none text-white hover:text-black">
+                class="no-underline px-8 py-2 border-2 border-white rounded hover:bg-white text-white text-sm text-decoration-none hover:!text-black">
                 Batal
             </a>
             <button type="button" id="btn-simpan" class="px-8 py-2 bg-red-700 hover:bg-red-800 text-white rounded text-sm">
@@ -197,6 +197,7 @@
             const memberId = memberIdInput.value;
             const jumlahPinjamanInput = document.getElementById('jumlah_pinjaman').value;
             const jumlahPinjamanValue = parseFloat(jumlahPinjamanInput.replace(/[^\d]/g, ''));
+            const lamabayarInput = document.getElementById('tenor').value;
             
             // validate jumlah pinjaman
             if (!memberId) {
@@ -215,6 +216,15 @@
                     icon: 'error',
                     title: 'Error',
                     text: 'Jumlah pinjaman harus diisi dan lebih dari 0.'
+                });
+                return;
+            }
+
+            if(Number(lamabayarInput) <= 0 || lamabayarInput === '') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Lama bayar harus diisi setidaknya minimal 1 bulan.'
                 });
                 return;
             }
