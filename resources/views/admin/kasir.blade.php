@@ -166,6 +166,8 @@
             document.getElementById('info-ket-bill').innerText = '*Maksimal Rp ' + limitBon.toLocaleString() + ' untuk BON Anggota';
             document.getElementById('nominal').classList.remove('text-greyed-600');
         }
+        renderTable();  
+        KalkulasiNominal();
     });
 
 
@@ -302,9 +304,14 @@
             `;
         });
         const discount = memberDiscount(total);
-        document.getElementById('discount').innerText = '- Rp ' + discount.toLocaleString();
+
+        if(metode_bayar.value !== 'bon') {
+            total -= discount;
+            document.getElementById('discount').innerText = '- Rp ' + discount.toLocaleString();
+        } else {
+            document.getElementById('discount').innerText = 'Rp 0';
+        }
         document.getElementById('total-kotor').innerText = 'Rp ' + total.toLocaleString();
-        total -= discount;
         document.getElementById('display-total').innerText = 'Rp ' + total.toLocaleString();
         document.getElementById('total_harga').value = total;
     }
@@ -317,7 +324,6 @@
             return total_harga * 0.1; // Diskon 10%
         }
         return 0;
-        console.log(total_harga);
     }
 
     

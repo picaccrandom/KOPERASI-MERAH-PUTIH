@@ -23,6 +23,20 @@ class BarangController extends Controller
         ]);
 
         Barang::create($request->all());
+
+        // catat log tambah barang modul gudang
+        writeLog(
+            'Master Barang',
+            'Create',
+            'barangs',
+            Barang::latest()->first()->id ?? null,
+            null,
+            json_encode($request->all()),
+            'Menambahkan barang baru ke gudang: ' . $request->nama_barang,
+            'info',
+            'success'
+        );
+        
         return back()->with('success', 'Barang berhasil didaftarkan ke gudang!');
     }
 
@@ -35,6 +49,20 @@ class BarangController extends Controller
 
         $barang = Barang::findOrFail($id);
         $barang->update($request->all());
+
+        // catat log update barang modul gudang
+        writeLog(
+            'Master Barang',
+            'Update',
+            'barangs',
+            $barang->id ?? null,
+            null,
+            json_encode($request->all()),
+            'Memperbarui data barang di gudang: ' . $barang->nama_barang,
+            'info',
+            'success'
+        );
+        
         return back()->with('success', 'Barang berhasil diupdate!');
     }
 
@@ -56,6 +84,19 @@ class BarangController extends Controller
         $barang = \App\Models\Barang::findOrFail($request->barang_id);
         $barang->stok += $request->jumlah_masuk;
         $barang->save();
+
+        // catat log tambah stok barang modul gudang
+        writeLog(
+            'Master Barang',
+            'Update Stok',
+            'barangs',
+            $barang->id ?? null,
+            null,
+            json_encode($request->all()),
+            'Menambah stok barang di gudang: ' . $barang->nama_barang . ' sebanyak ' . $request->jumlah_masuk,
+            'info',
+            'success'
+        );  
 
         return back()->with('success', 'Stok ' . $barang->nama_barang . ' berhasil ditambah!');
     }

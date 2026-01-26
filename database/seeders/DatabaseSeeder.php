@@ -27,17 +27,17 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Yoga Test',
-            'username' => 'yoga@example.com',
+            'username' => 'yoga',
             'password' => Hash::make('password'),
         ]);
         User::factory()->create([
             'name' => 'Neo Test',
-            'username' => 'neo@example.com',
+            'username' => 'neo',
             'password' => Hash::make('password'),
         ]);
         User::factory()->create([
             'name' => 'Hendra Test',
-            'username' => 'hendra@example.com',
+            'username' => 'hendra',
             'password' => Hash::make('password'),
         ]);
     }

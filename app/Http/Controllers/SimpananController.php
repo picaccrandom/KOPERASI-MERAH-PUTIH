@@ -98,6 +98,19 @@ class SimpananController extends Controller
             //]);
         });
 
+        // catat log tambah simpanan
+        writeLog(
+            'Simpanan',
+            'Create',
+            'transaksi_s_ps',
+            Transaksi_SP::latest()->first()->id ?? null,
+            null,
+            json_encode($request->all()),
+            'Menambahkan simpanan baru untuk member ID: ' . $request->member_id,
+            'info',
+            'success'
+        );
+
         return redirect()->route('simpanan.index')->with('success', 'Simpanan berhasil ditambahkan dan saldo kas diperbarui.');
     }
 
@@ -199,6 +212,19 @@ class SimpananController extends Controller
             $transaksi->delete();
         });
 
+        // catat log hapus simpanan
+        writeLog(
+            'Simpanan',
+            'Delete',
+            'transaksi_s_ps',
+            $transaksi->id ?? null,
+            null,
+            null,
+            'Menghapus simpanan untuk member ID: ' . $transaksi->member_id,
+            'info',
+            'success'
+        );
+
         return redirect()->route('simpanan.index')
             ->with('success', 'Data simpanan berhasil dihapus.');
     }
@@ -220,6 +246,8 @@ class SimpananController extends Controller
                     'saldo' => $item->saldo,
                 ];
             });
+
+        
         return view('TarikSimpanan', compact('members', 'saldoSimpanan'));
     }
 
@@ -259,6 +287,21 @@ class SimpananController extends Controller
                 'status' => 'aktif',
             ]);
         }); 
+
+        // catat log tarik simpanan
+        writeLog(
+            'Simpanan',
+            'Create',
+            'transaksi_s_ps',
+            Transaksi_SP::latest()->first()->id ?? null,
+            null,
+            json_encode($request->all()),
+            'Melakukan penarikan simpanan untuk member ID: ' . $request->member_id,
+            'info',
+            'success'
+        );
+        
+        
         return redirect()->route('simpanan.index')->with('success', 'Penarikan simpanan berhasil diproses.');
     }
 

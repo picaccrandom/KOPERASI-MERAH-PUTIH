@@ -133,6 +133,19 @@ class PinjamanController extends Controller
             });
 
         });
+
+        // catat log tambah pinjaman anggota
+        writeLog(
+            'Pinjaman',
+            'Create',
+            'transaksi__s_p_s',
+            null,
+            null,
+            json_encode($request->all()),
+            'Menambahkan pinjaman baru untuk anggota ID: ' . $request->member_id,
+            'info',
+            'success'
+        );
         
         // dd($request);
         return redirect()->route('pinjaman.index')->with('success', 'Pinjaman berhasil ditambahkan.');
@@ -197,6 +210,23 @@ class PinjamanController extends Controller
                 ]);
             }
 
+            // catat log bayar angsuran pinjaman
+            writeLog(
+                'Pinjaman',
+                'Update',
+                'angsuran_peminjamen',
+                $angsuran->id ?? null,
+                null,
+                json_encode([
+                    'tanggal_bayar' => now(),
+                    'status' => 'lunas',
+                    'denda' => $denda
+                ]),
+                'Melakukan pembayaran angsuran ke-' . $angsuran->angsuran_ke . ' untuk anggota ID: ' . $memberId,
+                'info',
+                'success'
+            );
+
             return redirect()->back()->with('success', 'Angsuran berhasil dibayar.');
 
         } catch (\Exception $e) {
@@ -249,6 +279,21 @@ class PinjamanController extends Controller
                 ]);
             }
 
+            // catat log bayar bon
+            writeLog(
+                'Bon',
+                'Update',
+                'bon_details',
+                $status->id ?? null,
+                null,
+                json_encode([
+                    'status' => 'lunas',
+                ]),
+                'Melakukan pelunasan bon untuk anggota ID: ' . $bon->member_id,
+                'info',
+                'success'
+            );
+
             return redirect()->route('bon.indexBon')->with('success', 'Bon berhasil dibayar.');
 
         } catch (\Exception $e) {
@@ -287,6 +332,19 @@ class PinjamanController extends Controller
             // menghapus data transaksi
             $transaksi->delete();
         });
+
+        // catat log hapus pinjaman anggota
+        writeLog(
+            'Pinjaman',
+            'Delete',
+            'transaksi__s_p_s',
+            $transaksi->id ?? null,
+            null,
+            null,
+            'Menghapus pinjaman untuk anggota ID: ' . $transaksi->member_id,
+            'info',
+            'success'
+        );
 
         return redirect()->route('pinjaman.index')->with('success', 'Data pinjaman berhasil dihapus.');
     }
