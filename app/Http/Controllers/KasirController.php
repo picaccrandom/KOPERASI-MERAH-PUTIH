@@ -84,6 +84,7 @@ class KasirController extends Controller {
 
             return response()->json(['success' => true, 'message' => 'Transaksi Berhasil!']);
     
+            
         // } catch (\Exception $e) {
         //     \Log::error($e);
         //     return response()->json(['success' => false, 'message' => $e->getMessage()], 500);

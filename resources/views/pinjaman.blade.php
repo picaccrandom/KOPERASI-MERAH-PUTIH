@@ -59,7 +59,8 @@
                             </p>
                         </div>
                     </div>
-                    <div class="bg-white w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
+                    <div
+                        class="bg-white w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
                         <div class="overflow-x-auto flex p-10 px-10">
                             <table class="text-center min-w-full space-y-4">
                                 <thead class="bg-orange-300">
@@ -110,7 +111,8 @@
                                                             <i class="fas fa-eye"></i>
                                                         </a>
                                                         <form action="{{ route('pinjaman.destroy', $peminjaman->id) }}"
-                                                            onclick="confirmDelete(event, this)" method="POST" class="inline">
+                                                            onclick="confirmDelete(event, this)" method="POST"
+                                                            class="inline">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="text-red-600 hover:text-red-900">
@@ -127,7 +129,8 @@
                                                     Angsuran Terdekat:
                                                     <a href="{{ route('pinjaman.detail', $peminjaman->no_transaksi_sp) }}"
                                                         class="text-blue-600 hover:underline">
-                                                        {{ $peminjaman->angsuranBelum->batas_bayar ?? 'Belum ada angsuran' }} -
+                                                        {{ $peminjaman->angsuranBelum->batas_bayar ?? 'Belum ada angsuran' }}
+                                                        -
                                                         Rp.
                                                         {{ number_format($peminjaman->angsuranBelum->jumlah_angsuran ?? 0, 0, ',', '.') }}
                                                         | Angsuran Ke -
@@ -145,8 +148,7 @@
                 <!-- Data Table -->
                 <hr>
                 <!--History Table -->
-                <div
-                    class="bg-white  w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
+                <div class="bg-white  w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
 
                     <div class="flex justify-between items-center mb-2 mt-2 px-8">
                         <p class=" bg-slate-400 text-white font-semibold px-4 py-2 text-2xl rounded-md shadow-md mt-2">
@@ -169,6 +171,7 @@
                                     <th>JENIS</th>
                                     <th>LAMA BAYAR</th>
                                     <th>JATUH TEMPO</th>
+                                    <th>ACTION</th>
                                 </tr>
                             </thead>
                             <tbody id="pinjaman-history">
@@ -207,6 +210,21 @@
                                             @endif
                                         </td>
                                         <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo)->format('d F Y') }}
+                                        </td>
+                                        <td>
+                                            <div class="flex justify-center items-center gap-3">
+                                                <form action="{{ route('pinjaman.destroy', $peminjaman->no_transaksi_sp) }}"
+                                                    method="POST" class="d-inline delete-form"
+                                                    data-name="{{ $peminjaman->member->nama_lengkap }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="text-red-600 hover:text-red-900 bg-transparent border-0"
+                                                        title="Hapus">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -262,6 +280,30 @@
                     row.style.display = 'none';
                     if (ketRow) ketRow.style.display = 'none';
                 }
+            });
+        });
+
+        // SweetAlert untuk konfirmasi hapus
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const memberName = this.getAttribute('data-name');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    html: `Data simpanan untuk <strong>${memberName}</strong> akan dihapus permanen!`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, Hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        this.submit();
+                    }
+                });
             });
         });
 

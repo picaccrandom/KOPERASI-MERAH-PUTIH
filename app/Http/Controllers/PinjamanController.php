@@ -81,16 +81,6 @@ class PinjamanController extends Controller
      */
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'user_id' => 'required|exists:users,id',
-        //     'member_id' => 'required|exists:members,id',
-        //     'jenis' => 'required|in:uang,barang',
-        //     'total_pinjaman' => 'required|numeric|min:0|max:1000000',
-        //     'bunga' => 'nullable|numeric|min:0',
-        //     'jatuh_tempo' => 'required|date',
-        //     'catatan' => 'nullable|string',
-        // ]);
-        // dd($request);
         DB::transaction(function () use ($request) {
             
             $totalPinjam = [];
@@ -275,6 +265,29 @@ class PinjamanController extends Controller
 
 
     public function destroy($no_transaksi_sp) {
-        
+        // data transaksi
+        $transaksi = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->first();
+
+        // data angsuran
+        $angsuran = AngsuranPeminjaman::where('no_transaksi_sp', $no_transaksi_sp)->get();
+
+        // dd($transaksi, $angsuran);
+        DB::transaction(function () use ($transaksi, $angsuran) {
+            // mengembalikan limit kredit anggota
+            $limitKredit = KreditAnggota::where('member_id', $transaksi->member_id)->first();
+            if($limitKredit) {
+                $limitKredit->increment('limit', $transaksi->Nominal);
+            }
+
+            // menghapus data angsuran
+            foreach($angsuran as $angsur) {
+                $angsur->delete();
+            }
+
+            // menghapus data transaksi
+            $transaksi->delete();
+        });
+
+        return redirect()->route('pinjaman.index')->with('success', 'Data pinjaman berhasil dihapus.');
     }
 }

@@ -43,7 +43,7 @@
                     {{-- Form Pencarian dan Filter akan ditempatkan di sini --}}
                     <label for="search-data-simpanan"
                         class="uppercase bg-black text-white text-center font-semibold w-full px-4 py-2.5">
-                        <i class="fas fa-search"></i>
+                        <i class="fa-solid fa-magnifying-glass mr-2"></i>
                         Search Member
                     </label>
                     <div class="p-4 pt-10 flex flex-col w-full ">
@@ -54,11 +54,12 @@
                         <div class="dropdown-menu w-[24%] text-base hidden" id="dropdown-member"></div>
                         <div class="rounded-md overflow-hidden mb-2 flex justify-between items-center">
                             <button type="submit" id="cari-member"
-                                class="mt-4 w-full h-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md font-semibold">Cari
-                                Member</button>
+                                class="mt-4 w-full h-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md font-semibold">
+                                <span><i class="fa-solid fa-users-viewfinder mr-2"></i>Cari Member</span></button>
                         </div>
                         <a href="{{ route('simpanan.index') }}"
-                            class="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-decoration-none text-center font-semibold">Refresh</a>
+                            class="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-decoration-none text-center font-semibold">
+                            <span><i class="fa-solid fa-arrows-rotate mr-1"></i>Refresh</span></a>
                     </div>
                 </div>
                 <div class="h-1/2 bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 shadow-md">
@@ -72,12 +73,13 @@
                     </p>
                 </div>
             </div>
-            <div class="w-[80%] bg-white p-4 rounded-3xl shadow-md overflow-hidden">
+            <div class="w-[80%] bg-white rounded-3xl shadow-md overflow-hidden">
                 {{-- tampil Data Simpanan akan ditempatkan di sini --}}
-                <div class="p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
-                        <i class="fas fa-user-circle mr-2"></i>Informasi Anggota
-                    </h3>
+                <div
+                    class="text-2xl mb-4 border-b pb-2 bg-black px-4 pt-2 uppercase tracking-wide font-extrabold text-white shadow-md">
+                    <i class="fas fa-user-circle mr-2"></i>Informasi  Anggota
+                </div>
+                <div class="px-10 pt-3">
                     <!-- Info Anggota -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div class=" space-y-8">
@@ -120,11 +122,10 @@
             </div>
         </section>
         <hr>
-        <!-- Filter dan Search Bar -->
         <!-- Data Table -->
-        <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-md">
+        <div class="bg-white h-[80dvh] rounded-lg border border-gray-200 overflow-hidden shadow-md">
             <div class="flex justify-between items-center 300 px-8 mb-2 mt-2">
-                <p class=" bg-slate-400 text-white font-semibold px-4 py-2 text-2xl rounded-md shadow-md mt-2">Histori
+                <p class=" bg-slate-400 text-white font-semibold px-4 py-2 text-2xl rounded-md shadow-md mt-2"><i class="fa-regular fa-file mr-2"></i>Histori
                     Simpanan dan
                     Penarikan</p>
                 <div class="flex items-center gap-4">
@@ -146,7 +147,7 @@
             </div>
 
             <div class="overflow-x-auto flex pb-10 px-10">
-                <table class="text-center min-w-full overflow-hidden space-y-4">
+                <table class="text-center min-w-full overflow-hidden space-y-4 ">
                     <thead class="bg-orange-300">
                         <tr
                             class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
@@ -159,7 +160,7 @@
                             <th>ACTION</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="h-full overflow-y-auto">
                         @foreach ($simpanans as $simpanan)
                             <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
                                 <td class="font-medium">{{ $loop->iteration }}</td>
@@ -253,6 +254,8 @@
                 });
             });
         });
+
+
         // Search fungsi
         const searchInput = document.getElementById('search-simpanan');
         const kategoriFilter = document.getElementById('filter-kategori');
