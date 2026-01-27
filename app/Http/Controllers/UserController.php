@@ -21,11 +21,27 @@ class UserController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'password' => Hash::make($request->password),
         ]);
+
+        // catat log tambah user modul master
+        writeLog(
+            'Master User',
+            'Create',
+            'users',
+            $user->id ?? null,
+            null,
+            json_encode([
+                'name' => $request->name,
+                'username' => $request->username,
+            ]),
+            'Menambahkan user baru: ' . $request->username,
+            'info',
+            'success'
+        );
 
         return back()->with('success', 'User berhasil ditambahkan!');
     }
@@ -44,12 +60,43 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
+
+        // catat log update user modul master
+        writeLog(
+            'Master User',
+            'Update',
+            'users',
+            $user->id ?? null,
+            null,
+            json_encode([
+                'name' => $request->name,
+                'username' => $request->username,   
+            ]),
+            'Memperbarui user: ' . $request->username,
+            'info',
+            'success'
+        );
+
         $user->save();
         return back()->with('success', 'User berhasil diperbarui!');
     }
 
     public function destroy($id) {
         User::findOrFail($id)->delete();
+
+        // catat log hapus user modul master
+        writeLog(
+            'Master User',
+            'Delete',
+            'users',
+            $id,
+            null,
+            null,
+            'Menghapus user dengan ID: ' . $id,
+            'warning',
+            'success'
+        );
+        
         return back()->with('success', 'User berhasil dihapus!');
     }
 
@@ -71,6 +118,19 @@ class UserController extends Controller
         }
 
         $user->update(['password' => Hash::make($request->new_password)]);
+
+        // catat log ganti password
+        writeLog(
+            'Master User',
+            'Update Password',
+            'users',    
+            $user->id ?? null,
+            null,
+            null,
+            'Mengganti password untuk user: ' . $user->username,
+            'info',
+            'success'
+        );
         return back()->with('success', 'Password berhasil diubah!');
     }
 }

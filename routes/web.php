@@ -82,9 +82,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pinjaman/create', [PinjamanController::class, 'store'])->name('pinjaman.store'); // Pinjaman
     Route::get('/pinjaman/detail/{no_transaksi_sp}', [PinjamanController::class, 'detail'])->name('pinjaman.detail'); // Detail Pinjaman
     Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran'); // Pinjaman
-    Route::delete('/pinjaman/{id}', [PinjamanController::class, 'destroy'])->name('pinjaman.destroy');
+    Route::delete('/pinjaman/{no_transaksi_sp}', [PinjamanController::class, 'destroy'])->name('pinjaman.destroy');
     
-    // detail bon
+    // bon Routes
     Route::get('/bon', [PinjamanController::class, 'indexBon'])->name('bon.indexBon'); // Pinjaman
     Route::get('/bon/detail/{no_transaksi_sp}', [PinjamanController::class, 'detailBon'])->name('bon.detailBon'); // Detail Bon
     Route::post('/bon/bayarBon/{no_transaksi_sp}', [PinjamanController::class, 'bayarBon'])->name('bon.bayarBon'); // Lunasi Bon
@@ -101,6 +101,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/simpanan/{id}/edit', [SimpananController::class, 'edit'])->name('simpanan.edit');
     Route::put('/simpanan/{id}', [SimpananController::class, 'update'])->name('simpanan.update');
     Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy'])->name('simpanan.destroy');
+
+
     Route::get('/laporan', [PinjamanController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
 
     //Klinik

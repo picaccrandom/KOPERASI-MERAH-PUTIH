@@ -82,8 +82,22 @@ class KasirController extends Controller {
 
             });
 
+            // catat log transaksi kasir
+            writeLog(
+                'Kasir',
+                'Create',
+                'transaksis',
+                $transaksi->id ?? null,
+                null,
+                json_encode($request->all()),
+                'Melakukan transaksi kasir dengan kode transaksi: ' . ($transaksi->kode ?? '-'),
+                'info',
+                'success'
+            );
+
             return response()->json(['success' => true, 'message' => 'Transaksi Berhasil!']);
     
+            
         // } catch (\Exception $e) {
         //     \Log::error($e);
         //     return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
