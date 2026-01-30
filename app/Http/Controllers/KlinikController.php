@@ -9,11 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Obat;
 use App\Models\RekamMedis;
-<<<<<<< HEAD
 use App\Services\AccountingService; // Import Service Akuntansi
-=======
 use App\Models\TransaksiFaskes;
->>>>>>> d768d44e39f0899641c6f0f183428ba36ff71bc3
 
 class KlinikController extends Controller
 {
@@ -64,35 +61,34 @@ class KlinikController extends Controller
 
 
 
-                // 1. Simpan ke Database Klinik
-                $pendaftaran = PendaftaranKlinik::create([
-                    'no_registrasi' => $noReg,
-                    'member_id'     => $request->member_id,
-                    'keluhan'       => $request->keluhan,
-                    'tensi'         => $request->tensi,
-                    'biaya_daftar'  => $biayaDaftar,
-                    'status'        => 'antri'
-                ]);
+            // 1. Simpan ke Database Klinik
+            $pendaftaran = PendaftaranKlinik::create([
+                'no_registrasi' => $noReg,
+                'member_id'     => $request->member_id,
+                'keluhan'       => $request->keluhan,
+                'tensi'         => $request->tensi,
+                'biaya_daftar'  => $biayaDaftar,
+                'status'        => 'antri'
+            ]);
 
-                /** * 2. INTEGRASI AKUNTANSI: BIAYA PENDAFTARAN
-                 * Debit: Kas (1101) | Kredit: Pendapatan Klinik (4102)
-                 */
-                AccountingService::post(
-                    now(), 
-                    "Biaya Pendaftaran Klinik: " . ($pendaftaran->member->nama_lengkap ?? 'Pasien'), 
-                    $noReg, 
-                    $biayaDaftar, 0, 
-                    '1101'
-                );
+            /** * 2. INTEGRASI AKUNTANSI: BIAYA PENDAFTARAN
+             * Debit: Kas (1101) | Kredit: Pendapatan Klinik (4102)
+             */
+            AccountingService::post(
+                now(), 
+                "Biaya Pendaftaran Klinik: " . ($pendaftaran->member->nama_lengkap ?? 'Pasien'), 
+                $noReg, 
+                $biayaDaftar, 0, 
+                '1101'
+            );
 
-                AccountingService::post(
-                    now(), 
-                    "Pendapatan Pendaftaran (" . $noReg . ")", 
-                    $noReg, 
-                    0, $biayaDaftar, 
-                    '4102'
-                );
-            });
+            AccountingService::post(
+                now(), 
+                "Pendapatan Pendaftaran (" . $noReg . ")", 
+                $noReg, 
+                0, $biayaDaftar, 
+                '4102'
+            );
 
             return redirect()->route('klinik.index')->with('success', 'Pasien berhasil antri & Biaya pendaftaran terjurnal!');
 
@@ -113,7 +109,8 @@ class KlinikController extends Controller
     }
 
     // Menampilkan Form Tindakan
-    public function periksa($id) {
+    public function periksa($id)
+    {
         $pasien = PendaftaranKlinik::with('member')->findOrFail($id);
         $obats = DB::table('obats')->where('stok_apotek', '>', 0)->get();
         return view('klinik.emr_input', compact('pasien', 'obats'));
@@ -122,7 +119,8 @@ class KlinikController extends Controller
     /**
      * Proses Simpan EMR + Jurnal Otomatis Jasa Medis
      */
-    public function simpanTindakan(Request $request, $id) {
+    public function simpanTindakan(Request $request, $id) 
+    {
         $request->validate([
             'diagnosa' => 'required|min:5',
             'tindakan' => 'required|min:5',
