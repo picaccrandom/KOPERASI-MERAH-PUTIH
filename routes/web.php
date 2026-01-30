@@ -134,7 +134,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/apotek/jual/{id}', [ApotekController::class, 'jualObat'])->name('apotek.formJual');
     Route::post('/apotek/proses-jual/{id}', [ApotekController::class, 'prosesJual'])->name('apotek.prosesJual');
     Route::get('/apotek/resep-masuk', [ApotekController::class, 'resepMasukIndex'])->name('apotek.resep');
-    Route::post('/apotek/bayar-order/{kode_transaksi}', [ApotekController::class, 'bayarOrder'])->name('apotek.bayarOrder');
+    Route::post('/apotek/bayar-order/', [ApotekController::class, 'bayarOrder'])->name('apotek.bayarOrder');
 
     Route::prefix('gudang-distribusi')->group(function () {
         Route::get('/', [DistribusiController::class, 'index'])->name('distribusi.gudang');
