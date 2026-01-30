@@ -27,6 +27,10 @@ class PendaftaranKlinik extends Model
         return $this->BelongsTo(TransaksiFaskes::class, 'no_registrasi', 'kode_pendaftaran')->where('COA', 'Klinik');
     }
 
+    public function transaksiFaskesApotek() {
+        return $this->BelongsTo(TransaksiFaskes::class, 'no_registrasi', 'kode_pendaftaran')->where('COA', 'Apotek');       
+    }
+
     public function rekamMedis() {
 
         return $this->hasOne(RekamMedis::class, 'pendaftaran_id');

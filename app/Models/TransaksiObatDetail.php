@@ -9,10 +9,10 @@ class TransaksiObatDetail extends Model
     protected $table = 'transaksi_obat_details';
 
     protected $fillable = [
-        'transaksi_obat_id',
+        'kode_transaksi',
         'obat_id',
-        'jumlah',
-        'harga_satuan',
+        'nama_obat',
+        'qty',
         'subtotal',
     ];
 

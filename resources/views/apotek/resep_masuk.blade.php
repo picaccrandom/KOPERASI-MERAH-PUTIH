@@ -43,6 +43,7 @@
                                 <th class="py-4">PENDAFTARAN ID</th>
                                 <th class="py-4">Nama Pasien</th>
                                 <th class="py-4">Catatan</th>
+                                <th class="py-4">TOTAL HARGA</th>
                                 <th class="py-4 text-center">AKSI</th>
                             </tr>
                         </thead>
@@ -51,7 +52,8 @@
                                 <tr class="hover:bg-emerald-50/50 transition-colors text-slate-700 group">
                                     <td class="py-4 font-mono text-emerald-600">{{ $r->kode_pendaftaran }}</td>
                                     <td class="py-4 uppercase tracking-tighter">{{ $r->member->nama_lengkap }}</td>
-                                    <td class="py-4 uppercase tracking-tighter">{{ $r->resep_obat }}</td>
+                                    <td class="py-4 uppercase tracking-tighter">{{ $r->pendaftaranKlinik->rekamMedis->resep_obat }}</td>
+                                    <td class="py-4 uppercase tracking-tighter text-lg text-red-400">Rp. {{ number_format($r->Nominal, 0, ',', '.') }}</td>
                                     <td class="py-4 text-center">
                                         {{-- Tombol Aktif Jual Obat Membuka Modal --}}
                                         <button onclick="openJualModal({{ $r->pendaftaranKlinik->rekamMedis->id }})"
@@ -81,7 +83,8 @@
     {{-- MODAL TRANSAKSI PENJUALAN --}}
     <div id="modalJualObat"
         class="hidden absolute top-28 inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div class="bg-white/95 px-10 rounded-2xl shadow-2xl mx-auto max-w-5xl  overflow-hidden border border-blue-100">
+        <div class="bg-white/95 px-10 rounded-2xl shadow-2xl mx-auto max-w-[90rem]  overflow-hidden border border-blue-100">
+            <div class="">
             <div class="bg-blue-600 p-6 text-white">
                 <h3 class="text-xl font-black uppercase tracking-widest flex items-center">
                     <i class="fas fa-user-md mr-3 text-2xl"></i> Pemeriksaan Medis (EMR)
@@ -91,33 +94,33 @@
                 </div>
             </div>
 
-            <form>
-                @csrf
-
-                <input type="hidden" name="kode_transaksi" value="">
-                <div class="flex flex-col gap-6 p-10">
-                    <div class="flex flex-row gap-6">
-                        {{-- Info Keluhan Awal --}}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-blue-50 p-6 rounded-xl border border-blue-100">
+            
+            <form class="space-y-6" method="POST" action="{{ route('apotek.bayarOrder') }}">
+            @csrf
+            <input type="hidden" name="kode_transaksi" value="">
+            <div class="flex flex-col gap-6 p-10">
+                <div class="flex flex-row gap-6">
+                    {{-- Info Keluhan Awal --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-blue-50 p-6 rounded-xl border border-blue-100">
                             <div>
                                 <label class="block text-xs font-black text-blue-600 uppercase tracking-wider mb-1">Keluhan
                                     Pasien</label>
-                                <p id="keluhan_pasien" class="text-slate-700 font-bold italic">""</p>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-black text-blue-600 uppercase tracking-wider mb-1">Tensi
-                                    Darah</label>
-                                <p id="tensi_darah" class="text-slate-700 font-bold">- </p>
-                            </div>
-                        </div>
-
-                        <hr class="border-dashed border-slate-200">
-
-                        <div class="">
-                            {{-- Input Diagnosa --}}
-                            <div>
-                                <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Diagnosa
-                                    Medis</label>
+                                    <p id="keluhan_pasien" class="text-slate-700 font-bold italic">""</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-black text-blue-600 uppercase tracking-wider mb-1">Tensi
+                                        Darah</label>
+                                        <p id="tensi_darah" class="text-slate-700 font-bold">- </p>
+                                    </div>
+                                </div>
+                                
+                                <hr class="border-dashed border-slate-200">
+                                
+                                <div class="">
+                                    {{-- Input Diagnosa --}}
+                                    <div>
+                                        <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Diagnosa
+                                            Medis</label>
                                 <textarea name="diagnosa" id="diagnosa" required rows="3" readonly
                                     class="w-full p-2 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all"
                                     placeholder="Tuliskan hasil diagnosa dokter di sini..."></textarea>
@@ -134,6 +137,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- input resep obat -->
                     <div class="">
                         <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Resep
@@ -153,13 +157,13 @@
                                     value="1"
                                     class=" w-[30%] text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
                                 <button type="button"
-                                    class="removeObatBtn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                    class="removeObatBtn px-4 py-2 rounded-lg text-red-600 transition-colors">
                                     <i class="fas fa-trash-alt"></i>
                                 </button>
                             </div>
                         </div>
                         <button type="button" id="tambahObatBtn" onclick="tambahAreaObat()"
-                            class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            class="mt-2 px-4 py-2  text-blue-400 hover:underline hover:underline-offset-2 hover:text-blue-600 transition-colors">
                             <i class="fas fa-plus mr-2"></i> Tambah Obat Lain
                         </button>
                     </div>
@@ -171,9 +175,9 @@
                         class="px-8 py-3 bg-slate-500 text-white rounded-xl font-black uppercase hover:bg-slate-600 transition-all shadow-lg">
                         Batal
                     </button>
-                    <button type="submit"
-                        class="px-10 py-3 bg-blue-600 text-white rounded-xl font-black uppercase hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all transform hover:-translate-y-1">
-                        <i class="fas fa-save mr-2"></i> Simpan Rekam Medis
+                    <button type="submit" id="bayarObat" onclick="bayarOrderResep()"
+                        class="px-10 py-3 bg-green-600 text-white rounded-xl font-black uppercase hover:bg-green-700 shadow-xl shadow-green-200 transition-all transform hover:-translate-y-1">
+                        <i class="fa-solid fa-money-bill-1 mr-2"></i> Buat dan Bayar Resep (Rp. <span id="totalHarga">0</span>)
                     </button>
                 </div>
             </form>
@@ -195,7 +199,35 @@
             document.getElementById('tensi_darah').innerText = data.pendaftaran_klinik.tensi;
             document.getElementById('diagnosa').value = data.diagnosa;
             document.getElementById('tindakan').value = data.tindakan;
+            document.getElementById('totalHarga').innerText = new Intl.NumberFormat('id-ID').format(data.pendaftaran_klinik.transaksi_faskes_apotek.Nominal);
+            document.querySelector('input[name="kode_transaksi"]').value = data.pendaftaran_klinik.transaksi_faskes_apotek.kode_transaksi;
+            const obatArea = document.getElementById('obatArea');
+            obatArea.innerHTML = '';
+            dataObat = data.pendaftaran_klinik.transaksi_faskes_apotek.transaksi_obat_details;
+            dataObat.forEach(item => {
+                const newObatDiv = document.createElement('div');
+                newObatDiv.classList.add('flex', 'justify-between', 'items-center', 'gap-4', 'mt-4');
+                newObatDiv.innerHTML = `
+                    <select name="resep_obat[]" class="w-full text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
+                        <option value="" disabled selected>Pilih Obat...</option>
+                        @foreach ($obats as $obat)
+                            <option value="{{ $obat->kode_obat }}" ${item.obat.kode_obat === '{{ $obat->kode_obat }}' ? 'selected' : ''}>{{ $obat->nama_obat }} - Stok: {{ $obat->stok_apotek }}</option>
+                        @endforeach
+                    </select>
+                    <input type="number" name="qty[]" min="1" placeholder="Qty" value="${item.qty}" class=" w-[30%] text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
+                    <button type="button" class="removeObatBtn px-4 py-2 text-red-600 rounded-lg hover:scale-110 transition-all duration-500">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+                obatArea.appendChild(newObatDiv);
+                // Tambah event listener untuk tombol hapus
+                newObatDiv.querySelector('.removeObatBtn').addEventListener('click', function() {
+                    obatArea.removeChild(newObatDiv);
+                });
+            });
         }
+
+
 
         function hitungTotal() {
             const qty = document.getElementById('inputQty').value;
@@ -207,19 +239,19 @@
             document.getElementById('modalJualObat').classList.add('hidden');
         }
 
-        function tambahAreaObat(){
+        function tambahAreaObat() {
             const obatArea = document.getElementById('obatArea');
             const newObatDiv = document.createElement('div');
             newObatDiv.classList.add('flex', 'justify-between', 'items-center', 'gap-4', 'mt-4');
             newObatDiv.innerHTML = `
-                <select name="resep_obat[]" class="w-full text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
+                <select name="resep_obat_new[]" class="w-full text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
                     <option value="" disabled selected>Pilih Obat...</option>
                     @foreach ($obats as $obat)
                         <option value="{{ $obat->kode_obat }}">{{ $obat->nama_obat }} - Stok: {{ $obat->stok_apotek }}</option>
                     @endforeach
                 </select>
-                <input type="number" name="qty[]" min="1" placeholder="Qty" value="1    " class=" w-[30%] text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
-                <button type="button" class="removeObatBtn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                <input type="number" name="qty_new[]" min="1" placeholder="Qty" value="1" class=" w-[30%] text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
+                <button type="button" class="removeObatBtn px-4 py-2  text-red-600 rounded-lg hover:scale-110 transition-all duration-500   ">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             `;
