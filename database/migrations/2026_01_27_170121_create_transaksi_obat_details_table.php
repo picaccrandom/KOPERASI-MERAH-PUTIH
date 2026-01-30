@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('transaksi_obat_details', function (Blueprint $table) {
             $table->id();
             $table->string('kode_transaksi');
-            $table->foreign('kode_transaksi')->references('kode_transaksi')->on('transaksi_obats')->onDelete('cascade');
+            $table->foreign('kode_transaksi')->references('kode_transaksi')->on('transaksi_faskes')->onDelete('cascade');
             $table->foreignId('obat_id')->constrained('obats')->onDelete('cascade');
             $table->string('nama_obat');
             $table->integer('qty');

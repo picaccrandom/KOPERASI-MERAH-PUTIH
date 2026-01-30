@@ -19,8 +19,6 @@ class RekamMedis extends Model
         return $this->belongsTo(PendaftaranKlinik::class, 'pendaftaran_id');
     }
 
-    public function obat() {
-        return $this->belongsTo(Obat::class, 'resep_obat', 'kode_obat');
-    }
-    
+
+
 }

@@ -16,6 +16,17 @@ class Member extends Model
         return $this->hasMany(Pinjaman::class);
     }
 
+    public function simpanans()
+    {
+        return $this->hasMany(Simpanan::class);
+    }
+
+
+    public function transaksiObats()
+    {
+        return $this->hasMany(TransaksiObat::class);
+    }
+
     public function kreditAnggota()
     {
         return $this->hasOne(KreditAnggota::class);

@@ -27,10 +27,20 @@
                         <input type="text" name="tensi" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-600 outline-none" placeholder="120/80">
                     </div>
                 </div>
+                {{-- input biaya pendaftaran --}}
+                <div class="mt-6">
+                    <label class="block text-sm font-black outline-none border-none text-slate-700 mb-2 uppercase tracking-wide">Biaya Pendaftaran</label>
+                    <div class="flex items-center  gap-4">
+                        <span>Rp.</span>
+                        <input type="number" name="biaya_daftar" id="biaya_daftar" min="1"
+                            placeholder="" class=" w-full text-sm font-slate-200 text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
+                    </div>
+                </div>
                 <div class="flex justify-end gap-4 pt-4">
                     <a href="{{ route('klinik.index') }}" class="px-8 py-3 bg-slate-500 text-white rounded-xl font-bold uppercase">Batal</a>
                     <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 uppercase">Daftarkan Pasien</button>
                 </div>
+
             </form>
         </div>
     </div>

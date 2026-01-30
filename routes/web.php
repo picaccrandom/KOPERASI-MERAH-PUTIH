@@ -15,8 +15,8 @@ use App\Http\Controllers\KantorKoperasi\KeuanganController;
 
 
 // 1. Halaman Login
-Route::get('/login', function() { 
-    return view('login'); 
+Route::get('/login', function() {
+    return view('login');
 })->name('login');
 
 Route::post('/login-proses', [MemberController::class, 'loginProses']);
@@ -25,8 +25,8 @@ Route::get('/logout', [MemberController::class, 'logout'])->name('logout');
 // 2. Middleware Auth
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/', function () { 
-        return redirect('/dashboard'); 
+    Route::get('/', function () {
+        return redirect('/dashboard');
     })->name('home');
 
     Route::get('/dashboard', function () {
@@ -56,7 +56,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/ganti-password', [UserController::class, 'gantiPassword'])->name('password.ganti');
     Route::post('/admin/ganti-password', [UserController::class, 'updatePassword'])->name('password.update.proses');
 
-    // Modul Gudang (Master Barang) 
+    // Modul Gudang (Master Barang)
     Route::get('/admin/gudang', [BarangController::class, 'index'])->name('gudang.index');
     Route::post('/admin/gudang', [BarangController::class, 'store'])->name('gudang.store');
     Route::put('/admin/gudang/{id}', [BarangController::class, 'update'])->name('gudang.update');
@@ -73,10 +73,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Modul Simpan Pinjam
     Route::get('/simpanpinjam', [SimpanPinjamController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
-    // Route::get('/simpanpinjam', [SimpanPinjamController::class, 'simpanpinjam'])->name('simpanpinjam.index'); // Simpan Pinjam  
-    
+    // Route::get('/simpanpinjam', [SimpanPinjamController::class, 'simpanpinjam'])->name('simpanpinjam.index'); // Simpan Pinjam
+
     // dashboard simpan pinjam
-    
+
     // Pinjaman Routes
     Route::get('/pinjaman/dashboard', [PinjamanController::class, 'dashboardSP'])->name('pinjaman.dashboardSP'); // Pinjaman
 
@@ -86,14 +86,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pinjaman/detail/{no_transaksi_sp}', [PinjamanController::class, 'detail'])->name('pinjaman.detail'); // Detail Pinjaman
     Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran'); // Pinjaman
     Route::delete('/pinjaman/{no_transaksi_sp}', [PinjamanController::class, 'destroy'])->name('pinjaman.destroy');
-    
+
     // bon Routes
     Route::get('/bon', [PinjamanController::class, 'indexBon'])->name('bon.indexBon'); // Pinjaman
     Route::get('/bon/detail/{no_transaksi_sp}', [PinjamanController::class, 'detailBon'])->name('bon.detailBon'); // Detail Bon
     Route::post('/bon/bayarBon/{no_transaksi_sp}', [PinjamanController::class, 'bayarBon'])->name('bon.bayarBon'); // Lunasi Bon
     Route::delete('/bon/hapusBon/{no_transaksi_sp}', [PinjamanController::class, 'destroy'])->name('bon.destroy'); // Lunasi Bon
-        
-    
+
+
     // Simpanan Routes
     Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index'); // Simpanan
     Route::get('/simpanan/create', [SimpananController::class, 'create'])->name('simpanan.create'); // Simpanan tampil form tambah
@@ -113,6 +113,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [KlinikController::class, 'index'])->name('klinik.index');
         Route::get('/pendaftaran', [KlinikController::class, 'pendaftaran'])->name('klinik.pendaftaran');
         Route::post('/simpan-pemeriksaan', [KlinikController::class, 'store'])->name('klinik.store');
+        Route::get('/bayar/{kode_transaksi}', [KlinikController::class, 'bayar'])->name('klinik.bayar');
     });
 
     Route::middleware(['auth'])->group(function () {
@@ -135,6 +136,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/apotek/jual/{id}', [ApotekController::class, 'jualObat'])->name('apotek.formJual');
     Route::post('/apotek/proses-jual/{id}', [ApotekController::class, 'prosesJual'])->name('apotek.prosesJual');
     Route::get('/apotek/resep-masuk', [ApotekController::class, 'resepMasukIndex'])->name('apotek.resep');
+    Route::post('/apotek/bayar-order/{kode_transaksi}', [ApotekController::class, 'bayarOrder'])->name('apotek.bayarOrder');
 
     Route::prefix('gudang-distribusi')->group(function () {
         Route::get('/', [DistribusiController::class, 'index'])->name('distribusi.gudang');
