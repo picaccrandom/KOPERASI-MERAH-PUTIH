@@ -27,4 +27,6 @@ class PendaftaranKlinik extends Model
 
         return $this->hasOne(RekamMedis::class, 'pendaftaran_id');
     }
+
+
 }

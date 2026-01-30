@@ -34,6 +34,13 @@
                 </p>
             </div>
 
+            <div class="bg-slate-50 p-6 rounded-2xl border-l-8 border-slate-400">
+                <label class="text-xs font-black text-slate-500 uppercase block mb-2">Resep Obat</label>
+                <p class="text-slate-700 font-bold leading-relaxed">
+                    {{ $data->rekamMedis->obat->nama_obat ?? '-' }}
+                </p>
+            </div>
+
             <div class="flex justify-center pt-6">
                 <a href="{{ route('klinik.index') }}" class="px-12 py-3 bg-blue-600 text-white rounded-xl font-black uppercase hover:bg-blue-700 shadow-xl transition-all">
                     Kembali ke Antrian

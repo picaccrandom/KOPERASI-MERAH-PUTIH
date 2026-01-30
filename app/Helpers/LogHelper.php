@@ -12,7 +12,8 @@ if (!function_exists('writeLog')) {
         $recordId = null,
         $oldData = null,
         $newData = null,
-        string $description = null,
+        // string $description = null, -> untuk php versi 8.2
+        string $description = '', // workaround untuk php versi 8.2 keatas
         string $severity = 'info',
         string $status = 'success'
     ) {

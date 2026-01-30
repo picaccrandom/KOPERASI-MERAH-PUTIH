@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Obat;
+use App\Models\RekamMedis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\AccountingService;
 
 class ApotekController extends Controller
 {
@@ -73,13 +75,20 @@ class ApotekController extends Controller
         return view('apotek.index', compact('obats')); // Pastikan memanggil view 'index'
     }
 
+    public function resepMasukIndex()
+    {
+        // Ambil data resep masuk dari klinik (dummy data untuk contoh)
+        $resepMasuks = RekamMedis::whereNotNull('resep_obat')->where('status_resep', 'diproses')->get();
+        $obats = Obat::all();
+        return view('apotek.resep_masuk', compact('resepMasuks', 'obats'));
+    }
+
     // Menampilkan form penjualan obat
     public function jualObat($id) {
         $obat = Obat::findOrFail($id);
         return view('apotek.jual', compact('obat'));
     }
 
-    // Proses transaksi penjualan
     public function prosesJual(Request $request, $id) {
         $request->validate(['qty' => 'required|integer|min:1']);
         $obat = Obat::findOrFail($id);
@@ -88,12 +97,41 @@ class ApotekController extends Controller
             return back()->with('error', 'Stok apotek tidak mencukupi!');
         }
 
-        DB::transaction(function () use ($obat, $request) {
-            // Kurangi stok retail di apotek
+        // Hitung total harga transaksi
+        $totalBayar = $obat->harga_jual * $request->qty;
+        $noInvoice = 'INV-APT-' . date('Ymd') . '-' . rand(100, 999); // Referensi unik
+
+        DB::transaction(function () use ($obat, $request, $totalBayar, $noInvoice) {
+            // 1. Kurangi stok retail di apotek
             $obat->decrement('stok_apotek', $request->qty);
             
+            // 2. Update status resep jika ada
+            RekamMedis::where('resep_obat', $obat->kode_obat)->update(['status_resep' => 'selesai']);
+
+            /**
+             * 3. OTOMATIS POSTING KE AKUNTANSI (KANTOR KOPERASI)
+             * Skema: Debit Kas, Kredit Pendapatan Apotek
+             */
+            
+            // Posting DEBIT ke akun KAS (Gunakan kode akun 1101 sesuai standar)
+            AccountingService::post(
+                now(), 
+                "Penjualan Obat: {$obat->nama_obat} ({$request->qty} {$obat->satuan})", 
+                $noInvoice, 
+                $totalBayar, 0, // Debit
+                '1101' // Kode Akun Kas
+            );
+
+            // Posting KREDIT ke akun PENDAPATAN APOTEK (Gunakan kode akun 4101)
+            AccountingService::post(
+                now(), 
+                "Pendapatan Penjualan {$noInvoice}", 
+                $noInvoice, 
+                0, $totalBayar, // Kredit
+                '4101' // Kode Akun Pendapatan Apotek
+            );
         });
 
-        return redirect()->route('apotek.index')->with('success', 'Obat berhasil terjual!');
+        return redirect()->route('apotek.index')->with('success', 'Obat terjual & otomatis terjurnal di Kantor Koperasi!');
     }
 }

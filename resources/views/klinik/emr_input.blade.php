@@ -48,6 +48,23 @@
                         placeholder="Tuliskan tindakan atau obat yang diberikan..."></textarea>
                 </div>
 
+                <!-- input resep obat -->
+
+                <div class="mt-6">
+                    <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Resep Obat</label>
+                    <div class="flex justify-between items-center  gap-4">
+                        <select name="resep_obat" id="resep_obat" 
+                            class="w-full text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
+                            <option value="" disabled selected>Pilih Obat...</option>
+                            @foreach($obats as $obat)
+                                <option value="{{ $obat->kode_obat }}">{{ $obat->nama_obat }} - Stok: {{ $obat->stok_apotek }}</option>
+                            @endforeach
+                        </select>
+                        <input type="number" name="qty" id="qty" min="1" 
+                            placeholder="Qty" class=" w-[30%] text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
+                    </div>  
+                </div>
+
                 {{-- Tombol Aksi --}}
                 <div class="flex justify-end gap-4 pt-6">
                     <a href="{{ route('klinik.index') }}" 

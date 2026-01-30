@@ -10,6 +10,8 @@ use App\Http\Controllers\SimpananController;
 use App\Http\Controllers\KlinikController;
 use App\Http\Controllers\ApotekController;
 use App\Http\Controllers\DistribusiController;
+use App\Http\Controllers\KantorKoperasi\AccountingController;
+use App\Http\Controllers\KantorKoperasi\KeuanganController;
 
 
 // 1. Halaman Login
@@ -66,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Route Modul Kasir
     Route::get('/admin/kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('/admin/kasir/proses', [KasirController::class, 'store'])->name('kasir.store');
+    Route::get('/admin/kasir/struk/{kode_transaksi}', [KasirController::class, 'cetakStruk'])->name('kasir.struk');
 
 
     // Modul Simpan Pinjam
@@ -131,6 +134,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/apotek/jual/{id}', [ApotekController::class, 'jualObat'])->name('apotek.formJual');
     Route::post('/apotek/proses-jual/{id}', [ApotekController::class, 'prosesJual'])->name('apotek.prosesJual');
+    Route::get('/apotek/resep-masuk', [ApotekController::class, 'resepMasukIndex'])->name('apotek.resep');
 
     Route::prefix('gudang-distribusi')->group(function () {
         Route::get('/', [DistribusiController::class, 'index'])->name('distribusi.gudang');
@@ -142,4 +146,31 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/gudang-distribusi/kirim-luar/{id}', [DistribusiController::class, 'prosesFaktur'])->name('distribusi.prosesFaktur');
     Route::post('/gudang-distribusi/mutasi-gerai/{id}', [DistribusiController::class, 'prosesMutasi'])->name('distribusi.prosesMutasi');
 
+    Route::prefix('kantor-koperasi')->group(function () {
+    Route::get('/akuntansi', [AccountingController::class, 'index'])->name('akuntansi.index');
+    Route::get('/akuntansi/ledger/{id}', [AccountingController::class, 'showLedger'])->name('akuntansi.ledger');
+    });
+
+    // Modul Kantor Koperasi (Pusat Kendali)
+    Route::prefix('kantor-koperasi')->group(function () {
+        // Akuntansi & Buku Besar
+        Route::get('/akuntansi', [AccountingController::class, 'index'])->name('akuntansi.index');
+        Route::get('/akuntansi/ledger/{id}', [AccountingController::class, 'showLedger'])->name('akuntansi.ledger');
+        
+    });
+
+    Route::prefix('kantor-koperasi')->group(function () {
+        // Rute Akuntansi yang sudah jalan
+        Route::get('/akuntansi', [AccountingController::class, 'index'])->name('akuntansi.index');
+        Route::get('/akuntansi/ledger/{id}', [AccountingController::class, 'showLedger'])->name('akuntansi.ledger');
+        
+        Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
+        Route::post('/keuangan/store', [KeuanganController::class, 'store'])->name('keuangan.store');
+
+        Route::get('/akuntansi/laba-rugi', [AccountingController::class, 'showLabaRugi'])->name('akuntansi.labarugi');
+        Route::get('/akuntansi/neraca', [AccountingController::class, 'showNeraca'])->name('akuntansi.neraca');
+        Route::post('/akuntansi/store-account', [AccountingController::class, 'store'])->name('akuntansi.store_account');
+    });
+
+    
 });

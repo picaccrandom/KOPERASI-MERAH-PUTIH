@@ -140,10 +140,19 @@
     <div class="management-grid">
         @php
         $kantorMenus = [
-            ['icon' => 'fa-chart-line', 'title' => 'Dashboard', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => '#', 'sub' => 'Stats'],
-            ['icon' => 'fa-calculator', 'title' => 'Akuntansi', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => '#', 'sub' => 'Ledger'],
-            ['icon' => 'fa-wallet', 'title' => 'Keuangan', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => '#', 'sub' => 'Flow'],
-            ['icon' => 'fa-file-invoice-dollar', 'title' => 'Laporan', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => '#', 'sub' => 'Reporting'],
+            // Menu Neraca (Dulu Dashboard) - Menggunakan icon Chart Line untuk melihat pertumbuhan aset
+            ['icon' => 'fa-scale-balanced', 'title' => 'Neraca', 'color' => 'linear-gradient(135deg, #1e293b, #334155)', 'link' => route('akuntansi.neraca'), 'sub' => 'Kesehatan Aset'],
+
+            // Menu Akuntansi - Tetap untuk melihat Co-A dan Buku Besar
+            ['icon' => 'fa-calculator', 'title' => 'Akuntansi', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => route('akuntansi.index'), 'sub' => 'Ledger & Co-A'],
+
+            // Menu Keuangan - Untuk input pengeluaran operasional (Flow)
+            ['icon' => 'fa-wallet', 'title' => 'Keuangan', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => route('keuangan.index'), 'sub' => 'Arus Kas Keluar'],
+
+            // Menu Laporan - Sekarang fokus ke Laba Rugi (Profit & Loss)
+            ['icon' => 'fa-file-invoice-dollar', 'title' => 'Laba Rugi', 'color' => 'linear-gradient(135deg, #059669, #10b981)', 'link' => route('akuntansi.labarugi'), 'sub' => 'Performa SHU'],
+
+            // Menu Admin Sistem
             ['icon' => 'fa-user-gear', 'title' => 'Adm. Sistem', 'color' => 'linear-gradient(135deg, #475569, #1e293b)', 'link' => route('user.index'), 'sub' => 'Control', 'id' => 'btn-adm-sistem']
         ];
         @endphp

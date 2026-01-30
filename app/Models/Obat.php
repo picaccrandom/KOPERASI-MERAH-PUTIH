@@ -10,4 +10,8 @@ class Obat extends Model
         'kode_obat', 'nama_obat', 'kategori', 'stok_gudang', 
         'stok_apotek', 'harga_beli', 'harga_jual', 'satuan', 'tgl_kadaluwarsa'
     ];
+
+    public function rekamMedis() {
+        return $this->hasMany(RekamMedis::class, 'resep_obat', 'kode_obat');
+    }
 }

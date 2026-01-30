@@ -10,41 +10,33 @@ use App\Models\Transaksi_SP;
 use App\Models\BonDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
-use function Symfony\Component\Clock\now;
+use App\Services\AccountingService; // Import Service Akuntansi
 
 class PinjamanController extends Controller
 {
-
-    /**
-     * Display a listing of the resource.
-     */
-    // public function dashboard()
-    // {
-    //     return view('dashboard');
-    // }
-
     public function dashboardSP()
     {
         return view('simpanpinjam');
     }
     
-    
     public function index()
     {
-        $peminjamans = Transaksi_SP::with('member', 'angsuranPeminjamans', 'angsuranBelum')->where('COA', 'Pinjam')->orderBy('created_at', 'desc')->get();
+        $peminjamans = Transaksi_SP::with('member', 'angsuranPeminjamans', 'angsuranBelum')
+            ->where('COA', 'Pinjam')
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('Pinjaman', compact('peminjamans'));
     }   
 
     public function indexBon() 
     {
-        $Bons = Transaksi_SP::with('member', 'bonBelum')->where('COA', 'Bon')->whereHas('bonBelum')->orderBy('created_at', 'desc')->get();
+        $Bons = Transaksi_SP::with('member', 'bonBelum')
+            ->where('COA', 'Bon')
+            ->whereHas('bonBelum')
+            ->orderBy('created_at', 'desc')
+            ->get();
         return view('Bon', compact('Bons'));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
 
     public function create()
     {
@@ -55,13 +47,13 @@ class PinjamanController extends Controller
 
     public function detail($no_transaksi_sp)
     {
-        // Ambil detail angsuran
         $pinjaman = AngsuranPeminjaman::where('no_transaksi_sp', $no_transaksi_sp)
                     ->orderBy('angsuran_ke', 'asc')
                     ->get();
 
-        // Ambil data induk untuk member_id (karena di tabel detail tidak ada member_id)
-        $transaksiInduk = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->with('member', 'angsuranPeminjamans')->first();
+        $transaksiInduk = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)
+            ->with('member', 'angsuranPeminjamans')
+            ->first();
 
         if (!$transaksiInduk) {
             return redirect()->back()->with('error', 'Data transaksi tidak ditemukan.');
@@ -75,103 +67,78 @@ class PinjamanController extends Controller
         return view('DetailBon', compact('bon'));
     }
 
-
-     /**
-     * Store a newly created resource in storage.
+    /**
+     * Store: Pencairan Pinjaman + Jurnal Otomatis
      */
     public function store(Request $request)
     {
         DB::transaction(function () use ($request) {
             
-            $totalPinjam = [];
-            $limit = 0;
+            $totalPinjam = ($request->tenor > 12) 
+                ? floatval($request->jumlah_pinjaman * ($request->bunga / 100)/12) + floatval($request->jumlah_pinjaman)
+                : floatval($request->jumlah_pinjaman);
+
+            $namaMember = Member::where('id', $request->member_id)->first();
+
+            // 1. Buat Transaksi Pinjaman (Unit SP)
+            $transaksiSP = Transaksi_SP::create([
+                'no_transaksi_sp' => 'SP-P-'. date('YmdHis'),
+                'tanggal' => Carbon::now(),
+                'member_id' => $request->member_id,
+                'nama' => $namaMember->nama_lengkap,
+                'COA' => 'Pinjam',
+                'Debit/Credit' => 'Credit', // Uang keluar dari kas
+                'Nominal' => (float)$request->jumlah_pinjaman,
+                'Keterangan' => 'Pinjaman Anggota: ' . ($request->catatan ?? '-'),
+            ]);
+
+            /** * 2. INTEGRASI AKUNTANSI: PENCAIRAN
+             * Debit: Piutang (1201) | Kredit: Kas (1101)
+             */
+            AccountingService::post(now(), "Pencairan Pinjaman: ".$namaMember->nama_lengkap, $transaksiSP->no_transaksi_sp, (float)$request->jumlah_pinjaman, 0, '1201');
+            AccountingService::post(now(), "Pengeluaran Kas Pinjaman (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, (float)$request->jumlah_pinjaman, '1101');
+
+            $limitAnggotas = KreditAnggota::where('id', $transaksiSP->member_id);
+            $limitAnggotas->decrement('limit', $transaksiSP->Nominal);
             
-            if($request->tenor > 12) {
-                $totalPinjam = floatval($request->jumlah_pinjaman * ($request->bunga / 100)/12) + floatval($request->jumlah_pinjaman);
-            } else {
-                $totalPinjam = floatval($request->jumlah_pinjaman);
-            }
+            foreach (range(1, $request->tenor) as $angsuran_ke) {
+                $tanggal_jatuh_tempo_bayar = Carbon::now()->addMonths($angsuran_ke);
+                $jumlah_angsuran = $totalPinjam / $request->tenor;
 
-
-
-            DB::transaction(function () use ($request, $totalPinjam) {
-                $namaMember = Member::where('id', $request->member_id)->first();
-
-                $transaksiSP = Transaksi_SP::create([
-                    'no_transaksi_sp' => 'SP-P-'. date('YmdHis'),
-                    'tanggal' => Carbon::now(),
-                    'member_id' => $request->member_id,
-                    'nama' => $namaMember->nama_lengkap,
-                    'COA' => 'Pinjam',
-                    'Debit/Credit' => 'Credit',
-                    'Nominal' => (float)$request->jumlah_pinjaman,
-                    'Keterangan' => 'Pinjaman Anggota: ' . $request->catatan ?? '-',
+                DB::table('angsuran_peminjamen')->insert([
+                    'no_transaksi_sp' => $transaksiSP->no_transaksi_sp,
+                    'user_id' => $request->user_id,
+                    'angsuran_ke' => $angsuran_ke,
+                    'batas_bayar' => $tanggal_jatuh_tempo_bayar,
+                    'jumlah_angsuran' => $jumlah_angsuran,
+                    'total_pinjaman' => $totalPinjam,
+                    'denda' => 0,
+                    'bunga' => $request->bunga,
+                    'tenor' => $request->tenor,
+                    'tanggal_pinjaman' => Carbon::now(),
+                    'status' => 'belum',
                 ]);
-
-                $limitAnggotas = KreditAnggota::where('id', $transaksiSP->member_id);
-                $limitAnggotas->decrement('limit', $transaksiSP->Nominal);
-                
-                foreach (range(1, $request->tenor) as $angsuran_ke) {
-
-                    $tanggal_jatuh_tempo_bayar = Carbon::now()->addMonths($angsuran_ke);
-                    $jumlah_angsuran = $totalPinjam / $request->tenor;
-
-                    DB::table('angsuran_peminjamen')->insert([
-                        'no_transaksi_sp' => $transaksiSP->no_transaksi_sp,
-                        'user_id' => $request->user_id,
-                        'angsuran_ke' => $angsuran_ke,
-                        'batas_bayar' => $tanggal_jatuh_tempo_bayar,
-                        'jumlah_angsuran' => $jumlah_angsuran,
-                        'total_pinjaman' => $totalPinjam,
-                        'denda' => 0,
-                        'bunga' => $request->bunga,
-                        'tenor' => $request->tenor,
-                        'tanggal_pinjaman' => Carbon::now(),
-                        'status' => 'belum',
-                    ]);
-                }
-            });
-
+            }
         });
 
-        // catat log tambah pinjaman anggota
-        writeLog(
-            'Pinjaman',
-            'Create',
-            'transaksi__s_p_s',
-            null,
-            null,
-            json_encode($request->all()),
-            'Menambahkan pinjaman baru untuk anggota ID: ' . $request->member_id,
-            'info',
-            'success'
-        );
+        writeLog('Pinjaman', 'Create', 'transaksi__s_p_s', null, null, json_encode($request->all()), 'Pinjaman baru & Jurnal otomatis ID: ' . $request->member_id, 'info', 'success');
         
-        // dd($request);
-        return redirect()->route('pinjaman.index')->with('success', 'Pinjaman berhasil ditambahkan.');
-        
+        return redirect()->route('pinjaman.index')->with('success', 'Pinjaman berhasil & otomatis terjurnal!');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Bayar Angsuran + Jurnal Otomatis
      */
-    
     public function bayarAngsuran($memberId, $id_angsuran) {
         try {
             DB::beginTransaction();
 
             $angsuran = AngsuranPeminjaman::findOrFail($id_angsuran);
-
-            
-            if($angsuran->tenor > 12){
-                $limitPerangsuran = ($angsuran->total_pinjaman - ($angsuran->jumlah_pinjaman * ($angsuran->bunga / 100)))/12;
-            }else{
-                $limitPerangsuran = 0;
-            }
+            $limitPerangsuran = ($angsuran->tenor > 12) 
+                ? ($angsuran->total_pinjaman - ($angsuran->jumlah_pinjaman * ($angsuran->bunga / 100)))/12 
+                : 0;
 
             $tanggal_bayar = Carbon::now();
-            
-            // Hitung denda
             $durasiDenda = max(0, Carbon::parse($angsuran->batas_bayar)->diffInDays($tanggal_bayar, false));
             $denda = ($durasiDenda > 0) ? (5000 * $durasiDenda) : 0;
             $totalBayar = $angsuran->jumlah_angsuran + $denda;
@@ -184,16 +151,22 @@ class PinjamanController extends Controller
                 'denda' => $denda
             ]);
 
-            Transaksi_SP::create([
+            $transaksi = Transaksi_SP::create([
                 'no_transaksi_sp' => 'SP-A-'. date('YmdHis'),
                 'tanggal' => $tanggal_bayar,
                 'member_id' => $memberId,
                 'nama' => $namaMember->nama_lengkap ?? 'Anggota',
                 'COA' => 'Angsuran',
-                'Debit/Credit' => 'Debit',
+                'Debit/Credit' => 'Debit', // Uang masuk
                 'Nominal' => $totalBayar,
                 'Keterangan' => 'Pembayaran Angsuran ke-' . $angsuran->angsuran_ke,
             ]);
+
+            /** * 3. INTEGRASI AKUNTANSI: ANGSURAN
+             * Debit: Kas (1101) | Kredit: Piutang (1201)
+             */
+            AccountingService::post(now(), "Terima Angsuran ke-".$angsuran->angsuran_ke." ".$namaMember->nama_lengkap, $transaksi->no_transaksi_sp, $totalBayar, 0, '1101');
+            AccountingService::post(now(), "Penurunan Piutang (".$transaksi->no_transaksi_sp.")", $transaksi->no_transaksi_sp, 0, $angsuran->jumlah_angsuran, '1201');
 
             $limitKredit = KreditAnggota::where('member_id', $memberId)->first();
             if($limitKredit) {
@@ -201,55 +174,22 @@ class PinjamanController extends Controller
             }
 
             DB::commit();
-
-            // PENTING: Respon JSON untuk AJAX
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Pembayaran Berhasil Dicatat'
-                ]);
-            }
-
-            // catat log bayar angsuran pinjaman
-            writeLog(
-                'Pinjaman',
-                'Update',
-                'angsuran_peminjamen',
-                $angsuran->id ?? null,
-                null,
-                json_encode([
-                    'tanggal_bayar' => now(),
-                    'status' => 'lunas',
-                    'denda' => $denda
-                ]),
-                'Melakukan pembayaran angsuran ke-' . $angsuran->angsuran_ke . ' untuk anggota ID: ' . $memberId,
-                'info',
-                'success'
-            );
-
-            return redirect()->back()->with('success', 'Angsuran berhasil dibayar.');
+            return redirect()->back()->with('success', 'Angsuran berhasil & Kas Kantor bertambah!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false, 
-                    'message' => $e->getMessage()
-                ], 500);
-            }
             return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Bayar Bon + Jurnal Otomatis
+     */
     public function bayarBon($no_transaksi_sp) {
         try {
             DB::beginTransaction();
             $bon = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->first();
             $status = BonDetail::where('no_transaksi_sp', $no_transaksi_sp)->first();
-            if (!$bon) {
-                throw new \Exception('Data bon tidak ditemukan.');
-            }
-            // dd($bon);
 
             $transaksiSP = Transaksi_SP::create([
                 'no_transaksi_sp' => 'SP-LB-'. date('YmdHis'),
@@ -262,90 +202,33 @@ class PinjamanController extends Controller
                 'Keterangan' => 'Pelunasan Bon: ' . ($bon->Keterangan ?? '-'),
             ]);
 
-            $status->update([
-                'status' => 'lunas',
-            ]);
+            /** * 4. INTEGRASI AKUNTANSI: PELUNASAN BON */
+            AccountingService::post(now(), "Pelunasan Bon - ".$bon->nama, $transaksiSP->no_transaksi_sp, $bon->Nominal, 0, '1101');
+            AccountingService::post(now(), "Penutupan Piutang Bon (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, $bon->Nominal, '1201');
 
+            $status->update(['status' => 'lunas']);
             KreditAnggota::where('member_id', $bon->member_id)->increment('limit', $bon->Nominal);
-            // Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->delete();
 
             DB::commit();
-
-            // PENTING: Respon JSON untuk AJAX
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Pembayaran Berhasil Dicatat'
-                ]);
-            }
-
-            // catat log bayar bon
-            writeLog(
-                'Bon',
-                'Update',
-                'bon_details',
-                $status->id ?? null,
-                null,
-                json_encode([
-                    'status' => 'lunas',
-                ]),
-                'Melakukan pelunasan bon untuk anggota ID: ' . $bon->member_id,
-                'info',
-                'success'
-            );
-
-            return redirect()->route('bon.indexBon')->with('success', 'Bon berhasil dibayar.');
+            return redirect()->route('bon.indexBon')->with('success', 'Bon lunas & terjurnal!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            if (request()->ajax() || request()->wantsJson()) {
-                return response()->json([
-                    'success' => false, 
-                    'message' => $e->getMessage()
-                ], 500);
-            }
             return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 
-
     public function destroy($no_transaksi_sp) {
-        // data transaksi
         $transaksi = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->first();
-
-        // data angsuran
         $angsuran = AngsuranPeminjaman::where('no_transaksi_sp', $no_transaksi_sp)->get();
 
-        // dd($transaksi, $angsuran);
         DB::transaction(function () use ($transaksi, $angsuran) {
-            // mengembalikan limit kredit anggota
             $limitKredit = KreditAnggota::where('member_id', $transaksi->member_id)->first();
-            if($limitKredit) {
-                $limitKredit->increment('limit', $transaksi->Nominal);
-            }
-
-            // menghapus data angsuran
-            foreach($angsuran as $angsur) {
-                $angsur->delete();
-            }
-
-            // menghapus data transaksi
+            if($limitKredit) { $limitKredit->increment('limit', $transaksi->Nominal); }
+            foreach($angsuran as $angsur) { $angsur->delete(); }
             $transaksi->delete();
         });
 
-        // catat log hapus pinjaman anggota
-        writeLog(
-            'Pinjaman',
-            'Delete',
-            'transaksi__s_p_s',
-            $transaksi->id ?? null,
-            null,
-            null,
-            'Menghapus pinjaman untuk anggota ID: ' . $transaksi->member_id,
-            'info',
-            'success'
-        );
-
-        return redirect()->route('pinjaman.index')->with('success', 'Data pinjaman berhasil dihapus.');
+        return redirect()->route('pinjaman.index')->with('success', 'Data pinjaman dihapus.');
     }
 }

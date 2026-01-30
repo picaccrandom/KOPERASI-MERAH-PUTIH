@@ -17,8 +17,8 @@
                 <a href="{{ route('apotek.gudang') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
                     <i class="fas fa-warehouse mr-2"></i> Cek Stok Gudang
                 </a>
-                <a href="{{ route('apotek.resep') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
-                    <i class="fa-solid fa-book mr-2"></i> Orderan Masuk
+                <a href="{{ route('apotek.index') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
+                    <i class="fa-solid fa-book mr-2"></i> Jual Obat
                 </a>
             </div>
         </div>
@@ -26,49 +26,48 @@
         {{-- Container Tabel Hijau --}}
         <div class="bg-white/95 rounded-3xl shadow-2xl overflow-hidden border border-emerald-100">
             <div class="bg-emerald-600 px-8 py-4 text-white font-black uppercase tracking-widest flex justify-between items-center">
-                <span><i class="fas fa-pills mr-2"></i> Daftar Obat Siap Jual</span>
+                <span><i class="fas fa-pills mr-2"></i> Resep Obat Masuk</span>
                 <span class="bg-white text-emerald-600 px-4 py-1 rounded-full text-xs shadow-inner font-black">
-                    Tersedia: {{ $obats->count() }} Macam Obat
+                    Tersedia: {{ $resepMasuks->count() }} Orderan Obat
                 </span>
             </div>
             
             <div class="p-8">
                 <table class="w-full text-left">
-                    <thead class="text-emerald-700 border-b-2 border-emerald-100 font-black uppercase text-sm tracking-widest">
+                    <thead class="text-emerald-700 border-b-2 border-emerald-100 font-black uppercase text-sm tracking-widest text-center">
                         <tr>
-                            <th class="py-4">KODE</th>
-                            <th class="py-4">NAMA OBAT</th>
-                            <th class="py-4">HARGA JUAL</th>
-                            <th class="py-4 text-center">STOK RETAIL</th>
+                            <th class="py-4">PENDAFTARAN ID</th>
+                            <th class="py-4">RESEP OBAT</th>
+                            <th class="py-4">STOK</th>
+                            <th class="py-4 text-center">QTY</th>
                             <th class="py-4 text-center">AKSI</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-emerald-50 font-bold">
-                        @forelse($obats as $o)
-                        <tr class="hover:bg-emerald-50/50 transition-colors text-slate-700 group">
-                            <td class="py-4 font-mono text-emerald-600">{{ $o->kode_obat }}</td>
-                            <td class="py-4 uppercase tracking-tighter">{{ $o->nama_obat }}</td>
-                            <td class="py-4 text-slate-800">Rp {{ number_format($o->harga_jual, 0, ',', '.') }}</td>
-                            <td class="py-4 text-center">
-                                <span class="px-4 py-1 bg-emerald-100 text-emerald-700 rounded-xl text-xs border border-emerald-200 shadow-sm">
-                                    {{ $o->stok_apotek }} {{ $o->satuan }}
-                                </span>
-                            </td>
-                            <td class="py-4 text-center">
-                                {{-- Tombol Aktif Jual Obat Membuka Modal --}}
-                                <button onclick="openJualModal({{ json_encode($o) }})" class="bg-emerald-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase shadow-md hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95">
-                                    <i class="fas fa-shopping-cart mr-1"></i> Jual Obat
-                                </button>
-                            </td>
-                        </tr>
+                    <tbody class="divide-y divide-emerald-50 font-bold text-center">
+                        @forelse($resepMasuks as $r)
+                            <tr class="hover:bg-emerald-50/50 transition-colors text-slate-700 group">
+                                <td class="py-4 font-mono text-emerald-600">{{ $r->pendaftaran_id }}</td>
+                                <td class="py-4 uppercase tracking-tighter">{{ $r->resep_obat }}</td>
+                                <td class="py-4 text-center">
+                                    <span class="px-4 py-1 bg-emerald-100 text-emerald-700 rounded-xl text-xs border border-emerald-200 shadow-sm">
+                                        {{ $obats->first()->stok_apotek }} {{ $obats->first()->satuan }}
+                                    </span>
+                                </td>
+                                <td class="py-4 text-center">
+                                    {{-- Tombol Aktif Jual Obat Membuka Modal --}}
+                                    <button onclick="openJualModal({{ json_encode($r) }})" class="bg-emerald-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase shadow-md hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95">
+                                        <i class="fas fa-shopping-cart mr-1"></i> Unduh Resep
+                                    </button>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="5" class="py-24 text-center text-slate-400 font-bold italic text-xl tracking-wide">
-                                <i class="fas fa-box-open text-6xl mb-4 block opacity-20"></i>
-                                Stok di Apotek kosong.<br>
-                                <span class="text-xs uppercase not-italic text-emerald-600 font-black">Silakan lakukan mutasi stok dari gudang apotek</span>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td colspan="5" class="py-24 text-center text-slate-400 font-bold italic text-xl tracking-wide">
+                                    <i class="fas fa-box-open text-6xl mb-4 block opacity-20"></i>
+                                    Tidak ada resep obat masuk.<br>
+                                    <span class="text-xs uppercase not-italic text-emerald-600 font-black">Silakan lakukan mutasi stok dari gudang apotek</span>
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -120,25 +119,27 @@
 
 <script>
     let currentObat = null;
-
+    const obats = @json($obats);
     function openJualModal(obat) {
         currentObat = obat;
+        currentObatDetails = obats.find(o => o.kode_obat === obat.resep_obat);
+        console.log(currentObatDetails);
         document.getElementById('modalJualObat').classList.remove('hidden');
-        document.getElementById('displayNamaObat').innerText = obat.nama_obat;
-        document.getElementById('displayHargaObat').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(obat.harga_jual) + ' / ' + obat.satuan;
-        document.getElementById('displayStokTersedia').innerText = 'Stok Tersedia: ' + obat.stok_apotek + ' ' + obat.satuan;
-        document.getElementById('inputQty').max = obat.stok_apotek;
+        document.getElementById('displayNamaObat').innerText = currentObatDetails.nama_obat;
+        document.getElementById('displayHargaObat').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(currentObatDetails.harga_jual) + ' / ' + currentObatDetails.satuan;
+        document.getElementById('displayStokTersedia').innerText = 'Stok Tersedia: ' + currentObatDetails.stok_apotek + ' ' + currentObatDetails.satuan;
+        document.getElementById('inputQty').max = currentObat.stok_apotek;
         document.getElementById('inputQty').value = 1;
         
         // Set Action Form Dinamis
-        document.getElementById('formJualObat').action = `/apotek/proses-jual/${obat.id}`;
+        document.getElementById('formJualObat').action = `/apotek/proses-jual/${currentObatDetails.id}`;
         
         hitungTotal();
     }
 
     function hitungTotal() {
         const qty = document.getElementById('inputQty').value;
-        const total = qty * currentObat.harga_jual;
+        const total = qty * currentObatDetails.harga_jual;
         document.getElementById('displayTotal').innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
     }
 
