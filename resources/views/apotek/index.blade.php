@@ -20,6 +20,42 @@
                 <a href="{{ route('apotek.resep') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
                     <i class="fa-solid fa-book mr-2"></i> Orderan Masuk
                 </a>
+                <div id="cart_obat" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest relative text-white flex items-center">
+                    <i class="fa-solid fa-cart-shopping text-2xl "></i>
+                    <span id="cart_count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">0</span>
+                </div>
+            </div>
+        </div>
+
+        {{-- Keranjang Area --}}
+        <div id="keranjang_area" class="fixed top-20 right-10 w-[35rem] bg-white/95 rounded-3xl shadow-2xl border border-emerald-100 overflow-hidden hidden z-50">
+            <div class="bg-emerald-600 px-6 py-4 text-white font-black uppercase tracking-widest flex justify-between items-center">
+                <span><i class="fas fa-shopping-cart mr-2"></i> Keranjang Penjualan Obat</span>
+                <i class="fa-solid fa-xmark cursor-pointer" id="close_cart"></i>
+            </div>
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4 border-b-2 border-emerald-100 pb-2 text-emerald-700 font-black uppercase text-sm tracking-widest">
+                    <span>#</span>
+                    Nama Obat
+                    <span class="px-4 py-1 bg-emerald-100 text-emerald-700 rounded-xl text-xs border border-emerald-200 shadow-sm mx-2">
+                        Jumlah
+                    </span>
+                    Total Harga 
+                </div>
+                {{-- kirim data ke controller --}}
+                <form action="{{ route('apotek.proses-pembayaran-cart') }}" method="POST" id="form_pembayaran">
+                    @csrf
+                    <input type="hidden" name="cart_data" id="cart_data">
+                </form>
+                <div id="area_cart" class="text-slate-600 font-bold italic text-center h-40 overflow-y-auto">
+                    
+                    <p class="font-bold italic text-center text-slate-600">Keranjang kosong.</p>
+                </div>
+                <hr class="mx-2">
+                <div class="flex justify-between items-center mt-6">
+                    <i class="fas fa-cash-register p-4 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 cursor-pointer" onclick="prosesPembayaran()"></i> 
+                    <span id="total_nominal_cart" class="block text-center text-2xl mt-2 font-bold text-emerald-700">Rp. 0</span>
+                </div>
             </div>
         </div>
 
@@ -54,11 +90,14 @@
                                     {{ $o->stok_apotek }} {{ $o->satuan }}
                                 </span>
                             </td>
-                            <td class="py-4 text-center">
+                            <td class="py-4 text-center flex justify-center items-center gap-4">
                                 {{-- Tombol Aktif Jual Obat Membuka Modal --}}
                                 <button onclick="openJualModal({{ json_encode($o) }})" class="bg-emerald-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase shadow-md hover:bg-emerald-700 transition-all hover:scale-105 active:scale-95">
-                                    <i class="fas fa-shopping-cart mr-1"></i> Jual Obat
+                                    <i class="fas fa-shopping-cart mr-1"></i> Jual Satuan
                                 </button>
+                                | 
+                                {{-- tombol keranjang --}}
+                                <i class="fa-solid fa-cart-plus cursor-pointer text-2xl hover:text-emerald-700 hover:scale-110 transition-all duration-500 text-white bg-emerald-600 p-2 " id="add_item_{{ $o->id }}" onclick="addToCart({{ json_encode($o) }})"></i>
                             </td>
                         </tr>
                         @empty
@@ -118,8 +157,13 @@
     </div>
 </div>
 
+
+@endsection
+
+@section('scripts')
 <script>
     let currentObat = null;
+    let cart = [];
 
     function openJualModal(obat) {
         currentObat = obat;
@@ -144,6 +188,120 @@
 
     function closeModal() {
         document.getElementById('modalJualObat').classList.add('hidden');
+    }
+
+    document.getElementById('cart_obat').addEventListener('click', function() {
+        const keranjangArea = document.getElementById('keranjang_area');
+        if (keranjangArea.classList.contains('hidden')) {
+            keranjangArea.classList.remove('hidden');
+        } else {
+            keranjangArea.classList.add('hidden');
+        }
+    });
+
+
+    document.getElementById('close_cart').addEventListener('click', function() {
+        document.getElementById('keranjang_area').classList.add('hidden');
+    });
+
+    function updateCartDisplay() {
+        const cartCount = document.getElementById('cart_count');
+        const areaCart = document.getElementById('area_cart');
+
+        cartCount.innerText = cart.length;
+
+        if (cart.length === 0) {
+            areaCart.innerHTML = '<p class="font-bold italic text-center text-slate-600">Keranjang kosong.</p>';
+            return;
+        }
+
+        let cartHTML = '<div class="space-y-4">';
+        cart.forEach(item => {
+            cartHTML += `
+                <div class="flex justify-between items-center">
+                    <i class="fa-solid fa-capsules"></i>
+                    <span class="font-bold">${item.nama_obat}</span>
+                    <div class="">
+                        <span class="text-emerald-600 cursor-pointer font-black text-xl" id="item_decrement_${item.id}"> - </span>
+                        <span class="mx-2">${item.qty}</span>
+                        <span class="text-emerald-600 cursor-pointer font-black text-xl" id="item_increment_${item.id}"> + </span>
+                    </div>
+                    <span class="text-emerald-600 font-black">Rp ${new Intl.NumberFormat('id-ID').format(item.harga_jual * item.qty)}</span>
+                </div>
+                <hr class="my-2 border-emerald-100/50">
+            `;
+        });
+        cartHTML += '</div>';
+
+        areaCart.innerHTML = cartHTML;
+    }
+
+    function prosesPembayaran() {
+        if (cart.length === 0) {
+            swal.fire('Keranjang Kosong', 'Silakan tambahkan obat ke keranjang sebelum melakukan pembayaran.', 'warning');
+            return;
+        }
+
+        // Kirim data cart ke form tersembunyi
+        document.getElementById('cart_data').value = JSON.stringify(cart);
+        document.getElementById('form_pembayaran').submit();
+    }
+
+
+    function updateTotalNominal() {
+        const totalNominalCart = document.getElementById('total_nominal_cart');
+        const total = cart.reduce((sum, item) => sum + (item.harga_jual * item.qty), 0);
+        totalNominalCart.innerText = 'Rp ' + new Intl.NumberFormat('id-ID').format(total);
+    }
+
+    function addToCart(obat) {
+        const existingItem = cart.find(item => item.id === obat.id);
+        if (existingItem) {
+            if (existingItem.qty < obat.stok_apotek) {
+                existingItem.qty += 1;
+            } else {
+                swal.fire('Stok Habis', 'Stok obat tidak mencukupi untuk menambah jumlah di keranjang.', 'warning');
+            }
+        } else {
+            cart.push({ ...obat, qty: 1 });
+        }
+        updateCartDisplay();
+        updateTotalNominal();
+    }
+
+    document.getElementById('area_cart').addEventListener('click', function(event) {
+        if (event.target.id.startsWith('item_increment_')) {
+            const itemId = parseInt(event.target.id.replace('item_increment_', ''));
+            const item = cart.find(i => i.id === itemId);
+            if (item && item.qty < item.stok_apotek) {
+                item.qty += 1;
+                updateCartDisplay();
+            } else {
+                swal.fire('Stok Habis', 'Stok obat tidak mencukupi untuk menambah jumlah di keranjang.', 'warning');
+            }
+        } else if (event.target.id.startsWith('item_decrement_')) {
+            const itemId = parseInt(event.target.id.replace('item_decrement_', ''));
+            const itemIndex = cart.findIndex(i => i.id === itemId);
+            if (itemIndex > -1) {
+                if (cart[itemIndex].qty > 1) {
+                    cart[itemIndex].qty -= 1;
+                } else {
+                    cart.splice(itemIndex, 1);
+                }
+                updateCartDisplay();
+                updateTotalNominal();
+            }
+        }
+    });
+
+
+    if({{ session('success') ? 'true' : 'false' }}) 
+    {
+        swal.fire('Sukses', '{{ session('success') }}', 'success');
+    }
+    else if({{ session('error') ? 'true' : 'false' }}) 
+    {
+        swal.fire('Gagal', '{{ session('error') }}', 'error');
     }
 </script>
 @endsection

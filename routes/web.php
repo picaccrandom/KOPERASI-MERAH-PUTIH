@@ -137,6 +137,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/apotek/proses-jual/{id}', [ApotekController::class, 'prosesJual'])->name('apotek.prosesJual');
     Route::get('/apotek/resep-masuk', [ApotekController::class, 'resepMasukIndex'])->name('apotek.resep');
     Route::post('/apotek/bayar-order/', [ApotekController::class, 'bayarOrder'])->name('apotek.bayarOrder');
+    Route::post('/apotek/proses-pembayaran-cart', [ApotekController::class, 'prosesPembayaranCart'])->name('apotek.proses-pembayaran-cart');
+    Route::delete('/apotek/hapus-resep/{kode_transaksi}', [ApotekController::class, 'hapusResep'])->name('apotek.hapusResep');
 
     Route::prefix('gudang-distribusi')->group(function () {
         Route::get('/', [DistribusiController::class, 'index'])->name('distribusi.gudang');

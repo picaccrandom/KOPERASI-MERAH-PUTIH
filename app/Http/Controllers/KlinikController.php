@@ -43,13 +43,13 @@ class KlinikController extends Controller
         ]);
 
         try {
-
+            
             // Langsung simpan tanpa DB::beginTransaction atau integrasi kas
-
-            DB::transaction(function () use ($request) {
-                // dd($request->all());
+            
+            $noReg = 'REG-' . date('Ymd') . '-' . random_int(100, 999);
+            DB::transaction(function () use ($request, $noReg) {
                 $PendaftaranKlinik = PendaftaranKlinik::create([
-                    'no_registrasi' => 'REG-' . date('Ymd') . '-' . random_int(100, 999),
+                    'no_registrasi' => $noReg,
                     'member_id'     => $request->member_id,
                     'keluhan'       => $request->keluhan,
                     'tensi'         => $request->tensi,
@@ -58,7 +58,7 @@ class KlinikController extends Controller
                 ]);
 
             });
-
+            $biayaDaftar = $request->biaya_daftar;
 
 
             // 1. Simpan ke Database Klinik
@@ -74,6 +74,7 @@ class KlinikController extends Controller
             /** * 2. INTEGRASI AKUNTANSI: BIAYA PENDAFTARAN
              * Debit: Kas (1101) | Kredit: Pendapatan Klinik (4102)
              */
+            
             AccountingService::post(
                 now(), 
                 "Biaya Pendaftaran Klinik: " . ($pendaftaran->member->nama_lengkap ?? 'Pasien'), 
@@ -152,7 +153,7 @@ class KlinikController extends Controller
                 'created_at' => now()
             ]);
 
-            $kodeTransaksi = 'KLI-' . date('YmdHis');
+            $kodeTransaksi = 'INV-KLK-' . date('Ymd').'-' . rand(1000, 9999);
             $member = Member::find($request->member_id);
             $kodePendaftaran = PendaftaranKlinik::find($id);
 
@@ -176,7 +177,7 @@ class KlinikController extends Controller
                 $biayaObatTotal = 0;
                 // Jika ada resep obat, simpan transaksi apotek juga
                 $transaksiApotek = TransaksiFaskes::create([
-                    'kode_transaksi' => 'APO-' . date('YmdHis'),
+                    'kode_transaksi' => 'INV-APT-' . date('Ymd').'-' . rand(1000, 9999),
                     'tanggal'        => Carbon::now()->toDateString(),
                     'member_id'     => $request->member_id,
                     'user_id'       => auth()->user()->id,

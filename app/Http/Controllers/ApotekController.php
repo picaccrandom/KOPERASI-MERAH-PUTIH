@@ -99,6 +99,7 @@ class ApotekController extends Controller
     public function bayarOrder(Request $request) {
         $request->validate([
             'kode_transaksi' => 'required|exists:transaksi_faskes,kode_transaksi',
+            'nominal' => 'required|numeric|min:0',
             'resep_obat.*' => 'nullable|exists:obats,kode_obat',
             'resep_obat_new.*' => 'nullable|exists:obats,kode_obat',
             'qty.*' => 'nullable|integer|min:1',
@@ -108,6 +109,9 @@ class ApotekController extends Controller
         
         $kode_transaksi = $request->kode_transaksi;
 
+        $transaksiFaskes = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->first();
+        $transaksiFaskes->update(['Nominal' => $request->nominal]);
+        
         $dataObat = TransaksiObatDetail::where('kode_transaksi', $kode_transaksi)->get();
         foreach ($dataObat as $item) {
             $obat = Obat::where('id', $item->obat_id)->first();
@@ -188,6 +192,31 @@ class ApotekController extends Controller
 
         DB::transaction(function () use ($obat, $request, $totalBayar, $noInvoice) {
             // 1. Kurangi stok retail di apotek
+            TransaksiFaskes::create([
+                'kode_transaksi' => $noInvoice,
+                'tanggal'        => now()->toDateString(),
+                'member_id'     => null, // Penjualan umum
+                'user_id'       => auth()->id(),
+                'nama'          => 'Penjualan Umum',
+                'COA'           => 'Apotek',
+                'status'        => 'closed',
+                'Debit/Credit'  => 'Debit',
+                'Nominal'       => $totalBayar,
+                'Keterangan'    => 'Penjualan obat: ' . $obat->nama_obat,
+                'kode_pendaftaran' => null,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+
+            TransaksiObatDetail::create([
+                'kode_transaksi' => $noInvoice,
+                'obat_id' => $obat->id,
+                'nama_obat' => $obat->nama_obat,
+                'qty' => $request->qty,
+                'subtotal' => $totalBayar,
+            ]);
+
+
             $obat->decrement('stok_apotek', $request->qty);
             
             // 2. Update status resep jika ada
@@ -215,8 +244,97 @@ class ApotekController extends Controller
                 0, $totalBayar, // Kredit
                 '4101' // Kode Akun Pendapatan Apotek
             );
+
         });
 
         return redirect()->route('apotek.index')->with('success', 'Obat terjual & otomatis terjurnal di Kantor Koperasi!');
+    }
+
+    public function prosesPembayaranCart(Request $request) {
+        $cartData = json_decode($request->cart_data, true);
+        if (!$cartData || !is_array($cartData)) {
+            return back()->with('error', 'Data keranjang tidak valid.');
+        }
+
+        // Generate kode transaksi unik
+        $kode_transaksi = 'INV-APT-' . date('Ymd') . '-' . rand(1000, 9999);
+
+        // Simpan transaksi faskes
+        TransaksiFaskes::create([
+            'kode_transaksi' => $kode_transaksi,
+            'tanggal' => now(),
+            'member_id' => null, // Bisa diisi jika ada member terkait
+            'user_id' => auth()->id(),
+            'nama' => 'member OTS',
+            'COA' => 'Apotek',
+            'status' => 'open',
+            'Nominal' => 0,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        foreach ($cartData as $item) {
+            $obat = Obat::findOrFail($item['id']);
+            $qty = (int)$item['qty'];
+
+            if ($obat->stok_apotek >= $qty) {
+                // Kurangi stok apotek
+                $obat->decrement('stok_apotek', $qty);
+
+                // Simpan detail transaksi obat
+                TransaksiObatDetail::create([
+                    'kode_transaksi' => $kode_transaksi,
+                    'obat_id' => $obat->id,
+                    'nama_obat' => $obat->nama_obat,
+                    'qty' => $qty,
+                    'subtotal' => $obat->harga_jual * $qty,
+                ]);
+                
+                $totalHargaTambahan = $obat->harga_jual * $qty;
+                
+                // Update total nominal di transaksi faskes
+                $transaksiFaskes = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->first();
+                if ($transaksiFaskes) {
+                    $transaksiFaskes->increment('Nominal', $totalHargaTambahan);
+                }
+            } else {
+                return back()->with('error', "Stok obat {$obat->nama_obat} tidak mencukupi.");
+            }
+        }
+
+        // Cari transaksi faskes untuk member dengan COA 'Apotek' dan status 'open'
+        $transaksiFaskes = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)
+            ->where('COA', 'Apotek')
+            ->where('status', 'open')
+            ->first();
+
+        if (!$transaksiFaskes) {
+            return back()->with('error', 'Transaksi tidak ditemukan atau sudah ditutup.');
+        }
+
+        // Update status transaksi menjadi 'closed'
+        $transaksiFaskes->update([
+            'status' => 'closed',
+            'updated_at' => now(),
+            'Debit/Credit' => 'Debit'
+        ]);
+
+        return redirect()->route('apotek.index')->with('success', "Pembayaran keranjang berhasil dilakukan! Kode Transaksi: {$kode_transaksi}");
+    }
+
+    function hapusResep($kode_transaksi) {
+        $obatDetails = TransaksiObatDetail::where('kode_transaksi', $kode_transaksi)->get();
+        foreach ($obatDetails as $detail) {
+            $obat = Obat::find($detail->obat_id);
+            if ($obat) {
+                // Kembalikan stok apotek
+                $obat->increment('stok_apotek', $detail->qty);
+            }
+        }
+        $resep = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->first();
+        if ($resep) {
+            $resep->delete();
+        }
+        return redirect()->route('apotek.resep')->with('success', 'Resep berhasil dihapus.');
     }
 }
