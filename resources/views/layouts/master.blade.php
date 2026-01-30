@@ -14,7 +14,7 @@
             --koperasi-dark-head: #ffffff;
         }
 
-        body { 
+        body {
             background: url("{{ asset('img/background-koperasi.jpg') }}") no-repeat center center fixed;
             background-size: cover;
             font-family: 'Inter', sans-serif;
@@ -24,13 +24,13 @@
 
         /* --- HEADER SECTION --- */
         .top-header {
-            height: 95px; 
+            height: 95px;
             display: flex;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 1000;
-            background: #ffffff; 
+            background: #ffffff;
             padding: 0 !important;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
@@ -98,10 +98,10 @@
         .sub-title2 {
             font-size: 13px;
             letter-spacing: 5px;
-            color: #000000 !important; 
+            color: #000000 !important;
             font-weight: 700;
             margin: 0;
-            margin-top: 6px; 
+            margin-top: 6px;
             text-transform: uppercase;
         }
 
@@ -116,19 +116,19 @@
 
         /* --- NAVIGATION LOG --- */
         .nav-header {
-            background: rgba(255, 255, 255, 0.85); 
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(0,0,0,0.1);
             padding: 8px 30px;
             position: sticky;
-            top: 95px; 
+            top: 95px;
             z-index: 999;
         }
 
-        #txtTanggal { 
-            font-size: 11px; 
-            font-weight: 600; 
-            color: #000000 !important; 
+        #txtTanggal {
+            font-size: 11px;
+            font-weight: 600;
+            color: #000000 !important;
         }
 
         .fa-calendar-alt { color: #000000 !important; }
@@ -136,7 +136,7 @@
         .text-muted-custom {
             color: #333333;
             font-weight: 700;
-            letter-spacing: 1px; 
+            letter-spacing: 1px;
             font-size: 9px;
         }
 
@@ -150,7 +150,7 @@
 
         #simpan-pinjam-nav a:hover {
             text-decoration: none !important;
-            color: #e63946 !important; 
+            color: #e63946 !important;
             background: transparent !important;
         }
 
@@ -162,12 +162,12 @@
 
 
         /* --- STYLE MENU ADMIN BARU --- */
-        .nav-link-admin { 
-            text-decoration: none; 
-            color: #000; 
-            font-weight: 800; 
-            font-size: 11px; 
-            text-transform: uppercase; 
+        .nav-link-admin {
+            text-decoration: none;
+            color: #000;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
             letter-spacing: 1px;
             padding: 5px 10px;
         }
@@ -236,28 +236,28 @@
                 <span class="ml-2">|</span>
 
                 <a href="{{ route('simpanpinjam.index') }}"
-                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                class="tab-nav mx-4 px-2 py-0.5 text-sm
                 {{ request()->routeIs('simpanpinjam.*') ? 'active' : '' }}">
                     <i class="fas fa-chart-line mr-2"></i>
                     DASHBOARD
                 </a>
 
                 <a href="{{ route('pinjaman.index') }}"
-                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                class="tab-nav mx-4 px-2 py-0.5 text-sm
                 {{ request()->routeIs('pinjaman.*') ? 'active' : '' }}">
                     <i class="fas fa-hand-holding-usd mr-2"></i>
                     PINJAMAN
                 </a>
 
                 <a href="{{ route('bon.indexBon') }}"
-                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                class="tab-nav mx-4 px-2 py-0.5 text-sm
                 {{ request()->routeIs('bon.*') ? 'active' : '' }}">
                     <i class="fas fa-piggy-bank mr-2"></i>
                     BON
                 </a>
 
                 <a href="{{ route('simpanan.index') }}"
-                class="tab-nav mx-4 px-2 py-0.5 text-sm 
+                class="tab-nav mx-4 px-2 py-0.5 text-sm
                 {{ request()->routeIs('simpanan.*') ? 'active' : '' }}">
                     <i class="fas fa-piggy-bank mr-2"></i>
                     SIMPANAN
@@ -284,9 +284,9 @@
         <div class="d-flex align-items-center">
             <i class="far fa-calendar-alt me-2"></i>
             <span id="txtTanggal"></span>
-            
+
             <div style="width: 1px; height: 18px; background: rgba(0, 0, 0, 0.2); margin: 0 15px;"></div>
-            
+
             <a href="/logout" id="logout">
                 <button class="btn-logout">LOGOUT</button>
             </a>
@@ -308,7 +308,7 @@
             const hari = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
             const bulan = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             const d = new Date();
-            const output = hari[d.getDay()] + ", " + d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear() + " | " + 
+            const output = hari[d.getDay()] + ", " + d.getDate() + " " + bulan[d.getMonth()] + " " + d.getFullYear() + " | " +
                            d.getHours().toString().padStart(2, '0') + ":" + d.getMinutes().toString().padStart(2, '0') + " WIB";
             document.getElementById('txtTanggal').innerHTML = output;
         }
@@ -328,7 +328,7 @@
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     @yield('scripts')
 </body>
 </html>

@@ -17,6 +17,9 @@
                 <a href="{{ route('apotek.gudang') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
                     <i class="fas fa-warehouse mr-2"></i> Cek Stok Gudang
                 </a>
+                <a href="{{ route('apotek.resep') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
+                    <i class="fa-solid fa-book mr-2"></i> Orderan Masuk
+                </a>
             </div>
         </div>
 

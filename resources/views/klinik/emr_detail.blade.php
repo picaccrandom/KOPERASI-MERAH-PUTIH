@@ -10,7 +10,7 @@
             <i class="fas fa-file-medical-alt text-4xl opacity-50"></i>
         </div>
 
-        <div class="p-10 space-y-8">
+        <div class="p-10 flex flex-col gap-y-6">
             {{-- Identitas Pasien --}}
             <div class="grid grid-cols-2 gap-8 border-b border-blue-50 pb-6">
                 <div><label class="text-xs font-black text-blue-600 uppercase">Nama Pasien</label>
@@ -28,9 +28,16 @@
             </div>
 
             <div class="bg-slate-50 p-6 rounded-2xl border-l-8 border-slate-400">
-                <label class="text-xs font-black text-slate-500 uppercase block mb-2">Tindakan / Terapi</label>
+                <label class="text-xs font-black text-sl    ate-500 uppercase block mb-2">Tindakan / Terapi</label>
                 <p class="text-slate-700 font-bold leading-relaxed">
                     {{ $data->rekamMedis->tindakan ?? '-' }}
+                </p>
+            </div>
+
+            <div class="bg-slate-200 p-6 rounded-2xl ">
+                <label class="text-xs font-black text-slate-500 uppercase block mb-2">Resep Obat</label>
+                <p class="text-slate-700 font-bold leading-relaxed">
+                    {{ $data->rekamMedis->resep_obat ?? '-' }}
                 </p>
             </div>
 

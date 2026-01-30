@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Obat;
+use App\Models\RekamMedis;
+use App\Models\TransaksiFaskes;
+use App\Models\TransaksiObat;
+use App\Models\TransaksiObatDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -56,7 +60,7 @@ class ApotekController extends Controller
             // Kurangi stok gudang, tambah stok apotek
             $obat->decrement('stok_gudang', $request->jumlah);
             $obat->increment('stok_apotek', $request->jumlah);
-            
+
             // Logika ini memastikan total stok tetap sama, hanya berpindah lokasi
         });
 
@@ -73,10 +77,47 @@ class ApotekController extends Controller
         return view('apotek.index', compact('obats')); // Pastikan memanggil view 'index'
     }
 
+    public function resepMasukIndex()
+    {
+        // Ambil data resep masuk dari klinik (dummy data untuk contoh)
+        $resepMasuks = TransaksiFaskes::with('member', 'pendaftaranKlinik.rekamMedis')
+            ->where('COA', 'Apotek')
+            ->where('status', 'open')
+            ->get();
+        $obats = Obat::all();
+        $rekamMedis = RekamMedis::with('pendaftaranKlinik.member')->get();
+        return view('apotek.resep_masuk', compact('resepMasuks', 'obats', 'rekamMedis'));
+    }
+
     // Menampilkan form penjualan obat
     public function jualObat($id) {
         $obat = Obat::findOrFail($id);
         return view('apotek.jual', compact('obat'));
+    }
+
+    public function bayarOrder(Request $request, $kode_transaksi) {
+        $request->validate([
+            'kode_transaksi' => 'required|exists:transaksi_faskes,kode_transaksi',
+        ]);
+
+        // Cari transaksi faskes untuk member dengan COA 'Apotek' dan status 'open'
+        $transaksiFaskes = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)
+            ->where('COA', 'Apotek')
+            ->where('status', 'open')
+            ->first();
+
+        if (!$transaksiFaskes) {
+            return back()->with('error', 'Transaksi tidak ditemukan atau sudah ditutup.');
+        }
+
+        // Update status transaksi menjadi 'closed'
+        $transaksiFaskes->update([
+            'status' => 'closed',
+            'updated_at' => now(),
+            'Debit/Credit' => 'Debit'
+        ]);
+
+        return redirect()->route('apotek.index')->with('success', 'Pembayaran resep berhasil dilakukan!');
     }
 
     // Proses transaksi penjualan
@@ -89,9 +130,11 @@ class ApotekController extends Controller
         }
 
         DB::transaction(function () use ($obat, $request) {
+            RekamMedis::where('resep_obat', $obat->kode_obat)->update(['status_resep' => 'selesai']);
+
             // Kurangi stok retail di apotek
             $obat->decrement('stok_apotek', $request->qty);
-            
+
         });
 
         return redirect()->route('apotek.index')->with('success', 'Obat berhasil terjual!');

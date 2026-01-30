@@ -25,8 +25,10 @@ class KasirController extends Controller {
     }
 
     public function store(Request $request) {
-        // try {
-            DB::transaction(function () use ($request) {
+
+            $transaksi = null;
+
+            DB::transaction(function () use ($request, &$transaksi) {
                 $namaMember = Member::where('id', $request->member_id)->first();
                 // Simpan Header Penjualan
                 $transaksi = Transaksi::create([
@@ -90,18 +92,26 @@ class KasirController extends Controller {
                 $transaksi->id ?? null,
                 null,
                 json_encode($request->all()),
-                'Melakukan transaksi kasir dengan kode transaksi: ' . ($transaksi->kode ?? '-'),
+                'Melakukan transaksi kasir dengan kode transaksi: ' . ($transaksi->kode_transaksi ?? '-'),
                 'info',
                 'success'
             );
 
             return response()->json(['success' => true, 'message' => 'Transaksi Berhasil!']);
+            // return redirect()->route('kasir.struk', ['kode_transaksi' => $transaksi->kode_transaksi]);
+        }
+        
+        public function cetakStruk($kode_transaksi) {
+            $transaksi = Transaksi::where('kode_transaksi', $kode_transaksi)->first();
+            $details = TransaksiDetail::where('kode_transaksi', $kode_transaksi)->get();
     
-            
-        // } catch (\Exception $e) {
-        //     \Log::error($e);
-        //     return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
-        // }
-        // };
-    }   
-}
+            if (!$transaksi) {
+                return redirect()->back()->with('error', 'Transaksi tidak ditemukan.');
+            }
+
+            dd( $transaksi, $details);
+            return view('struk', compact('transaksi', 'details'));
+    
+        }
+    }
+       
