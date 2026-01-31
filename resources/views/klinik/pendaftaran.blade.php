@@ -30,6 +30,22 @@
                     <button type="submit" class="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 uppercase">Daftarkan Pasien</button>
                 </div>
 
+                @if(session('error'))
+    <div class="bg-red-500 text-white p-4 rounded-lg mb-6 font-bold shadow-lg animate-bounce">
+        <i class="fas fa-exclamation-triangle mr-2"></i> {{ session('error') }}
+    </div>
+@endif
+
+@if ($errors->any())
+    <div class="bg-orange-500 text-white p-4 rounded-lg mb-6 shadow-lg">
+        <ul class="list-disc pl-5">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
             </form>
         </div>
     </div>
