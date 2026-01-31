@@ -17,9 +17,11 @@
                 <a href="{{ route('apotek.gudang') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
                     <i class="fas fa-warehouse mr-2"></i> Cek Stok Gudang
                 </a>
-                <a href="{{ route('apotek.resep') }}" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
+                <a href="{{ route('apotek.resep') }}" class=" bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest text-white flex items-center">
                     <i class="fa-solid fa-book mr-2"></i> Orderan Masuk
+                    <span id="count_order" class="ml-2  bg-white text-emerald-600 hidden px-2 py-1 rounded-4xl text-sm">0</span>
                 </a>
+                <span class="text-6xl">|</span>
                 <div id="cart_obat" class="bg-emerald-600 hover:bg-emerald-700 px-8 py-4 rounded-2xl font-black shadow-xl transition-all transform hover:scale-105 uppercase tracking-widest relative text-white flex items-center">
                     <i class="fa-solid fa-cart-shopping text-2xl "></i>
                     <span id="cart_count" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">0</span>
@@ -53,7 +55,10 @@
                 </div>
                 <hr class="mx-2">
                 <div class="flex justify-between items-center mt-6">
-                    <i class="fas fa-cash-register p-4 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 cursor-pointer" onclick="prosesPembayaran()"></i> 
+                    <div class="p-4 bg-emerald-600 text-white rounded-2xl hover:bg-emerald-700 cursor-pointer shadow-xl transition-all active:scale-95 flex items-center gap-2" onclick="prosesPembayaran()">
+                        <i class="fas fa-cash-register"></i> 
+                        <span class="font-black uppercase text-sm">Checkout</span>
+                    </div>
                     <span id="total_nominal_cart" class="block text-center text-2xl mt-2 font-bold text-emerald-700">Rp. 0</span>
                 </div>
             </div>
@@ -163,6 +168,7 @@
 @section('scripts')
 <script>
     let currentObat = null;
+    let resepMasuks = @json($resepMasuks);
     let cart = [];
 
     function openJualModal(obat) {
@@ -178,6 +184,13 @@
         document.getElementById('formJualObat').action = `/apotek/proses-jual/${obat.id}`;
         
         hitungTotal();
+    }
+
+    if(resepMasuks.length > 0) {
+        document.getElementById('count_order').classList.remove('hidden');
+        document.getElementById('count_order').innerText = resepMasuks.length;
+    }else{
+        document.getElementById('count_order').classList.add('hidden');
     }
 
     function hitungTotal() {
@@ -203,6 +216,8 @@
     document.getElementById('close_cart').addEventListener('click', function() {
         document.getElementById('keranjang_area').classList.add('hidden');
     });
+
+    // fungsi penanda keranjang tertambah
 
     function updateCartDisplay() {
         const cartCount = document.getElementById('cart_count');
@@ -267,6 +282,11 @@
         }
         updateCartDisplay();
         updateTotalNominal();
+
+        document.getElementById('cart_obat').classList.add('scale-110', 'animate-bounce');
+        setTimeout(() => {
+            document.getElementById('cart_obat').classList.remove('scale-110', 'animate-bounce');
+        }, 500);
     }
 
     document.getElementById('area_cart').addEventListener('click', function(event) {

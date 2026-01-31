@@ -21,7 +21,7 @@ class KasirController extends Controller {
         $barangs = Barang::where('stok', '>', 0)->get(); // Hanya ambil barang yang ada stoknya
         $members = Member::all(); // Untuk fitur pilih anggota
         $limitBon = KreditAnggota::all(); // dummy limit harga barang yang bisa dibon
-        return view('admin.kasir', compact('barangs', 'members', 'limitBon'));
+        return view('kasir.index', compact('barangs', 'members', 'limitBon'));
     }
 
     public function store(Request $request) {
@@ -96,21 +96,26 @@ class KasirController extends Controller {
                 'info',
                 'success'
             );
-
-            return response()->json(['success' => true, 'message' => 'Transaksi Berhasil!']);
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Transaksi Berhasil!',
+                'data' => [
+                    'kode_transaksi' => $transaksi->kode_transaksi ?? null
+                ]
+            ]);
             // return redirect()->route('kasir.struk', ['kode_transaksi' => $transaksi->kode_transaksi]);
         }
         
-        public function cetakStruk($kode_transaksi) {
+        public function cetakStruk($kode_transaksi, $kembalian = 0) {
             $transaksi = Transaksi::where('kode_transaksi', $kode_transaksi)->first();
-            $details = TransaksiDetail::where('kode_transaksi', $kode_transaksi)->get();
+            $details = TransaksiDetail::where('kode_transaksi', $kode_transaksi)->with('barang')->get();
     
             if (!$transaksi) {
                 return redirect()->back()->with('error', 'Transaksi tidak ditemukan.');
             }
 
-            dd( $transaksi, $details);
-            return view('struk', compact('transaksi', 'details'));
+            return view('kasir.struk', compact('transaksi', 'details', 'kembalian'));
     
         }
     }

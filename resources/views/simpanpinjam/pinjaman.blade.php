@@ -159,77 +159,80 @@
                             <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                         </div>
                     </div>
-                    <div class="h-[70dvh] overflow-x-auto overflow-y-auto flex pb-10 pt-2 px-10">
-                        <table class="text-center min-w-full space-y-4">
-                            <thead class="bg-orange-300">
-                                <tr
-                                    class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
-                                    <th>NO.</th>
-                                    <th>NAMA ANGGOTA</th>
-                                    <th>TANGGAL PINJAM</th>
-                                    <th>TOTAL PINJAMAN</th>
-                                    <th>JENIS</th>
-                                    <th>LAMA BAYAR</th>
-                                    <th>JATUH TEMPO</th>
-                                    <th>ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pinjaman-history">
-                                @foreach ($peminjamans as $peminjaman)
-                                    <tr class=" [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
-                                        data-index="{{ $loop->index }}">
-                                        <td class="font-medium">{{ $loop->iteration }}</td>
-                                        <td>
-                                            <div class="flex items-center">
-                                                <div>
-                                                    <div class="font-medium text-gray-900">
-                                                        {{ $peminjaman->member->nama_lengkap }}
-                                                    </div>
-                                                    <div class="text-xs text-gray-500">{{ $peminjaman->no_hp }}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal)->format('d F Y') }}</td>
-                                        <td class="font-bold text-red-600 text-left text-sm">Rp.
-                                            {{ number_format($peminjaman->Nominal, 0, ',', '.') }}
-                                        </td>
-                                        <td>
-                                            @if ($peminjaman->COA == 'Pinjam')
-                                                <span
-                                                    class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">Peminjaman</span>
-                                            @else
-                                                <span
-                                                    class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">BON</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if ($peminjaman->COA == 'Pinjam')
-                                                {{ $peminjaman->angsuranPeminjamans->count() }} Bulan
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo)->format('d F Y') }}
-                                        </td>
-                                        <td>
-                                            <div class="flex justify-center items-center gap-3">
-                                                <form action="{{ route('pinjaman.destroy', $peminjaman->no_transaksi_sp) }}"
-                                                    method="POST" class="d-inline delete-form"
-                                                    data-name="{{ $peminjaman->member->nama_lengkap }}">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="text-red-600 hover:text-red-900 bg-transparent border-0"
-                                                        title="Hapus">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
+                    <div class="h-[70dvh] overflow-x-auto overflow-y-auto">
+                        <div class="flex pb-10 pt-2 px-10">
+                            <table class="text-center min-w-full space-y-4">
+                                <thead class="bg-orange-300">
+                                    <tr
+                                        class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                                        <th>NO.</th>
+                                        <th>NAMA ANGGOTA</th>
+                                        <th>TANGGAL PINJAM</th>
+                                        <th>TOTAL PINJAMAN</th>
+                                        <th>JENIS</th>
+                                        <th>LAMA BAYAR</th>
+                                        <th>JATUH TEMPO</th>
+                                        <th>ACTION</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody id="pinjaman-history">
+                                    @foreach ($peminjamans as $peminjaman)
+                                        <tr class=" [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
+                                            data-index="{{ $loop->index }}">
+                                            <td class="font-medium">{{ $loop->iteration }}</td>
+                                            <td>
+                                                <div class="flex items-center">
+                                                    <div>
+                                                        <div class="font-medium text-gray-900">
+                                                            {{ $peminjaman->member->nama_lengkap }}
+                                                        </div>
+                                                        <div class="text-xs text-gray-500">{{ $peminjaman->no_hp }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal)->format('d F Y') }}</td>
+                                            <td class="font-bold text-red-600 text-left text-sm">Rp.
+                                                {{ number_format($peminjaman->Nominal, 0, ',', '.') }}
+                                            </td>
+                                            <td>
+                                                @if ($peminjaman->COA == 'Pinjam')
+                                                    <span
+                                                        class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">Peminjaman</span>
+                                                @else
+                                                    <span
+                                                        class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">BON</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($peminjaman->COA == 'Pinjam')
+                                                    {{ $peminjaman->angsuranPeminjamans->count() }} Bulan
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo)->format('d F Y') }}
+                                            </td>
+                                            <td>
+                                                <div class="flex justify-center items-center gap-3">
+                                                    <form
+                                                        action="{{ route('pinjaman.destroy', $peminjaman->no_transaksi_sp) }}"
+                                                        method="POST" class="d-inline delete-form"
+                                                        data-name="{{ $peminjaman->member->nama_lengkap }}">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                            class="text-red-600 hover:text-red-900 bg-transparent border-0"
+                                                            title="Hapus">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

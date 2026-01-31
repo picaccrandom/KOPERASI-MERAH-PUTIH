@@ -131,7 +131,10 @@
             } else if (selectedJenis === 'Sukarela') {
                 nominalInput.value = '';
                 nominalInput.placeholder = 'Masukkan Nominal Bebas...';
+            }else {
+                nominalInput.value = '';
             }
+
         });
 
         document.getElementById('search-member').addEventListener('input', function() {
@@ -188,6 +191,7 @@
             const memberId = document.getElementById('member_id').value;
             const rawNominal = nominalInput.value.replace(/[^\d]/g, '');
 
+            
             if (!memberId) {
                 swal.fire('Error', 'Silahkan pilih member dari daftar yang tersedia.', 'error');
                 return;
@@ -195,6 +199,11 @@
 
             if (rawNominal === '' || parseInt(rawNominal) <= 0) {
                 swal.fire('Error', 'Nominal simpanan tidak boleh kosong.', 'error');
+                return;
+            }
+
+            if (jenisSelect.value === '') {
+                swal.fire('Error', 'Silahkan pilih jenis simpanan.', 'error');
                 return;
             }
 

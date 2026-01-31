@@ -31,7 +31,8 @@
 <body onload="window.print()">
 <div class="center">
     <strong>KOPERASI MERAH PUTIH</strong><br>
-    Jl. Contoh No. 1<br>
+    <p class="text-sm">Desa Nangsri</p>
+    <p class="text-sm">Jl. Contoh No. 1</p>
 </div>
 
 <div class="line"></div>
@@ -42,16 +43,18 @@ Kasir: {{ auth()->user()->name}}<br>
 
 <div class="line"></div>
 
-@foreach($transaksi->details as $item)
-{{ $item->barang->nama }}<br>
-{{ $item->qty }} x {{ number_format($item->harga) }}
+@foreach($details as $item)
+{{ $item->barang->nama_barang }}<br>
+{{ $item->qty }} x {{ number_format($item->barang->harga_jual) }}
     {{ number_format($item->subtotal) }}<br>
 @endforeach
 
 <div class="line"></div>
 
 <strong>
-TOTAL : Rp {{ number_format($transaksi->grand_total) }}
+TOTAL : Rp {{ number_format($transaksi->grand_total) }} <br>
+Tunai : Rp {{ number_format($transaksi->total_tunai) }} <br>
+Kembalian : Rp {{ number_format($kembalian) }}
 </strong>
 
 <br><br>
@@ -61,3 +64,9 @@ TOTAL : Rp {{ number_format($transaksi->grand_total) }}
 
 </body>
 </html>
+
+<script>
+    window.onload = function() {
+        window.print();
+    };
+</script>

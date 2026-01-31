@@ -25,7 +25,7 @@ class PinjamanController extends Controller
             ->where('COA', 'Pinjam')
             ->orderBy('created_at', 'desc')
             ->get();
-        return view('Pinjaman', compact('peminjamans'));
+        return view('simpanpinjam.Pinjaman', compact('peminjamans'));
     }   
 
     public function indexBon() 
@@ -35,14 +35,14 @@ class PinjamanController extends Controller
             ->whereHas('bonBelum')
             ->orderBy('created_at', 'desc')
             ->get();
-        return view('Bon', compact('Bons'));
+        return view('simpanpinjam.Bon', compact('Bons'));
     }
 
     public function create()
     {
         $members = Member::all();
         $limitAnggotas = KreditAnggota::all();
-        return view('Pinjaman-Create', compact('members', 'limitAnggotas'));
+        return view('simpanpinjam.Pinjaman-Create', compact('members', 'limitAnggotas'));
     }
 
     public function detail($no_transaksi_sp)
@@ -59,12 +59,12 @@ class PinjamanController extends Controller
             return redirect()->back()->with('error', 'Data transaksi tidak ditemukan.');
         }
 
-        return view('DetailPinjaman', compact('pinjaman', 'transaksiInduk'));
+        return view('simpanpinjam.DetailPinjaman', compact('pinjaman', 'transaksiInduk'));
     }
 
     public function detailBon($no_transaksi_sp){
         $bon = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->with('member')->first();
-        return view('DetailBon', compact('bon'));
+        return view('simpanpinjam.DetailBon', compact('bon'));
     }
 
     /**
@@ -95,8 +95,8 @@ class PinjamanController extends Controller
             /** * 2. INTEGRASI AKUNTANSI: PENCAIRAN
              * Debit: Piutang (1201) | Kredit: Kas (1101)
              */
-            AccountingService::post(now(), "Pencairan Pinjaman: ".$namaMember->nama_lengkap, $transaksiSP->no_transaksi_sp, (float)$request->jumlah_pinjaman, 0, '1201');
-            AccountingService::post(now(), "Pengeluaran Kas Pinjaman (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, (float)$request->jumlah_pinjaman, '1101');
+            // AccountingService::post(now(), "Pencairan Pinjaman: ".$namaMember->nama_lengkap, $transaksiSP->no_transaksi_sp, (float)$request->jumlah_pinjaman, 0, '1201');
+            // AccountingService::post(now(), "Pengeluaran Kas Pinjaman (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, (float)$request->jumlah_pinjaman, '1101');
 
             $limitAnggotas = KreditAnggota::where('id', $transaksiSP->member_id);
             $limitAnggotas->decrement('limit', $transaksiSP->Nominal);
@@ -165,8 +165,8 @@ class PinjamanController extends Controller
             /** * 3. INTEGRASI AKUNTANSI: ANGSURAN
              * Debit: Kas (1101) | Kredit: Piutang (1201)
              */
-            AccountingService::post(now(), "Terima Angsuran ke-".$angsuran->angsuran_ke." ".$namaMember->nama_lengkap, $transaksi->no_transaksi_sp, $totalBayar, 0, '1101');
-            AccountingService::post(now(), "Penurunan Piutang (".$transaksi->no_transaksi_sp.")", $transaksi->no_transaksi_sp, 0, $angsuran->jumlah_angsuran, '1201');
+            // AccountingService::post(now(), "Terima Angsuran ke-".$angsuran->angsuran_ke." ".$namaMember->nama_lengkap, $transaksi->no_transaksi_sp, $totalBayar, 0, '1101');
+            // AccountingService::post(now(), "Penurunan Piutang (".$transaksi->no_transaksi_sp.")", $transaksi->no_transaksi_sp, 0, $angsuran->jumlah_angsuran, '1201');
 
             $limitKredit = KreditAnggota::where('member_id', $memberId)->first();
             if($limitKredit) {
@@ -203,8 +203,8 @@ class PinjamanController extends Controller
             ]);
 
             /** * 4. INTEGRASI AKUNTANSI: PELUNASAN BON */
-            AccountingService::post(now(), "Pelunasan Bon - ".$bon->nama, $transaksiSP->no_transaksi_sp, $bon->Nominal, 0, '1101');
-            AccountingService::post(now(), "Penutupan Piutang Bon (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, $bon->Nominal, '1201');
+            // AccountingService::post(now(), "Pelunasan Bon - ".$bon->nama, $transaksiSP->no_transaksi_sp, $bon->Nominal, 0, '1101');
+            // AccountingService::post(now(), "Penutupan Piutang Bon (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, $bon->Nominal, '1201');
 
             $status->update(['status' => 'lunas']);
             KreditAnggota::where('member_id', $bon->member_id)->increment('limit', $bon->Nominal);

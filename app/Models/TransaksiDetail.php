@@ -12,5 +12,10 @@ class TransaksiDetail extends Model
     {
         return $this->belongsTo(Transaksi::class, 'kode_transaksi');
     }
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class);
+    }
        
 }

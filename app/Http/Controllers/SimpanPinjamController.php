@@ -9,7 +9,7 @@ class SimpanPinjamController extends Controller
     // Kembalikan halaman utama
     public function index()
     {
-        return view('simpanpinjam');
+        return view('simpanpinjam.simpanpinjam');
     }
 
 }
