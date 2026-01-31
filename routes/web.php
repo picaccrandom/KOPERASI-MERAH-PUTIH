@@ -145,7 +145,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/keuangan/store', [KeuanganController::class, 'store'])->name('keuangan.store');
 
         // Pusat Laporan Terpadu
-        Route::get('/pusat-laporan', [AccountingController::class, 'pusatLaporan'])->name('kantor.laporan.index');
+        Route::get('/pusat-laporan', [KasirController::class, 'pusatLaporan'])->name('kantor.laporan.index');
         
         // Link Laporan Lama
         Route::get('/akuntansi/laba-rugi', [AccountingController::class, 'showLabaRugi'])->name('akuntansi.labarugi');
@@ -158,4 +158,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/apotek/histori', [ApotekController::class, 'historiPenjualan'])->name('apotek.histori');
     Route::get('/apotek/histori/{kode_transaksi}', [ApotekController::class, 'detailHistori'])->name('apotek.histori.detail');
 
+    Route::get('/cetak-struk/{kode_transaksi}', [ApotekController::class, 'cetakStruk'])->name('cetak.struk');
 });

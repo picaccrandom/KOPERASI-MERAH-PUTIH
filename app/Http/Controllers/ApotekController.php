@@ -88,7 +88,7 @@ class ApotekController extends Controller
     }
 
     /**
-     * PROSES BAYAR RESEP KLINIK (INTEGRASI AKUNTANSI)
+     * PROSES BAYAR RESEP KLINIK
      */
     public function bayarOrder(Request $request) 
     {
@@ -104,7 +104,7 @@ class ApotekController extends Controller
                 $noInvoice = 'INV-APT-' . date('YmdHis');
                 $totalNominal = 0;
 
-                // Create Invoice Header
+                // 1. BUAT BAPAK (Header) DULU
                 $transaksiFaskes = TransaksiFaskes::create([
                     'kode_transaksi' => $noInvoice,
                     'tanggal' => now(),
@@ -117,6 +117,7 @@ class ApotekController extends Controller
                     'Nominal' => 0,
                 ]);
 
+                // 2. BARU BUAT ANAK (Detail)
                 foreach ($request->resep_obat as $index => $kodeObat) {
                     if ($kodeObat) {
                         $obat = Obat::where('kode_obat', $kodeObat)->first();
@@ -142,7 +143,6 @@ class ApotekController extends Controller
 
                 $transaksiFaskes->update(['Nominal' => $totalNominal]);
 
-                // Jurnal Akuntansi (1101 & 4101)
                 $akunKas = Account::where('kode_akun', '1101')->first();
                 $akunPendapatan = Account::where('kode_akun', '4101')->first();
 
@@ -162,7 +162,7 @@ class ApotekController extends Controller
     }
 
     /**
-     * PROSES JUAL RETAIL (OTS / UMUM)
+     * PROSES JUAL RETAIL (Satuan)
      */
     public function prosesJual(Request $request, $id) 
     {
@@ -178,9 +178,12 @@ class ApotekController extends Controller
                 $totalBayar = $obat->harga_jual * $request->qty;
                 $noInvoice = 'INV-APT-' . date('YmdHis');
 
+                // 1. Simpan Header (Bapak)
                 TransaksiFaskes::create([
                     'kode_transaksi' => $noInvoice,
                     'tanggal' => now(),
+                    'member_id' => 1, // Anggota ID 1 (Umum)
+                    'user_id' => auth()->id(),
                     'nama' => 'Member OTS',
                     'COA' => 'Apotek',
                     'status' => 'closed',
@@ -189,6 +192,7 @@ class ApotekController extends Controller
                     'Keterangan' => 'Jual: ' . $obat->nama_obat,
                 ]);
 
+                // 2. Simpan Detail (Anak)
                 TransaksiObatDetail::create([
                     'kode_transaksi' => $noInvoice,
                     'obat_id' => $obat->id,
@@ -215,7 +219,7 @@ class ApotekController extends Controller
     }
 
     /**
-     * KERANJANG BELANJA (CART RETAIL)
+     * PROSES PEMBAYARAN KERANJANG (Cart)
      */
     public function prosesPembayaranCart(Request $request) {
         $cartData = json_decode($request->cart_data, true);
@@ -226,11 +230,30 @@ class ApotekController extends Controller
                 $kode_transaksi = 'INV-APT-' . date('YmdHis');
                 $total = 0;
 
+                // Hitung total dulu
+                foreach ($cartData as $item) {
+                    $obat = Obat::findOrFail($item['id']);
+                    $total += ($obat->harga_jual * (int)$item['qty']);
+                }
+
+                // 1. SIMPAN HEADER DULU (PENTING!)
+                TransaksiFaskes::create([
+                    'kode_transaksi' => $kode_transaksi,
+                    'tanggal' => now(),
+                    'member_id' => 1, // Anggota ID 1 (Umum)
+                    'user_id' => auth()->id(),
+                    'nama' => 'Penjualan Keranjang',
+                    'COA' => 'Apotek',
+                    'status' => 'closed',
+                    'Debit/Credit' => 'Debit',
+                    'Nominal' => $total,
+                ]);
+
+                // 2. SIMPAN DETAIL (Setelah Header ada)
                 foreach ($cartData as $item) {
                     $obat = Obat::findOrFail($item['id']);
                     $qty = (int)$item['qty'];
                     $subtotal = $obat->harga_jual * $qty;
-                    $total += $subtotal;
 
                     $obat->decrement('stok_apotek', $qty);
                     TransaksiObatDetail::create([
@@ -241,16 +264,6 @@ class ApotekController extends Controller
                         'subtotal' => $subtotal,
                     ]);
                 }
-
-                TransaksiFaskes::create([
-                    'kode_transaksi' => $kode_transaksi,
-                    'tanggal' => now(),
-                    'nama' => 'Penjualan Keranjang',
-                    'COA' => 'Apotek',
-                    'status' => 'closed',
-                    'Debit/Credit' => 'Debit',
-                    'Nominal' => $total,
-                ]);
 
                 $akunKas = Account::where('kode_akun', '1101')->first();
                 $akunPendapatan = Account::where('kode_akun', '4101')->first();
@@ -273,7 +286,6 @@ class ApotekController extends Controller
 
     public function historiPenjualan()
     {
-        // Mengambil data transaksi khusus Apotek yang sudah lunas/selesai
         $histori = TransaksiFaskes::with(['member'])
                     ->where('COA', 'Apotek')
                     ->orderBy('created_at', 'desc')
@@ -284,9 +296,35 @@ class ApotekController extends Controller
 
     public function detailHistori($kode_transaksi)
     {
-        // Ambil data detail obat berdasarkan kode invoice
         $details = TransaksiObatDetail::where('kode_transaksi', $kode_transaksi)->get();
-        
         return response()->json($details);
+    }
+
+    public function cetakStruk($kode_transaksi)
+    {
+        $transaksi = \App\Models\Transaksi::with(['member'])->where('kode_transaksi', $kode_transaksi)->first();
+
+        if (!$transaksi) {
+            $transaksi = \App\Models\TransaksiFaskes::with(['member'])
+                        ->where('kode_transaksi', $kode_transaksi)
+                        ->first();
+        }
+
+        if (!$transaksi) {
+            abort(404, 'Data Transaksi Tidak Ditemukan');
+        }
+
+        $details = \App\Models\TransaksiDetail::where('kode_transaksi', $kode_transaksi)->get();
+        
+        if($details->isEmpty()){
+            $details = \App\Models\TransaksiObatDetail::where('kode_transaksi', $kode_transaksi)->get();
+        }
+
+        $totalKotor = $details->sum('subtotal');
+        $nominalAkhir = $transaksi->grand_total ?? $transaksi->Nominal;
+        
+        $nominalDiskon = ($totalKotor > 0) ? ($totalKotor - $nominalAkhir) : 0;
+
+        return view('apotek.cetak_struk', compact('transaksi', 'details', 'nominalDiskon'));
     }
 }

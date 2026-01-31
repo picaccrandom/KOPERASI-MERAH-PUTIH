@@ -49,19 +49,16 @@
                                     <td class="py-4 text-slate-500">{{ $a->tensi ?? '-' }}</td>
                                     <td class="py-4 text-center">
                                         @if ($a->status == 'antri')
-                                            {{-- Tombol untuk menuju form EMR/Tindakan --}}
                                             <a href="{{ route('klinik.periksa', $a->id) }}"
                                                 class="inline-block px-6 py-2 bg-blue-600 text-white rounded-xl text-xs font-black uppercase hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all hover:-translate-y-1">
                                                 <i class="fas fa-stethoscope mr-1"></i> Berikan Tindakan
                                             </a>
                                         @elseif ($a->transaksiFaskes && $a->transaksiFaskes->status == 'closed' && $a->status == 'selesai')
-                                            {{-- Container untuk pasien yang sudah Selesai --}}
                                             <div class="flex flex-col items-center gap-2">
                                                 <span
                                                     class="inline-block px-6 py-1 rounded-xl text-xs font-black bg-green-100 text-green-600 uppercase border border-green-200 shadow-sm">
                                                     <i class="fas fa-check-circle mr-1"></i> Selesai
                                                 </span>
-                                                {{-- Link Lihat Detail Rekam Medis --}}
                                                 <a href="{{ route('klinik.show', $a->id) }}"
                                                     class="text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase tracking-tighter underline decoration-2 underline-offset-4 transition-all">
                                                     <i class="fas fa-eye mr-1"></i> Lihat Rekam Medis
@@ -69,12 +66,12 @@
                                             </div>
                                         @else
                                             <div class="flex flex-col items-center gap-2">
-                                                    {{-- Tombol untuk menuju halaman pembayaran rekam medis --}}
-                                                    <a href="{{ route('klinik.bayar', $a->transaksiFaskes->kode_transaksi) }}"
-                                                        class="inline-block px-6 py-2 bg-orange-600 text-white rounded-xl text-xs font-black uppercase hover:bg-green-700 shadow-lg shadow-green-200 transition-all hover:-translate-y-1">
-                                                        <i class="fas fa-stethoscope mr-1"></i> Bayar Rekam Medis
-                                                    </a>
-                                                {{-- Link Lihat Detail Rekam Medis --}}
+                                                {{-- PERBAIKAN: Tombol Bayar menggunakan JavaScript SweetAlert --}}
+                                                <button onclick="prosesBayarKlinik('{{ $a->transaksiFaskes->kode_transaksi }}')"
+                                                    class="inline-block px-6 py-2 bg-orange-600 text-white rounded-xl text-xs font-black uppercase hover:bg-green-700 shadow-lg shadow-green-200 transition-all hover:-translate-y-1">
+                                                    <i class="fas fa-money-bill-wave mr-1"></i> Bayar Rekam Medis
+                                                </button>
+                                                
                                                 <a href="{{ route('klinik.show', $a->id) }}"
                                                     class="text-blue-600 hover:text-blue-800 text-[10px] font-black uppercase tracking-tighter underline decoration-2 underline-offset-4 transition-all">
                                                     <i class="fas fa-eye mr-1"></i> Lihat Rekam Medis
@@ -95,7 +92,6 @@
                         </tbody>
                     </table>
 
-                    {{-- Pagination Links --}}
                     <div class="mt-8 border-t border-gray-100 pt-6">
                         {{ $antrian->links() }}
                     </div>
@@ -103,4 +99,78 @@
             </div>
         </div>
     </div>
+
+    {{-- Script untuk Logika Cetak Struk Otomatis --}}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        /**
+         * 1. TRIGGER CETAK STRUK PENDAFTARAN (Setelah Pasien Baru Didaftarkan)
+         */
+        @if(session('cetak_struk'))
+            Swal.fire({
+                title: 'Pendaftaran Berhasil!',
+                text: "Ingin mencetak struk biaya pendaftaran?",
+                icon: 'success',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#d33',
+                confirmButtonText: '<i class="fas fa-print"></i> Cetak Struk',
+                cancelButtonText: 'Tutup'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open("/cetak-struk/{{ session('cetak_struk') }}", '_blank');
+                }
+            });
+        @endif
+
+        /**
+         * 2. LOGIKA PROSES BAYAR REKAM MEDIS & CETAK STRUK
+         */
+        function prosesBayarKlinik(kode) {
+            Swal.fire({
+                title: 'Konfirmasi Pembayaran',
+                text: "Selesaikan pembayaran untuk transaksi " + kode + "?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#16a34a',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Bayar Sekarang!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Kirim request bayar via AJAX agar tidak refresh mendadak
+                    fetch("/klinik/bayar/" + kode, {
+                        method: 'GET',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(res => {
+                        if(res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Pembayaran Berhasil!',
+                                text: 'Lunas. Ingin mencetak struk rekam medis?',
+                                showCancelButton: true,
+                                confirmButtonText: '<i class="fas fa-print"></i> Cetak Struk',
+                                cancelButtonText: 'Selesai',
+                                confirmButtonColor: '#198754',
+                            }).then((printRes) => {
+                                if (printRes.isConfirmed) {
+                                    window.open("/cetak-struk/" + res.kode_transaksi, '_blank');
+                                    location.reload();
+                                } else {
+                                    location.reload();
+                                }
+                            });
+                        }
+                    })
+                    .catch(err => {
+                        Swal.fire('Error Sistem', 'Gagal memproses pembayaran. Silakan coba lagi.', 'error');
+                    });
+                }
+            });
+        }
+    </script>
 @endsection

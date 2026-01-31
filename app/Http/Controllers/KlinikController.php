@@ -18,7 +18,6 @@ class KlinikController extends Controller
 {
     /**
      * Menampilkan daftar antrian pasien.
-     * OrderBy desc agar yang paling baru muncul di paling atas (mengatasi masalah data "ngumpet").
      */
     public function index()
     {
@@ -36,7 +35,6 @@ class KlinikController extends Controller
 
     /**
      * PROSES DAFTAR PASIEN
-     * Memperbaiki error 1452 dengan mencari ID Akun berdasarkan Kode Akun.
      */
     public function store(Request $request)
     {
@@ -51,8 +49,6 @@ class KlinikController extends Controller
             $noReg = 'REG-' . date('YmdHis');
 
             DB::transaction(function () use ($request, $noReg, $biayaDaftar) {
-                
-                // 1. Cari ID Akun (PENTING: Agar tidak error Foreign Key)
                 $akunKas = Account::where('kode_akun', '1101')->first();
                 $akunPendapatan = Account::where('kode_akun', '4102')->first();
 
@@ -60,7 +56,6 @@ class KlinikController extends Controller
                     throw new \Exception("Akun 1101 atau 4102 belum ada di Master Akun!");
                 }
 
-                // 2. Simpan Pendaftaran
                 $pendaftaran = PendaftaranKlinik::create([
                     'no_registrasi' => $noReg,
                     'member_id'     => $request->member_id,
@@ -70,7 +65,6 @@ class KlinikController extends Controller
                     'status'        => 'antri'
                 ]);
 
-                // 3. Jurnal menggunakan catatJurnal sesuai AccountingService.php
                 AccountingService::catatJurnal($akunKas->id, $biayaDaftar, "PENDAFTARAN: " . $pendaftaran->member->nama_lengkap, 'debit');
                 AccountingService::catatJurnal($akunPendapatan->id, $biayaDaftar, "PENDAPATAN DAFTAR: " . $noReg, 'kredit');
             });
@@ -82,9 +76,6 @@ class KlinikController extends Controller
         }
     }
 
-    /**
-     * Form Input EMR
-     */
     public function periksa($id)
     {
         $pasien = PendaftaranKlinik::with('member')->findOrFail($id);
@@ -94,7 +85,6 @@ class KlinikController extends Controller
 
     /**
      * PROSES SIMPAN REKAM MEDIS
-     * Diperbaiki agar tidak "berkedip" dengan mengambil data member dari Database (bukan request).
      */
     public function simpanTindakan(Request $request, $id) 
     {
@@ -108,15 +98,13 @@ class KlinikController extends Controller
 
         try {
             DB::transaction(function () use ($request, $id) {
-                // 1. Ambil data pendaftaran & pasien (PENTING: Jangan ambil member_id dari request!)
                 $pendaftaran = PendaftaranKlinik::findOrFail($id);
                 $member = $pendaftaran->member;
 
                 if (!$member) {
-                    throw new \Exception("Data Member tidak ditemukan untuk pendaftaran ini.");
+                    throw new \Exception("Data Member tidak ditemukan.");
                 }
 
-                // 2. Olah Resep
                 $resepNames = [];
                 $resepItems = [];
                 $nominalObat = 0;
@@ -139,7 +127,6 @@ class KlinikController extends Controller
                     }
                 }
 
-                // 3. Simpan Rekam Medis
                 DB::table('rekam_medis')->insert([
                     'pendaftaran_id' => $id,
                     'diagnosa'       => $request->diagnosa,
@@ -149,7 +136,6 @@ class KlinikController extends Controller
                     'updated_at'     => now()
                 ]);
 
-                // 4. Buat Transaksi Faskes (Klinik)
                 TransaksiFaskes::create([
                     'kode_transaksi'   => 'INV-KLK-' . date('YmdHis'),
                     'tanggal'          => now()->toDateString(),
@@ -166,7 +152,6 @@ class KlinikController extends Controller
                     'updated_at'       => now(),
                 ]);
 
-                // 5. Parkir ke Tabel orderObat (Untuk Apotek)
                 if (count($resepItems) > 0) {
                     orderObat::create([
                         'pendaftaran_klinik_id' => $id,
@@ -179,31 +164,43 @@ class KlinikController extends Controller
                     ]);
                 }
 
-                // 6. Selesaikan Antrian
                 $pendaftaran->update(['status' => 'selesai']);
             });
 
             return redirect()->route('klinik.index')->with('success', 'Pemeriksaan Selesai & Resep Terkirim!');
 
         } catch (\Exception $e) {
-            // Jika error, Mas akan melihat tulisan errornya di layar, tidak berkedip doang.
             return back()->with('error', 'Gagal Simpan EMR: ' . $e->getMessage())->withInput();
         }
     }
 
-    public function show($id)
-    {
-        $data = PendaftaranKlinik::with(['member', 'rekamMedis'])->findOrFail($id);
-        return view('klinik.emr_detail', compact('data'));
-    }
-
+    /**
+     * PROSES BAYAR & CETAK STRUK (UPDATE!)
+     */
     public function bayar($kode_transaksi) {
-        $transaksi = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->firstOrFail();
-        $transaksi->update([
-            'status'       => 'closed',
-            'updated_at'   => now(),
-            'Debit/Credit' => 'Debit'
-        ]);
-        return redirect()->route('klinik.index')->with('success', 'Pembayaran Berhasil!');
+        try {
+            $transaksi = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->firstOrFail();
+            $transaksi->update([
+                'status'       => 'closed',
+                'updated_at'   => now(),
+                'Debit/Credit' => 'Debit'
+            ]);
+
+            // Jika request meminta JSON (untuk SweetAlert)
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'kode_transaksi' => $kode_transaksi,
+                    'message' => 'Pembayaran Berhasil!'
+                ]);
+            }
+
+            // Jika request biasa, redirect ke halaman struk
+            return redirect()->route('apotek.cetakStruk', $kode_transaksi)
+                             ->with('success', 'Pembayaran Berhasil! Silakan Cetak Struk.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal Bayar: ' . $e->getMessage());
+        }
     }
 }
