@@ -1,4 +1,5 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\KasirController;
@@ -13,8 +14,9 @@ use App\Http\Controllers\DistribusiController;
 use App\Http\Controllers\KantorKoperasi\AccountingController;
 use App\Http\Controllers\KantorKoperasi\KeuanganController;
 
-
-// 1. Halaman Login
+// ---------------------------------------------------------
+// 1. HALAMAN LOGIN & LOGOUT
+// ---------------------------------------------------------
 Route::get('/login', function() {
     return view('login');
 })->name('login');
@@ -22,7 +24,9 @@ Route::get('/login', function() {
 Route::post('/login-proses', [MemberController::class, 'loginProses']);
 Route::get('/logout', [MemberController::class, 'logout'])->name('logout');
 
-// 2. Middleware Auth
+// ---------------------------------------------------------
+// 2. MIDDLEWARE AUTH (SEMUA MENU DI DALAM SINI)
+// ---------------------------------------------------------
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', function () {
@@ -33,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     });
 
-    // Modul Anggota
+    // --- MODUL ANGGOTA ---
     Route::get('/anggota', [MemberController::class, 'index'])->name('member.index');
     Route::get('/tambah', [MemberController::class, 'create']);
     Route::post('/simpan', [MemberController::class, 'store']);
@@ -41,140 +45,114 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/update/{id}', [MemberController::class, 'update']);
     Route::get('/hapus/{id}', [MemberController::class, 'destroy']);
 
-    // Modul Admin & Master User
-    Route::get('/admin', function () {
-        return view('admin_index');
-    });
-
-    // Route Master User (CRUD)
+    // --- MODUL ADMIN & MASTER USER ---
+    Route::get('/admin', function () { return view('admin_index'); });
     Route::get('/admin/master-user', [UserController::class, 'index'])->name('user.index');
     Route::post('/admin/master-user', [UserController::class, 'store'])->name('user.store');
     Route::put('/admin/master-user/{id}', [UserController::class, 'update'])->name('user.update');
     Route::delete('/admin/master-user/{id}', [UserController::class, 'destroy'])->name('user.destroy');
-
-    // Route Ganti Password
     Route::get('/admin/ganti-password', [UserController::class, 'gantiPassword'])->name('password.ganti');
     Route::post('/admin/ganti-password', [UserController::class, 'updatePassword'])->name('password.update.proses');
 
-    // Modul Gudang (Master Barang)
+    // --- MODUL GUDANG (MASTER BARANG) ---
     Route::get('/admin/gudang', [BarangController::class, 'index'])->name('gudang.index');
     Route::post('/admin/gudang', [BarangController::class, 'store'])->name('gudang.store');
     Route::put('/admin/gudang/{id}', [BarangController::class, 'update'])->name('gudang.update');
     Route::delete('/admin/gudang/{id}', [BarangController::class, 'destroy'])->name('gudang.destroy');
-
-    // Route Stok Masuk
     Route::post('/admin/gudang/stok-masuk', [BarangController::class, 'storeStokMasuk'])->name('stok.masuk.store');
 
-    // Route Modul Kasir
+    // --- MODUL KASIR ---
     Route::get('/admin/kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('/admin/kasir/proses', [KasirController::class, 'store'])->name('kasir.store');
     Route::get('/admin/kasir/struk/{kode_transaksi}', [KasirController::class, 'cetakStruk'])->name('kasir.struk');
 
-
-    // Modul Simpan Pinjam
-    Route::get('/simpanpinjam', [SimpanPinjamController::class, 'index'])->name('simpanpinjam.index'); // Dashboard Simpan Pinjam
-    // Route::get('/simpanpinjam', [SimpanPinjamController::class, 'simpanpinjam'])->name('simpanpinjam.index'); // Simpan Pinjam
-
-    // dashboard simpan pinjam
-
-    // Pinjaman Routes
-    Route::get('/pinjaman/dashboard', [PinjamanController::class, 'dashboardSP'])->name('pinjaman.dashboardSP'); // Pinjaman
-
-    Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('pinjaman.index'); // Pinjaman
-    Route::get('/pinjaman/create', [PinjamanController::class, 'create'])->name('pinjaman.create'); // Pinjaman
-    Route::post('/pinjaman/create', [PinjamanController::class, 'store'])->name('pinjaman.store'); // Pinjaman
-    Route::get('/pinjaman/detail/{no_transaksi_sp}', [PinjamanController::class, 'detail'])->name('pinjaman.detail'); // Detail Pinjaman
-    Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran'); // Pinjaman
+    // --- MODUL SIMPAN PINJAM & PINJAMAN ---
+    Route::get('/simpanpinjam', [SimpanPinjamController::class, 'index'])->name('simpanpinjam.index');
+    Route::get('/pinjaman/dashboard', [PinjamanController::class, 'dashboardSP'])->name('pinjaman.dashboardSP');
+    Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('pinjaman.index');
+    Route::get('/pinjaman/create', [PinjamanController::class, 'create'])->name('pinjaman.create');
+    Route::post('/pinjaman/create', [PinjamanController::class, 'store'])->name('pinjaman.store');
+    Route::get('/pinjaman/detail/{no_transaksi_sp}', [PinjamanController::class, 'detail'])->name('pinjaman.detail');
+    Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran');
     Route::delete('/pinjaman/{no_transaksi_sp}', [PinjamanController::class, 'destroy'])->name('pinjaman.destroy');
 
-    // bon Routes
-    Route::get('/bon', [PinjamanController::class, 'indexBon'])->name('bon.indexBon'); // Pinjaman
-    Route::get('/bon/detail/{no_transaksi_sp}', [PinjamanController::class, 'detailBon'])->name('bon.detailBon'); // Detail Bon
-    Route::post('/bon/bayarBon/{no_transaksi_sp}', [PinjamanController::class, 'bayarBon'])->name('bon.bayarBon'); // Lunasi Bon
-    Route::delete('/bon/hapusBon/{no_transaksi_sp}', [PinjamanController::class, 'destroy'])->name('bon.destroy'); // Lunasi Bon
+    // --- MODUL BON ---
+    Route::get('/bon', [PinjamanController::class, 'indexBon'])->name('bon.indexBon');
+    Route::get('/bon/detail/{no_transaksi_sp}', [PinjamanController::class, 'detailBon'])->name('bon.detailBon');
+    Route::post('/bon/bayarBon/{no_transaksi_sp}', [PinjamanController::class, 'bayarBon'])->name('bon.bayarBon');
+    Route::delete('/bon/hapusBon/{no_transaksi_sp}', [PinjamanController::class, 'destroy'])->name('bon.destroy');
 
-
-    // Simpanan Routes
-    Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index'); // Simpanan
-    Route::get('/simpanan/create', [SimpananController::class, 'create'])->name('simpanan.create'); // Simpanan tampil form tambah
-    Route::post('/simpanan/create', [SimpananController::class, 'store'])->name('simpanan.store'); // Simpanan tambah
-    Route::get('/simpanan/tarik', [SimpananController::class, 'createTarik'])->name('simpanan.tarik'); // Simpanan tampil form tarik
-    Route::post('/simpanan/tarik', [SimpananController::class, 'reduce'])->name('simpanan.reduce'); // Simpanan tampil form tarik
+    // --- MODUL SIMPANAN ---
+    Route::get('/simpanan', [SimpananController::class, 'index'])->name('simpanan.index');
+    Route::get('/simpanan/create', [SimpananController::class, 'create'])->name('simpanan.create');
+    Route::post('/simpanan/create', [SimpananController::class, 'store'])->name('simpanan.store');
+    Route::get('/simpanan/tarik', [SimpananController::class, 'createTarik'])->name('simpanan.tarik');
+    Route::post('/simpanan/tarik', [SimpananController::class, 'reduce'])->name('simpanan.reduce');
     Route::get('/simpanan/show/{id}', [SimpananController::class, 'show'])->name('simpanan.show');
     Route::get('/simpanan/{id}/edit', [SimpananController::class, 'edit'])->name('simpanan.edit');
     Route::put('/simpanan/{id}', [SimpananController::class, 'update'])->name('simpanan.update');
     Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy'])->name('simpanan.destroy');
 
-
-    Route::get('/laporan', [PinjamanController::class, 'laporanIndex'])->name('laporan.index'); // Laporan
-
-    //Klinik
+    // --- MODUL KLINIK ---
     Route::prefix('klinik')->group(function () {
         Route::get('/', [KlinikController::class, 'index'])->name('klinik.index');
         Route::get('/pendaftaran', [KlinikController::class, 'pendaftaran'])->name('klinik.pendaftaran');
         Route::post('/simpan-pemeriksaan', [KlinikController::class, 'store'])->name('klinik.store');
         Route::get('/bayar/{kode_transaksi}', [KlinikController::class, 'bayar'])->name('klinik.bayar');
+        Route::get('/periksa/{id}', [KlinikController::class, 'periksa'])->name('klinik.periksa');
+        Route::post('/simpan-tindakan/{id}', [KlinikController::class, 'simpanTindakan'])->name('klinik.simpanTindakan');
+        Route::get('/detail/{id}', [KlinikController::class, 'show'])->name('klinik.show');
     });
 
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/klinik', [KlinikController::class, 'index'])->name('klinik.index');
-    });
-
-    Route::middleware(['auth'])->group(function () {
-        Route::get('/klinik/periksa/{id}', [KlinikController::class, 'periksa'])->name('klinik.periksa');
-        Route::post('/klinik/simpan-tindakan/{id}', [KlinikController::class, 'simpanTindakan'])->name('klinik.simpanTindakan');
-    });
-
-    Route::get('/klinik/detail/{id}', [KlinikController::class, 'show'])->name('klinik.show');
-
+    // --- MODUL APOTEK & GUDANG APOTEK ---
     Route::get('/apotek-retail', [ApotekController::class, 'apotekIndex'])->name('apotek.index');
-
     Route::get('/gudang-apotek', [ApotekController::class, 'gudangIndex'])->name('apotek.gudang');
     Route::post('/gudang/store', [ApotekController::class, 'storeObat'])->name('apotek.store');
     Route::post('/gudang/mutasi/{id}', [ApotekController::class, 'kirimKeApotek'])->name('apotek.kirim');
-
     Route::get('/apotek/jual/{id}', [ApotekController::class, 'jualObat'])->name('apotek.formJual');
     Route::post('/apotek/proses-jual/{id}', [ApotekController::class, 'prosesJual'])->name('apotek.prosesJual');
     Route::get('/apotek/resep-masuk', [ApotekController::class, 'resepMasukIndex'])->name('apotek.resep');
     Route::post('/apotek/bayar-order/', [ApotekController::class, 'bayarOrder'])->name('apotek.bayarOrder');
     Route::post('/apotek/proses-pembayaran-cart', [ApotekController::class, 'prosesPembayaranCart'])->name('apotek.proses-pembayaran-cart');
     Route::delete('/apotek/hapus-resep/{kode_transaksi}', [ApotekController::class, 'hapusResep'])->name('apotek.hapusResep');
+    
+    // RUTE BARU: Tarik Resep dari Klinik ke Apotek
+    Route::post('/apotek/tarik-resep', [ApotekController::class, 'tarikResep'])->name('apotek.tarik_resep');
 
+    // --- MODUL DISTRIBUSI ---
     Route::prefix('gudang-distribusi')->group(function () {
         Route::get('/', [DistribusiController::class, 'index'])->name('distribusi.gudang');
         Route::post('/store', [DistribusiController::class, 'store'])->name('distribusi.store');
-        Route::post('/kirim-luar/{id}', [DistribusiController::class, 'kirimLuarDesa'])->name('distribusi.kirimLuar');
-        Route::post('/mutasi-gerai/{id}', [DistribusiController::class, 'mutasiKeGerai'])->name('distribusi.mutasi');
+        Route::post('/kirim-luar/{id}', [DistribusiController::class, 'prosesFaktur'])->name('distribusi.prosesFaktur');
+        Route::post('/mutasi-gerai/{id}', [DistribusiController::class, 'prosesMutasi'])->name('distribusi.prosesMutasi');
     });
 
-    Route::post('/gudang-distribusi/kirim-luar/{id}', [DistribusiController::class, 'prosesFaktur'])->name('distribusi.prosesFaktur');
-    Route::post('/gudang-distribusi/mutasi-gerai/{id}', [DistribusiController::class, 'prosesMutasi'])->name('distribusi.prosesMutasi');
-
+    // ---------------------------------------------------------
+    // 3. MODUL KANTOR KOPERASI (PUSAT KENDALI TERPADU)
+    // ---------------------------------------------------------
     Route::prefix('kantor-koperasi')->group(function () {
-    Route::get('/akuntansi', [AccountingController::class, 'index'])->name('akuntansi.index');
-    Route::get('/akuntansi/ledger/{id}', [AccountingController::class, 'showLedger'])->name('akuntansi.ledger');
-    });
+        
+        // Dashboard Statistik & Visualisasi
+        Route::get('/dashboard-statistik', [AccountingController::class, 'dashboardStatistik'])->name('kantor.dashboard_statistik');
 
-    // Modul Kantor Koperasi (Pusat Kendali)
-    Route::prefix('kantor-koperasi')->group(function () {
         // Akuntansi & Buku Besar
         Route::get('/akuntansi', [AccountingController::class, 'index'])->name('akuntansi.index');
         Route::get('/akuntansi/ledger/{id}', [AccountingController::class, 'showLedger'])->name('akuntansi.ledger');
-        
-    });
+        Route::post('/akuntansi/store-account', [AccountingController::class, 'store'])->name('akuntansi.store_account');
 
-    Route::prefix('kantor-koperasi')->group(function () {
-        // Rute Akuntansi yang sudah jalan
-        Route::get('/akuntansi', [AccountingController::class, 'index'])->name('akuntansi.index');
-        Route::get('/akuntansi/ledger/{id}', [AccountingController::class, 'showLedger'])->name('akuntansi.ledger');
-        
+        // Arus Kas / Pengeluaran
         Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
         Route::post('/keuangan/store', [KeuanganController::class, 'store'])->name('keuangan.store');
 
+        // Pusat Laporan Terpadu
+        Route::get('/pusat-laporan', [AccountingController::class, 'pusatLaporan'])->name('kantor.laporan.index');
+        
+        // Link Laporan Lama
         Route::get('/akuntansi/laba-rugi', [AccountingController::class, 'showLabaRugi'])->name('akuntansi.labarugi');
         Route::get('/akuntansi/neraca', [AccountingController::class, 'showNeraca'])->name('akuntansi.neraca');
-        Route::post('/akuntansi/store-account', [AccountingController::class, 'store'])->name('akuntansi.store_account');
     });
 
-    
+    // Rute Laporan Pinjaman
+    Route::get('/laporan-pinjaman', [PinjamanController::class, 'laporanIndex'])->name('laporan.index');
+
 });
