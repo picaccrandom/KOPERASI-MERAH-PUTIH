@@ -3,7 +3,6 @@
 @section('content')
 <style>
     .menu-wrapper {
-        /* Mempersempit lebar maksimal agar tombol lebih merapat satu sama lain */
         max-width: 820px; 
         margin: 10px auto;
         padding: 0 10px;
@@ -12,7 +11,7 @@
     .menu-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 10px; /* Jarak antar tombol diperkecil */
+        gap: 10px;
         justify-items: center;
     }
 
@@ -24,20 +23,18 @@
         margin-top: 10px;
     }
 
-    /* Perbaikan Garis Merah Kantor Koperasi */
     .divider-wrapper {
         grid-column: span 4;
         display: flex;
         align-items: center;
-        width: 100%; /* Memastikan wrapper mengambil lebar penuh */
+        width: 100%;
         margin: 20px 0 15px 0;
     }
 
-    /* Garis Kiri dan Kanan */
     .divider-line {
         flex: 1;
         height: 2px;
-        background-color: #ae1515; /* Warna merah sesuai tema */
+        background-color: #ae1515;
     }
 
     .divider-text {
@@ -47,7 +44,7 @@
         text-transform: uppercase;
         letter-spacing: 2px;
         font-size: 13px;
-        white-space: nowrap; /* Agar teks tidak turun ke bawah */
+        white-space: nowrap;
     }
 
     .cyber-card {
@@ -63,11 +60,8 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        
-        /* Ukuran Persegi Panjang Rapat */
         width: 185px; 
         height: 110px; 
-        
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
@@ -78,7 +72,6 @@
         border-color: rgba(255,255,255,0.5);
     }
 
-    /* Ukuran khusus untuk baris bawah (5 kolom) agar tetap rapat */
     .management-grid .cyber-card {
         width: 155px; 
         height: 100px;
@@ -111,7 +104,6 @@
             ['icon' => 'fa-pills', 'title' => 'Apotik', 'color' => 'linear-gradient(135deg, #0ea5e9, #2563eb)', 'link' => route('apotek.index'), 'sub' => 'Pharmacy'],
             ['icon' => 'fa-clinic-medical', 'title' => 'Klinik', 'color' => 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 'link' => route('klinik.index'), 'sub' => 'Medical Services'],
             ['icon' => 'fa-hand-holding-dollar', 'title' => 'Simpan Pinjam', 'color' => 'linear-gradient(135deg, #10b981, #059669)', 'link' => route('simpanpinjam.index'), 'sub' => 'Credit & Saving'],
-            
             ['icon' => 'fa-warehouse', 'title' => 'Gudang Gerai', 'color' => 'linear-gradient(135deg, #6366f1, #4338ca)', 'link' => route('gudang.index'), 'sub' => 'Retail Stock'],
             ['icon' => 'fa-capsules', 'title' => 'Gudang Apotik', 'color' => 'linear-gradient(135deg, #ec4899, #be185d)', 'link' => route('apotek.gudang'), 'sub' => 'Medicine Stock'],
             ['icon' => 'fa-truck-ramp-box', 'title' => 'Gudang Distribusi', 'color' => 'linear-gradient(135deg, #f59e0b, #d97706)', 'link' => route('distribusi.gudang'), 'sub' => 'Central Hub'],
@@ -129,7 +121,6 @@
         </a>
         @endforeach
 
-        {{-- Perbaikan Struktur Garis Pemisah --}}
         <div class="divider-wrapper">
             <div class="divider-line"></div>
             <span class="divider-text">Kantor Koperasi</span>
@@ -140,25 +131,25 @@
     <div class="management-grid">
         @php
         $kantorMenus = [
-            // Menu Neraca (Dulu Dashboard) - Menggunakan icon Chart Line untuk melihat pertumbuhan aset
-            ['icon' => 'fa-scale-balanced', 'title' => 'Neraca', 'color' => 'linear-gradient(135deg, #1e293b, #334155)', 'link' => route('akuntansi.neraca'), 'sub' => 'Kesehatan Aset'],
+            // MENU BARU: DASHBOARD STATISTIK (Dulu Neraca)
+            ['icon' => 'fa-chart-line', 'title' => 'Dashboard', 'color' => 'linear-gradient(135deg, #1e293b, #334155)', 'link' => route('kantor.dashboard_statistik'), 'sub' => 'Statistik Visual'],
 
-            // Menu Akuntansi - Tetap untuk melihat Co-A dan Buku Besar
+            // MENU AKUNTANSI: FOKUS CO-A & BUKU BESAR
             ['icon' => 'fa-calculator', 'title' => 'Akuntansi', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => route('akuntansi.index'), 'sub' => 'Ledger & Co-A'],
 
-            // Menu Keuangan - Untuk input pengeluaran operasional (Flow)
+            // MENU KEUANGAN: INPUT TRANSAKSI
             ['icon' => 'fa-wallet', 'title' => 'Keuangan', 'color' => 'linear-gradient(135deg, #64748b, #334155)', 'link' => route('keuangan.index'), 'sub' => 'Arus Kas Keluar'],
 
-            // Menu Laporan - Sekarang fokus ke Laba Rugi (Profit & Loss)
-            ['icon' => 'fa-file-invoice-dollar', 'title' => 'Laba Rugi', 'color' => 'linear-gradient(135deg, #059669, #10b981)', 'link' => route('akuntansi.labarugi'), 'sub' => 'Performa SHU'],
+            // MENU BARU: PUSAT LAPORAN (Dulu Laba Rugi)
+            ['icon' => 'fa-file-invoice-dollar', 'title' => 'Laporan', 'color' => 'linear-gradient(135deg, #059669, #10b981)', 'link' => route('kantor.laporan.index'), 'sub' => 'Pusat Data'],
 
-            // Menu Admin Sistem
+            // MENU ADMIN SISTEM
             ['icon' => 'fa-user-gear', 'title' => 'Adm. Sistem', 'color' => 'linear-gradient(135deg, #475569, #1e293b)', 'link' => route('user.index'), 'sub' => 'Control', 'id' => 'btn-adm-sistem']
         ];
         @endphp
 
         @foreach($kantorMenus as $menu)
-        <a href="{{ $menu['link'] }}" id="{{ $menu['id'] ?? '' }}" class="cyber-card shadow" @if(($menu['id'] ?? '') == 'btn-adm-sistem') onclick="showAdminMenu()" @endif>
+        <a href="{{ $menu['link'] }}" id="{{ $menu['id'] ?? '' }}" class="cyber-card shadow">
             <div class="icon-wrapper text-white" style="background: {{ $menu['color'] }};">
                 <i class="fas {{ $menu['icon'] }}"></i>
             </div>
