@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Member;
 use App\Models\Obat;
+use App\Models\orderObat;
 use App\Models\RekamMedis;
-use App\Models\TransaksiFaskes;
-use App\Models\TransaksiObat;
-use App\Models\TransaksiObatDetail;
 use Illuminate\Http\Request;
+use App\Models\TransaksiObat;
+use App\Models\TransaksiFaskes;
 use Illuminate\Support\Facades\DB;
+use App\Models\TransaksiObatDetail;
 use App\Services\AccountingService;
 
 class ApotekController extends Controller
@@ -75,16 +77,14 @@ class ApotekController extends Controller
     {
         // Ambil obat yang stok apoteknya > 0 untuk dijual
         $obats = Obat::where('stok_apotek', '>', 0)->get();
-        return view('apotek.index', compact('obats')); // Pastikan memanggil view 'index'
+        $resepMasuks = orderObat::with('pendaftaranKlinik.member', 'pendaftaranKlinik.rekamMedis')->where('status', 'belum')->orderBy('tanggal_order', 'desc')->get();  
+        return view('apotek.index', compact('obats', 'resepMasuks'  )); // Pastikan memanggil view 'index'
     }
 
     public function resepMasukIndex()
     {
         // Ambil data resep masuk dari klinik (dummy data untuk contoh)
-        $resepMasuks = TransaksiFaskes::with('member', 'pendaftaranKlinik.rekamMedis', 'transaksiObatDetails.obat')
-            ->where('COA', 'Apotek')
-            ->where('status', 'open')
-            ->get();
+        $resepMasuks = orderObat::with('pendaftaranKlinik.member', 'pendaftaranKlinik.rekamMedis')->where('status', 'belum')->orderBy('tanggal_order', 'desc')->get();
         $obats = Obat::all();
         $rekamMedis = RekamMedis::with('pendaftaranKlinik.member', 'pendaftaranKlinik.transaksiFaskesApotek.transaksiObatDetails.obat')->get();
         return view('apotek.resep_masuk', compact('resepMasuks', 'obats', 'rekamMedis'));
@@ -98,83 +98,64 @@ class ApotekController extends Controller
 
     public function bayarOrder(Request $request) {
         $request->validate([
-            'kode_transaksi' => 'required|exists:transaksi_faskes,kode_transaksi',
-            'nominal' => 'required|numeric|min:0',
             'resep_obat.*' => 'nullable|exists:obats,kode_obat',
-            'resep_obat_new.*' => 'nullable|exists:obats,kode_obat',
             'qty.*' => 'nullable|integer|min:1',
-            'qty_new.*' => 'nullable|integer|min:1'
         ]);
 
-        
-        $kode_transaksi = $request->kode_transaksi;
+        DB::transaction(function () use ($request) {
 
-        $transaksiFaskes = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->first();
-        $transaksiFaskes->update(['Nominal' => $request->nominal]);
+            $namaMember = Member::find($request->member_id)->nama_lengkap ?? 'member Klinik';
+            $noPendaftaran = $request->pendaftaran_klinik_id;
         
-        $dataObat = TransaksiObatDetail::where('kode_transaksi', $kode_transaksi)->get();
-        foreach ($dataObat as $item) {
-            $obat = Obat::where('id', $item->obat_id)->first();
-            if ($obat && $obat->stok_apotek >= $item->qty) {
-                // Kurangi stok apotek
-                $obat->decrement('stok_apotek', $item->qty);
-            } else {
-                return back()->with('error', "Stok obat {$obat->nama_obat} tidak mencukupi.");
-            }
-        }
-        
-        
-        if($request->has('resep_obat_new')) {
-            foreach($request->resep_obat_new as $index => $kode_obat) {
-                $qty = $request->qty_new[$index];
+           $transaksiFaskes = TransaksiFaskes::create([
+                'kode_transaksi' => 'INV-APT-' . date('Ymd') . '-' . rand(1000, 9999),
+                'tanggal' => now(),
+                'member_id' => $request->member_id ?? null, // Bisa diisi jika ada member terkait
+                'user_id' => auth()->id(),
+                'nama' => $namaMember,
+                'COA' => 'Apotek',
+                'status' => 'closed',
+                'Nominal' => 0,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-                // Kurangi stok apotek
-                $obat = Obat::where('kode_obat', $kode_obat)->first();
+            $totalNominal = 0;
+            // Proses resep obat
+            foreach ($request->resep_obat as $index => $kodeObat) {
+                $obat = Obat::where('kode_obat', $kodeObat)->first();
+                $qty = (int)$request->qty[$index];
                 if ($obat && $obat->stok_apotek >= $qty) {
+                    // Kurangi stok apotek
                     $obat->decrement('stok_apotek', $qty);
+
+                    $subtotal = $obat->harga_jual * $qty;
+                    $totalNominal += $subtotal;
 
                     // Simpan detail transaksi obat
                     TransaksiObatDetail::create([
-                        'kode_transaksi' => $kode_transaksi,
+                        'kode_transaksi' => $transaksiFaskes->kode_transaksi,
                         'obat_id' => $obat->id,
                         'nama_obat' => $obat->nama_obat,
                         'qty' => $qty,
-                        'subtotal' => $obat->harga_jual * $qty,
+                        'subtotal' => $subtotal,
                     ]);
-                    
-                    $totalHargaTambahan = $obat->harga_jual * $qty;
-                    
-                    // Update total nominal di transaksi faskes
-                    $transaksiFaskes = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->first();
-                    if ($transaksiFaskes) {
-                        $transaksiFaskes->increment('Nominal', $totalHargaTambahan);
-                    }
+
+                    // Update status resep di rekam medis jika ada
+                    orderObat::where('pendaftaran_klinik_id', $noPendaftaran)
+                        ->where('status', 'belum')
+                        ->update(['status' => 'selesai']);
                 } else {
-                    return back()->with('error', "Stok obat {$obat->nama_obat} tidak mencukupi.");
+                    throw new \Exception("Stok obat {$obat->nama_obat} tidak mencukupi.");
                 }
             }
             
-        } 
 
+            // Update total nominal transaksi
+            $transaksiFaskes->update(['Nominal' => $totalNominal]);
 
-        // Cari transaksi faskes untuk member dengan COA 'Apotek' dan status 'open'
-        $transaksiFaskes = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)
-            ->where('COA', 'Apotek')
-            ->where('status', 'open')
-            ->first();
-
-        if (!$transaksiFaskes) {
-            return back()->with('error', 'Transaksi tidak ditemukan atau sudah ditutup.');
-        }
-
-        // Update status transaksi menjadi 'closed'
-        $transaksiFaskes->update([
-            'status' => 'closed',
-            'updated_at' => now(),
-            'Debit/Credit' => 'Debit'
-        ]);
-
-        return redirect()->route('apotek.index')->with('success', 'Pembayaran resep berhasil dilakukan!');
+        });
+        return redirect()->route('apotek.resep')->with('success', 'Pembayaran resep berhasil dilakukan!');
     }
 
     // Proses transaksi penjualan
@@ -197,7 +178,7 @@ class ApotekController extends Controller
                 'tanggal'        => now()->toDateString(),
                 'member_id'     => null, // Penjualan umum
                 'user_id'       => auth()->id(),
-                'nama'          => 'Penjualan Umum',
+                'nama'          => 'member OTS',
                 'COA'           => 'Apotek',
                 'status'        => 'closed',
                 'Debit/Credit'  => 'Debit',
@@ -323,18 +304,12 @@ class ApotekController extends Controller
     }
 
     function hapusResep($kode_transaksi) {
-        $obatDetails = TransaksiObatDetail::where('kode_transaksi', $kode_transaksi)->get();
-        foreach ($obatDetails as $detail) {
-            $obat = Obat::find($detail->obat_id);
-            if ($obat) {
-                // Kembalikan stok apotek
-                $obat->increment('stok_apotek', $detail->qty);
-            }
+        $data = orderObat::where('kode_transaksi', $kode_transaksi)->first();
+        if (!$data) {
+            return redirect()->route('apotek.resep')->with('error', 'Data resep tidak ditemukan.');
         }
-        $resep = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->first();
-        if ($resep) {
-            $resep->delete();
-        }
+        $data->delete();
+        
         return redirect()->route('apotek.resep')->with('success', 'Resep berhasil dihapus.');
     }
 }

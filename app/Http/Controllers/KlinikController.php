@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Obat;
+use App\Models\orderObat;
 use App\Models\RekamMedis;
 use App\Services\AccountingService; // Import Service Akuntansi
 use App\Models\TransaksiFaskes;
@@ -39,35 +40,24 @@ class KlinikController extends Controller
             'member_id'         => 'required|exists:members,id',
             'keluhan'           => 'required|min:5|max:255',
             'tensi'             => 'nullable|string|max:20',
-            'biaya_daftar'      => 'required'
         ]);
 
         try {
             
             // Langsung simpan tanpa DB::beginTransaction atau integrasi kas
             
+            DB::transaction(function () use ($request) {
+
+            $biayaDaftar = 50000; // Biaya pendaftaran tetap
+                
             $noReg = 'REG-' . date('Ymd') . '-' . random_int(100, 999);
-            DB::transaction(function () use ($request, $noReg) {
-                $PendaftaranKlinik = PendaftaranKlinik::create([
-                    'no_registrasi' => $noReg,
-                    'member_id'     => $request->member_id,
-                    'keluhan'       => $request->keluhan,
-                    'tensi'         => $request->tensi,
-                    'biaya_daftar'  => $request->biaya_daftar,
-                    'status'        => 'antri'
-                ]);
-
-            });
-            $biayaDaftar = $request->biaya_daftar;
-
-
             // 1. Simpan ke Database Klinik
             $pendaftaran = PendaftaranKlinik::create([
                 'no_registrasi' => $noReg,
                 'member_id'     => $request->member_id,
                 'keluhan'       => $request->keluhan,
                 'tensi'         => $request->tensi,
-                'biaya_daftar'  => $biayaDaftar,
+                'biaya_daftar'  => $biayaDaftar, // Default biaya pendaftaran
                 'status'        => 'antri'
             ]);
 
@@ -80,22 +70,24 @@ class KlinikController extends Controller
                 "Biaya Pendaftaran Klinik: " . ($pendaftaran->member->nama_lengkap ?? 'Pasien'), 
                 $noReg, 
                 $biayaDaftar, 0, 
-                '1101'
+                '1101',
             );
 
+            
             AccountingService::post(
                 now(), 
                 "Pendapatan Pendaftaran (" . $noReg . ")", 
                 $noReg, 
                 0, $biayaDaftar, 
-                '4102'
+                '4102',
             );
+            
+            });
+            } catch (\Exception $e) {
+                return back()->with('error', 'Gagal Simpan: ' . $e->getMessage());
+            }
 
             return redirect()->route('klinik.index')->with('success', 'Pasien berhasil antri & Biaya pendaftaran terjurnal!');
-
-        } catch (\Exception $e) {
-            return back()->with('error', 'Gagal Simpan: ' . $e->getMessage());
-        }
     }
 
     public function bayar($kode_transaksi) {
@@ -173,49 +165,41 @@ class KlinikController extends Controller
                 'updated_at'    => now(),
             ]);
 
+            // Simpan Transaksi Apotek jika ada resep obat
+            $bodyObat = [];
+            $nominalObat = 0;
+            
             if($request->resep_obat) {
-                $biayaObatTotal = 0;
-                // Jika ada resep obat, simpan transaksi apotek juga
-                $transaksiApotek = TransaksiFaskes::create([
-                    'kode_transaksi' => 'INV-APT-' . date('Ymd').'-' . rand(1000, 9999),
-                    'tanggal'        => Carbon::now()->toDateString(),
-                    'member_id'     => $request->member_id,
-                    'user_id'       => auth()->user()->id,
-                    'nama'          => $member->nama_lengkap,
-                    'COA'           => 'Apotek',
-                    'status'        => 'open',
-                    'Debit/Credit'  => 'Credit',
-                    'Nominal'       => 0, // Akan dihitung setelah loop resep obat
-                    'Keterangan'    => 'Biaya obat untuk anggota ID: ' . $request->member_id,
-                    'kode_pendaftaran' => $kodePendaftaran->no_registrasi,
-                    'created_at'    => now(),
-                    'updated_at'    => now(),
-                ]);
-
-
-                // Simpan Transaksi Obat jika ada resep
                 foreach ($request->resep_obat as $index => $kode_obat) {
-                    if ($kode_obat) {
-                        $obat = Obat::where('kode_obat', $kode_obat)->first();
-                        $qty = $request->qty[$index];
-                        $biayaObatTotal += $obat->harga_jual * $qty;
+                    $obat = Obat::where('kode_obat', $kode_obat)->first();
+                    if ($obat) {
+                        $qty = $request->qty[$index] ?? 1;
+                        $bodyObat[] = [
+                            $obat->kode_obat,
+                            $obat->nama_obat,
+                            $qty,
+                        ];
+                        $nominalObat += $obat->harga_jual * $qty;
 
-                        // Simpan detail resep obat
-                        DB::table('transaksi_obat_details')->insert([
-                            'kode_transaksi' => $transaksiApotek->kode_transaksi,
-                            'obat_id' => $obat->id,
-                            'nama_obat' => $obat->nama_obat,
-                            'qty' => $qty,
-                            'subtotal' => $obat->harga_jual * $qty,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
+                        // Kurangi stok obat di apotek
+                        // $obat->decrement('stok_apotek', $qty);
                     }
                 }
 
-                // Update total nominal transaksi apotek
-                $transaksiApotek->update(['Nominal' => $biayaObatTotal]);
-            }
+                $bodyObat = json_encode($bodyObat);
+                // Jika ada resep obat, simpan transaksi apotek juga
+                $orderMasuk = orderObat::create([
+                    'pendaftaran_klinik_id' => $id,
+                    'tanggal_order' => Carbon::now()->toDateString(),
+                    'member_id'     => $request->member_id,
+                    'user_id'       => auth()->user()->id,
+                    'order_body'    => $bodyObat,
+                    'nominal'       => $nominalObat, // Akan diupdate setelah hitung total
+                    'status'        => 'belum',
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+            };
 
             // Ubah status pasien di antrian dari 'antri' menjadi 'selesai'
             DB::table('pendaftaran_kliniks')->where('id', $id)->update(['status' => 'selesai']);

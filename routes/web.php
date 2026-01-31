@@ -68,7 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Route Modul Kasir
     Route::get('/admin/kasir', [KasirController::class, 'index'])->name('kasir.index');
     Route::post('/admin/kasir/proses', [KasirController::class, 'store'])->name('kasir.store');
-    Route::get('/admin/kasir/struk/{kode_transaksi}', [KasirController::class, 'cetakStruk'])->name('kasir.struk');
+    Route::get('/admin/kasir/struk/{kode_transaksi}/{kembalian}', [KasirController::class, 'cetakStruk'])->name('kasir.struk');
 
 
     // Modul Simpan Pinjam

@@ -36,7 +36,6 @@
                         class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
                         required>
                         <option value="uang">Uang</option>
-                        <option value="barang">Barang</option>
                     </select>
                 </div>
 

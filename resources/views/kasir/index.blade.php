@@ -332,13 +332,15 @@
     function KalkulasiNominal() {
         const nominal = parseFloat(document.getElementById('nominal').value) || 0;
         const total_harga = parseFloat(document.getElementById('total_harga').value) || 0;
+        $kembalian = nominal - total_harga;
+        
         if(nominal < total_harga) {
-            document.getElementById('kalkulasi').innerText = (total_harga - nominal).toLocaleString() + ' (Kurang)';
+            document.getElementById('kalkulasi').innerText = (- $kembalian).toLocaleString() + ' (Kurang)';
             document.getElementById('kalkulasi').classList.add('text-red-600');
             document.getElementById('kalkulasi').classList.remove('text-green-600');
             return;
         }else {
-            document.getElementById('kalkulasi').innerText = (nominal - total_harga).toLocaleString() + ' (Kembalian)';
+            document.getElementById('kalkulasi').innerText = $kembalian.toLocaleString() + ' (Kembalian)';
             document.getElementById('kalkulasi').classList.add('text-green-600');
             document.getElementById('kalkulasi').classList.remove('text-red-600');
             return;
@@ -389,11 +391,12 @@
             status: 'closed',
             total_tunai: 0,
             total_bon: 0,
-            cart: keranjang
+            cart: keranjang,
         };
 
         data.total_tunai = parseFloat(document.getElementById('nominal').value) || 0;
         data.total_harga = parseFloat(document.getElementById('total_harga').value);
+        data.kembalian = data.total_tunai - data.total_harga;
         
         if(data.metode_bayar === 'bon') {
             // data.total_tunai = parseFloat(document.getElementById('nominal').value);    
@@ -441,7 +444,13 @@
                 })
                 .then(res => res.json())
                 .then(res => {
-                    Swal.fire('Berhasil', res.message, 'success').then(() => location.reload());
+                    if(res.success) {
+                        Swal.fire('Sukses', res.message, 'success').then(() => {
+                            window.location.href = "{{ url('admin/kasir/struk') }}/" + res.data.kode_transaksi+ "/"+ data.kembalian;
+                        });
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
                 });
             }
         });

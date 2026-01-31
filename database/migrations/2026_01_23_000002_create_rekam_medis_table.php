@@ -18,7 +18,6 @@ return new class extends Migration
             $table->text('diagnosa');
             $table->text('tindakan');
             $table->text('resep_obat')->nullable();
-            $table->enum('status_resep',['selesai', 'diproses'])->default('diproses');
             $table->timestamps();
         });
     }

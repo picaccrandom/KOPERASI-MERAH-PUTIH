@@ -23,7 +23,7 @@ class SimpananController extends Controller
             ->whereIn('COA', ['Simpan', 'Tarik'])
             ->orderBy('created_at', 'desc')
             ->get();
-        return view('simpanan', compact('simpanans', 'members'));
+        return view('simpanpinjam.simpanan', compact('simpanans', 'members'));
     }
 
     /**
@@ -44,7 +44,7 @@ class SimpananController extends Controller
                 ];
             });
             
-        return view('simpanan-create', compact('members', 'SimpanansPokok'));
+        return view('simpanpinjam.simpanan-create', compact('members', 'SimpanansPokok'));
     }
 
     /**
@@ -86,22 +86,22 @@ class SimpananController extends Controller
              */
             
             // DEBIT: Kas Koperasi bertambah
-            AccountingService::post(
-                now(),
-                "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap,
-                $transaksi->no_transaksi_sp,
-                (float)$request->nominal, 0,
-                '1101'
-            );
+            // AccountingService::post(
+            //     now(),
+            //     "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap,
+            //     $transaksi->no_transaksi_sp,
+            //     (float)$request->nominal, 0,
+            //     '1101'
+            // );
 
             // KREDIT: Kewajiban Simpanan Anggota bertambah
-            AccountingService::post(
-                now(),
-                "Penerimaan Tabungan Anggota (" . $transaksi->no_transaksi_sp . ")",
-                $transaksi->no_transaksi_sp,
-                0, (float)$request->nominal,
-                '2101'
-            );
+            // AccountingService::post(
+            //     now(),
+            //     "Penerimaan Tabungan Anggota (" . $transaksi->no_transaksi_sp . ")",
+            //     $transaksi->no_transaksi_sp,
+            //     0, (float)$request->nominal,
+            //     '2101'
+            // );
         });
 
         // Log Aktivitas
@@ -158,23 +158,23 @@ class SimpananController extends Controller
              * Skema: Debit Simpanan (2101), Kredit Kas (1101)
              */
 
-            // DEBIT: Kewajiban Simpanan Berkurang
-            AccountingService::post(
-                now(),
-                "Penarikan Simpanan - " . $namaMember->nama_lengkap,
-                $transaksi->no_transaksi_sp,
-                (float)$request->nominal, 0,
-                '2101'
-            );
+            // // DEBIT: Kewajiban Simpanan Berkurang
+            // AccountingService::post(
+            //     now(),
+            //     "Penarikan Simpanan - " . $namaMember->nama_lengkap,
+            //     $transaksi->no_transaksi_sp,
+            //     (float)$request->nominal, 0,
+            //     '2101'
+            // );
 
-            // KREDIT: Kas Koperasi Berkurang
-            AccountingService::post(
-                now(),
-                "Pengeluaran Kas Penarikan (" . $transaksi->no_transaksi_sp . ")",
-                $transaksi->no_transaksi_sp,
-                0, (float)$request->nominal,
-                '1101'
-            );
+            // // KREDIT: Kas Koperasi Berkurang
+            // AccountingService::post(
+            //     now(),
+            //     "Pengeluaran Kas Penarikan (" . $transaksi->no_transaksi_sp . ")",
+            //     $transaksi->no_transaksi_sp,
+            //     0, (float)$request->nominal,
+            //     '1101'
+            // );
         }); 
 
         // Log Aktivitas
@@ -218,7 +218,7 @@ class SimpananController extends Controller
             ->firstOrFail();
         
         $members = Member::all(); 
-        return view('simpanan-edit', compact('transaksi', 'members'));
+        return view('simpanpinjam.simpanan-edit', compact('transaksi', 'members'));
     }
 
     public function update(Request $request, $id)
@@ -277,6 +277,6 @@ class SimpananController extends Controller
                 ];
             });
 
-        return view('TarikSimpanan', compact('members', 'saldoSimpanan'));
+        return view('simpanpinjam.TarikSimpanan', compact('members', 'saldoSimpanan'));
     }
 }

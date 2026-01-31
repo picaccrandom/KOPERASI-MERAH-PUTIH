@@ -25,6 +25,7 @@ class AccountingService
              * Kolom 'debit' atau 'kredit' diisi sesuai tipe transaksi, 
              * sedangkan kolom lawannya diisi 0 agar tidak Null.
              */
+            
             return Jurnal::create([
                 'account_id'    => $accountId,
                 'tgl_transaksi' => now(),
