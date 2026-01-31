@@ -155,4 +155,7 @@ Route::middleware(['auth'])->group(function () {
     // Rute Laporan Pinjaman
     Route::get('/laporan-pinjaman', [PinjamanController::class, 'laporanIndex'])->name('laporan.index');
 
+    Route::get('/apotek/histori', [ApotekController::class, 'historiPenjualan'])->name('apotek.histori');
+    Route::get('/apotek/histori/{kode_transaksi}', [ApotekController::class, 'detailHistori'])->name('apotek.histori.detail');
+
 });

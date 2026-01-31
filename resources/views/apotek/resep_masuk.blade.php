@@ -51,34 +51,43 @@
                             @forelse($resepMasuks as $r)
                                 <tr class="hover:bg-emerald-50/50 transition-colors text-slate-700 group">
                                     <td class="py-4 font-mono text-emerald-600">{{ $r->pendaftaran_klinik_id }}</td>
-                                    <td class="py-4 uppercase tracking-tighter">{{ $r->member->nama_lengkap }}</td>
+                                    <td class="py-4 uppercase tracking-tighter">{{ $r->member->nama_lengkap ?? 'Tanpa Nama' }}</td>
                                     <td class="py-4 flex justify-center">
-                                        <ul class="space-y-1 ">
+                                        <ul class="space-y-1">
                                             @php
-                                                $orderObat = json_decode($r->order_body, true);
+                                                // Decode JSON dengan proteksi agar tidak error Undefined Array Key
+                                                $orderObat = json_decode($r->order_body, true) ?? [];
                                             @endphp
                                             @foreach ($orderObat as $item)
-                                                <li class="text-xl grid grid-cols-2 w-72 gap-2 ">
-                                                    <span class="font-black text-sm col-span-1">{{ $item[1] }}</span>
-                                                    <span class="font-black text-sm col-span-1">({{ $item[2] }})</span>
+                                                <li class="text-xl grid grid-cols-2 w-72 gap-2 text-left">
+                                                    {{-- Gunakan Null Coalescing (??) agar jika index 1 tidak ada, sistem tidak crash --}}
+                                                    <span class="font-black text-sm col-span-1">
+                                                        {{ $item[1] ?? ($item['nama_obat'] ?? 'Obat') }}
+                                                    </span>
+                                                    <span class="font-black text-sm col-span-1 text-right">
+                                                        ({{ $item[2] ?? ($item['qty'] ?? 0) }})
+                                                    </span>
                                                 </li>
                                             @endforeach
                                         </ul>
                                     </td>
-                                    <td class="py-4 uppercase tracking-tighter text-lg text-red-400">Rp.
-                                        {{ number_format($r->nominal, 0, ',', '.') }}</td>
+                                    <td class="py-4 uppercase tracking-tighter text-lg text-red-400 font-black">
+                                        Rp. {{ number_format($r->nominal, 0, ',', '.') }}
+                                    </td>
                                     <td class="py-4 text-center">
-                                        {{-- Tombol Aktif Jual Obat Membuka Modal --}}
-                                        <button onclick="openJualModal({{ $r->pendaftaranKlinik->rekamMedis->id }})"
-                                            class=" text-emerald-600 px-6 py-2 rounded-2xl overflow-hidden hover:scale-110 transition-all  active:scale-95">
+                                        {{-- Tombol untuk proses resep --}}
+                                        <button onclick="openJualModal({{ $r->pendaftaranKlinik->rekamMedis->id ?? 0 }})"
+                                            class="text-emerald-600 px-6 py-2 rounded-2xl overflow-hidden hover:scale-110 transition-all active:scale-95"
+                                            title="Proses Resep">
                                             <i class="fa-solid fa-file-prescription text-2xl"></i>
                                         </button>
-                                        <form action="{{ route('apotek.hapusResep', $r->id) }}" method="POST"
-                                            class="inline">
+                                        
+                                        <form action="{{ route('apotek.hapusResep', $r->id) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button id="deleteResep"
-                                                class="text-red-600 px-6 py-2 rounded-2xl overflow-hidden hover:scale-110 transition-all active:scale-95">
+                                            <button type="submit" onclick="return confirm('Hapus resep ini?')"
+                                                class="text-red-600 px-6 py-2 rounded-2xl overflow-hidden hover:scale-110 transition-all active:scale-95"
+                                                title="Hapus Orderan">
                                                 <i class="fas fa-trash-alt text-2xl"></i>
                                             </button>
                                         </form>
@@ -86,12 +95,10 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5"
-                                        class="py-24 text-center text-slate-400 font-bold italic text-xl tracking-wide">
+                                    <td colspan="5" class="py-24 text-center text-slate-400 font-bold italic text-xl tracking-wide">
                                         <i class="fas fa-box-open text-6xl mb-4 block opacity-20"></i>
                                         Tidak ada resep obat masuk.<br>
-                                        <span class="text-xs uppercase not-italic text-emerald-600 font-black">Silakan
-                                            tunggu pesanan dari klinik</span>
+                                        <span class="text-xs uppercase not-italic text-emerald-600 font-black">Silakan tunggu pesanan dari klinik</span>
                                     </td>
                                 </tr>
                             @endforelse
@@ -103,280 +110,141 @@
     </div>
 
     {{-- MODAL TRANSAKSI PENJUALAN --}}
-    <div id="modalJualObat"
-        class="hidden absolute top-28 inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div class="bg-white/95 px-10 rounded-2xl shadow-2xl mx-auto max-w-[90rem]  overflow-hidden border border-blue-100">
-            <div class="">
-                <div class="bg-blue-600 p-6 text-white">
+    <div id="modalJualObat" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden">
+            <div class="bg-blue-600 p-6 text-white flex justify-between items-center">
+                <div>
                     <h3 class="text-xl font-black uppercase tracking-widest flex items-center">
-                        <i class="fas fa-user-md mr-3 text-2xl"></i> Pemeriksaan Medis (EMR)
+                        <i class="fas fa-file-invoice-dollar mr-3 text-2xl"></i> Proses Resep Pasien
                     </h3>
                     <div class="mt-2 text-sm opacity-90 font-bold">
-                        PASIEN: <span id="nama_pasien"></span> | NO. REG: <span id="no_reg"></span>
+                        PASIEN: <span id="nama_pasien">-</span> | NO. REG: <span id="no_reg">-</span>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-white hover:text-red-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <form method="POST" action="{{ route('apotek.bayarOrder') }}" class="p-8">
+                @csrf
+                <input type="hidden" name="member_id" id="input_member_id">
+                <input type="hidden" name="pendaftaran_klinik_id" id="input_pendaftaran_id">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {{-- Info Medis --}}
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                            <label class="block text-xs font-black text-blue-600 uppercase mb-1">Diagnosa Dokter</label>
+                            <textarea id="diagnosa" readonly class="w-full bg-transparent font-bold text-slate-700 outline-none resize-none" rows="3"></textarea>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                            <label class="block text-xs font-black text-emerald-600 uppercase mb-1">Terapi / Tindakan</label>
+                            <textarea id="tindakan" readonly class="w-full bg-transparent font-bold text-slate-700 outline-none resize-none" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    {{-- Area Resep --}}
+                    <div class="flex flex-col">
+                        <label class="text-sm font-black text-slate-700 mb-4 uppercase">Item Obat & Qty</label>
+                        <div id="obatArea" class="space-y-4 max-h-64 overflow-y-auto pr-2">
+                            {{-- Dinamis via JS --}}
+                        </div>
+                        <button type="button" onclick="tambahAreaObat()" class="mt-4 text-blue-600 font-bold text-sm hover:underline">
+                            <i class="fas fa-plus-circle mr-1"></i> Tambah Obat Lain
+                        </button>
                     </div>
                 </div>
 
-
-                <form class="space-y-6" method="POST" action="{{ route('apotek.bayarOrder') }}">
-                    @csrf
-                    <input type="hidden" name="member_id" value="">
-                    <input type="hidden" name="pendaftaran_klinik_id" value="">
-                    <div class="flex flex-col gap-6 p-10">
-                        <div class="flex flex-row gap-6">
-                            {{-- Info Keluhan Awal --}}
-                            <div
-                                class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-blue-50 p-6 rounded-xl border border-blue-100">
-                                <div>
-                                    <label
-                                        class="block text-xs font-black text-blue-600 uppercase tracking-wider mb-1">Keluhan
-                                        Pasien</label>
-                                    <p id="keluhan_pasien" class="text-slate-700 font-bold italic">""</p>
-                                </div>
-                                <div>
-                                    <label
-                                        class="block text-xs font-black text-blue-600 uppercase tracking-wider mb-1">Tensi
-                                        Darah</label>
-                                    <p id="tensi_darah" class="text-slate-700 font-bold">- </p>
-                                </div>
-                            </div>
-
-                            <hr class="border-dashed border-slate-200">
-
-                            <div class="">
-                                {{-- Input Diagnosa --}}
-                                <div>
-                                    <label
-                                        class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Diagnosa
-                                        Medis</label>
-                                    <textarea name="diagnosa" id="diagnosa" required rows="3" readonly
-                                        class="w-full p-2 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all"
-                                        placeholder="Tuliskan hasil diagnosa dokter di sini..."></textarea>
-                                </div>
-
-                                {{-- Input Tindakan --}}
-                                <div>
-                                    <label
-                                        class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Tindakan
-                                        /
-                                        Terapi</label>
-                                    <textarea name="tindakan" id="tindakan" required rows="3" readonly
-                                        class="w-full p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all"
-                                        placeholder="Tuliskan tindakan atau obat yang diberikan..."></textarea>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- input resep obat -->
-                        <div class="">
-                            <label class="block text-sm font-black text-slate-700 mb-2 uppercase tracking-wide">Resep
-                                Obat</label>
-                            <div class="mt-2" id="obatArea">
-                                {{-- obat area --}}
-                                <div class="flex justify-between items-center  gap-4">
-                                    <select name="resep_obat[]" id="resep_obat[]"
-                                        class="w-full text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
-                                        <option value="" disabled selected>Pilih Obat...</option>
-                                        @foreach ($obats as $obat)
-                                            <option value="{{ $obat->kode_obat }}">{{ $obat->nama_obat }} - Stok:
-                                                {{ $obat->stok_apotek }}</option>
-                                        @endforeach
-                                    </select>
-                                    <input type="number" name="qty[]" id="qty[]" min="1" placeholder="Qty"
-                                        value="1"
-                                        class=" w-[30%] text-sm font-black text-slate-700 p-4 border border-slate-300 rounded-xl focus:ring-4 focus:ring-blue-600/20 focus:border-blue-600 outline-none transition-all">
-                                    <button type="button"
-                                        class="removeObatBtn px-4 py-2 rounded-lg text-red-600 transition-colors">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <button type="button" id="tambahObatBtn" onclick="tambahAreaObat()"
-                                class="mt-2 px-4 py-2  text-blue-400 hover:underline hover:underline-offset-2 hover:text-blue-600 transition-colors">
-                                <i class="fas fa-plus mr-2"></i> Tambah Obat Lain
-                            </button>
-                        </div>
+                <div class="flex justify-between items-center mt-10 border-t pt-6">
+                    <div class="text-2xl font-black text-slate-800 uppercase">
+                        Total: <span class="text-emerald-600">Rp. <span id="totalHarga">0</span></span>
                     </div>
-
-                    {{-- Tombol Aksi --}}
-                    <div class="flex justify-end gap-4 pt-6 p-4">
-                        <button type="button" onclick="closeModal()"
-                            class="px-8 py-3 bg-slate-500 text-white rounded-xl font-black uppercase hover:bg-slate-600 transition-all shadow-lg">
-                            Batal
-                        </button>
-                        <button type="submit" id="bayarObat" onclick="bayarOrderResep()"
-                            class="px-10 py-3 bg-green-600 text-white rounded-xl font-black uppercase hover:bg-green-700 shadow-xl shadow-green-200 transition-all transform hover:-translate-y-1">
-                            <i class="fa-solid fa-money-bill-1 mr-2"></i> Buat dan Bayar Resep (Rp. <span
-                                id="totalHarga">0</span>)
+                    <div class="flex gap-4">
+                        <button type="button" onclick="closeModal()" class="px-8 py-3 bg-slate-200 text-slate-700 rounded-xl font-black uppercase">Batal</button>
+                        <button type="submit" class="px-10 py-3 bg-emerald-600 text-white rounded-xl font-black uppercase shadow-lg hover:bg-emerald-700 transition-all">
+                            Bayar & Selesaikan
                         </button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <script>
-            const obats = @json($obats);
-            const rekamMedis = @json($rekamMedis);
-            const resepMasuk = @json($resepMasuks);
-            
-            // siapkan data obat dari rekam medis
-            
-            /* ==============================
-            HITUNG TOTAL HARGA
-            ============================== */
-            function hitungTotalHarga() {
-                let total = 0;
+    <script>
+        const obats = @json($obats);
+        const rekamMedis = @json($rekamMedis);
+        const resepMasuk = @json($resepMasuks);
 
-                // resep lama
-                document.querySelectorAll('select[name="resep_obat[]"]').forEach((select, i) => {
-                    const qtyInput = document.querySelectorAll('input[name="qty[]"]')[i];
-                    const qty = parseInt(qtyInput?.value || 0);
-                    const obat = obats.find(o => o.kode_obat === select.value);
-                    if (obat) total += obat.harga_jual * qty;
+        function openJualModal(rekamMedisId) {
+            const data = rekamMedis.find(r => r.id === rekamMedisId);
+            if (!data) return;
+
+            document.getElementById('modalJualObat').classList.remove('hidden');
+            document.getElementById('nama_pasien').innerText = data.pendaftaran_klinik.member.nama_lengkap;
+            document.getElementById('no_reg').innerText = data.pendaftaran_klinik.no_registrasi;
+            document.getElementById('diagnosa').value = data.diagnosa;
+            document.getElementById('tindakan').value = data.tindakan;
+            document.getElementById('input_member_id').value = data.pendaftaran_klinik.member_id;
+            document.getElementById('input_pendaftaran_id').value = data.pendaftaran_klinik.id;
+
+            const obatArea = document.getElementById('obatArea');
+            obatArea.innerHTML = '';
+
+            const resep = resepMasuk.find(r => r.pendaftaran_klinik_id === data.pendaftaran_klinik.id);
+            if (resep) {
+                const items = JSON.parse(resep.order_body);
+                items.forEach(item => {
+                    // Mendeteksi apakah item menggunakan index [0] (kode) atau [1] (nama)
+                    const kodeObat = item[0] ?? item.kode_obat;
+                    const qty = item[2] ?? item.qty;
+                    tambahAreaObat(kodeObat, qty);
                 });
-
-                document.getElementById('totalHarga').innerText =
-                    new Intl.NumberFormat('id-ID').format(total);
-                document.getElementById('nominal').value = total;
             }
+            hitungTotalHarga();
+        }
 
-            /* ==============================
-            EVENT DELEGATION (DINAMIS)
-            ============================== */
-            document.getElementById('obatArea').addEventListener('input', function(e) {
-                if (
-                    e.target.matches(
-                        'select[name="resep_obat[]"], input[name="qty[]"], ' +
-                        'select[name="resep_obat_new[]"], input[name="qty_new[]"]'
-                    )
-                ) {
-                    hitungTotalHarga();
+        function tambahAreaObat(kode = '', qty = 1) {
+            const obatArea = document.getElementById('obatArea');
+            const div = document.createElement('div');
+            div.className = 'flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200';
+            
+            let options = '<option value="">Pilih Obat...</option>';
+            obats.forEach(o => {
+                const selected = o.kode_obat == kode ? 'selected' : '';
+                options += `<option value="${o.kode_obat}" ${selected}>${o.nama_obat} (Stok: ${o.stok_apotek})</option>`;
+            });
+
+            div.innerHTML = `
+                <select name="resep_obat[]" onchange="hitungTotalHarga()" class="flex-1 p-2 rounded-lg border-none font-bold text-sm bg-transparent outline-none">
+                    ${options}
+                </select>
+                <input type="number" name="qty[]" value="${qty}" oninput="hitungTotalHarga()" class="w-20 p-2 rounded-lg border-none font-bold text-center bg-white shadow-sm" min="1">
+                <button type="button" onclick="this.parentElement.remove(); hitungTotalHarga();" class="text-red-500 px-2">
+                    <i class="fas fa-times-circle"></i>
+                </button>
+            `;
+            obatArea.appendChild(div);
+            hitungTotalHarga();
+        }
+
+        function hitungTotalHarga() {
+            let total = 0;
+            const selects = document.querySelectorAll('select[name="resep_obat[]"]');
+            const qtys = document.querySelectorAll('input[name="qty[]"]');
+
+            selects.forEach((select, i) => {
+                const obat = obats.find(o => o.kode_obat == select.value);
+                if (obat) {
+                    total += obat.harga_jual * (qtys[i].value || 0);
                 }
             });
 
-            /* ==============================
-            BUKA MODAL JUAL OBAT
-            ============================== */
-            function openJualModal(id) {
-                const data = rekamMedis.find(r => r.id === id);
-                if (!data) return;
+            document.getElementById('totalHarga').innerText = new Intl.NumberFormat('id-ID').format(total);
+        }
 
-                document.getElementById('modalJualObat').classList.remove('hidden');
-
-                document.getElementById('nama_pasien').innerText =
-                    data.pendaftaran_klinik.member.nama_lengkap;
-
-                document.getElementById('no_reg').innerText =
-                    data.pendaftaran_klinik.no_registrasi;
-
-                document.getElementById('keluhan_pasien').innerText =
-                    `"${data.pendaftaran_klinik.keluhan}"`;
-
-                document.getElementById('tensi_darah').innerText =
-                    data.pendaftaran_klinik.tensi ?? '-';
-
-                document.getElementById('diagnosa').value = data.diagnosa;
-                document.getElementById('tindakan').value = data.tindakan;
-
-                document.querySelector('input[name="member_id"]').value =
-                    data.pendaftaran_klinik.member_id;
-                document.querySelector('input[name="pendaftaran_klinik_id"]').value =
-                    data.pendaftaran_klinik.id;
-
-                const obatArea = document.getElementById('obatArea');
-                obatArea.innerHTML = '';
-
-                const resep = resepMasuk.find(r => r.pendaftaran_klinik_id === data.pendaftaran_klinik.id);
-                if (!resep) return;
-                const dataObat = JSON.parse(resep.order_body).map(item => {
-                    const obat = obats.find(o => o.nama_obat === item[0]);
-                    return {
-                        obat: item[0],
-                        nama: item[1],
-                        qty: item[2]
-                    };
-                });
-                console.log(dataObat);
-                dataObat.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'flex justify-between items-center gap-4 mt-4';
-
-                    div.innerHTML = `
-                        <select name="resep_obat[]" class="w-full p-4 border rounded-xl font-bold">
-                            <option disabled>Pilih Obat...</option>
-                            @foreach ($obats as $obat)
-                                <option value="{{ $obat->kode_obat }}"
-                                    ${item.kode_obat === '{{ $obat->kode_obat }}' ? 'selected' : ''}>
-                                    {{ $obat->nama_obat }} - Stok: {{ $obat->stok_apotek }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <input type="number" name="qty[]" min="1"
-                            value="${item.qty}"
-                            class="w-[30%] p-4 border rounded-xl font-bold">
-
-                        <button type="button" class="removeObatBtn text-red-600">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    `;
-
-                    div.querySelector('.removeObatBtn').addEventListener('click', () => {
-                        div.remove();
-                        hitungTotalHarga();
-                    });
-
-                    obatArea.appendChild(div);
-                });
-
-                // hitung ulang saat modal dibuka
-                hitungTotalHarga();
-            }
-
-            document.getElementById('resep_obat').addEventListener('change', hitungTotalHarga);
-            document.getElementById('qty').addEventListener('input', hitungTotalHarga);
-
-            /* ==============================
-            TAMBAH OBAT BARU
-            ============================== */
-            function tambahAreaObat() {
-                const obatArea = document.getElementById('obatArea');
-                const div = document.createElement('div');
-
-                div.className = 'flex justify-between items-center gap-4 mt-4';
-
-                div.innerHTML = `
-                    <select name="resep_obat[]" class="w-full p-4 border rounded-xl font-bold">
-                        <option disabled selected>Pilih Obat...</option>
-                        @foreach ($obats as $obat)
-                            <option value="{{ $obat->kode_obat }}">
-                                {{ $obat->nama_obat }} - Stok: {{ $obat->stok_apotek }}
-                            </option>
-                        @endforeach
-                    </select>
-
-                    <input type="number" name="qty[]" min="1" value="1"
-                        class="w-[30%] p-4 border rounded-xl font-bold">
-
-                    <button type="button" class="removeObatBtn text-red-600">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                `;
-
-                div.querySelector('.removeObatBtn').addEventListener('click', () => {
-                    div.remove();
-                    hitungTotalHarga();
-                });
-
-                obatArea.appendChild(div);
-                hitungTotalHarga();
-            }
-
-            /* ==============================
-            TUTUP MODAL
-            ============================== */
-            function closeModal() {
-                document.getElementById('modalJualObat').classList.add('hidden');
-            }
-        </script>
-
-    @endsection
+        function closeModal() {
+            document.getElementById('modalJualObat').classList.add('hidden');
+        }
+    </script>
+@endsection

@@ -8,16 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Obat;
+use App\Models\orderObat;
 use App\Models\RekamMedis;
 use App\Services\AccountingService; 
 use App\Models\TransaksiFaskes;
-use App\Models\Account; // Pastikan Model Account diimport
+use App\Models\Account;
 
 class KlinikController extends Controller
 {
     /**
      * Menampilkan daftar antrian pasien.
-     * Saya hapus filter tanggal agar 120 row lama Mas tetap muncul semua.
+     * OrderBy desc agar yang paling baru muncul di paling atas (mengatasi masalah data "ngumpet").
      */
     public function index()
     {
@@ -35,7 +36,7 @@ class KlinikController extends Controller
 
     /**
      * PROSES DAFTAR PASIEN
-     * Solusi Error 1452: Mencari ID Akun berdasarkan Kode Akun
+     * Memperbaiki error 1452 dengan mencari ID Akun berdasarkan Kode Akun.
      */
     public function store(Request $request)
     {
@@ -51,14 +52,12 @@ class KlinikController extends Controller
 
             DB::transaction(function () use ($request, $noReg, $biayaDaftar) {
                 
-                // 1. CARI ID ASLI DARI KODE AKUN (PENTING!)
-                // Kita cari row di tabel accounts yang kode_akun-nya '1101' dan '4102'
+                // 1. Cari ID Akun (PENTING: Agar tidak error Foreign Key)
                 $akunKas = Account::where('kode_akun', '1101')->first();
                 $akunPendapatan = Account::where('kode_akun', '4102')->first();
 
-                // Cek apakah akunnya ada di database Mas
                 if (!$akunKas || !$akunPendapatan) {
-                    throw new \Exception("Gagal Jurnal: Kode Akun 1101 (Kas) atau 4102 (Pendapatan) tidak ditemukan di Master Akun. Silakan buat dulu di menu Akuntansi.");
+                    throw new \Exception("Akun 1101 atau 4102 belum ada di Master Akun!");
                 }
 
                 // 2. Simpan Pendaftaran
@@ -71,22 +70,31 @@ class KlinikController extends Controller
                     'status'        => 'antri'
                 ]);
 
-                // 3. Catat Jurnal menggunakan ID (Bukan Kode)
-                // Kita masukkan $akunKas->id, bukan angka 1101
-                AccountingService::catatJurnal($akunKas->id, $biayaDaftar, "PENDAFTARAN PASIEN: " . $pendaftaran->member->nama_lengkap, 'debit');
-                AccountingService::catatJurnal($akunPendapatan->id, $biayaDaftar, "PENDAPATAN PENDAFTARAN KLINIK", 'kredit');
+                // 3. Jurnal menggunakan catatJurnal sesuai AccountingService.php
+                AccountingService::catatJurnal($akunKas->id, $biayaDaftar, "PENDAFTARAN: " . $pendaftaran->member->nama_lengkap, 'debit');
+                AccountingService::catatJurnal($akunPendapatan->id, $biayaDaftar, "PENDAPATAN DAFTAR: " . $noReg, 'kredit');
             });
 
-            return redirect()->route('klinik.index')->with('success', 'Pasien berhasil didaftarkan ke antrian!');
+            return redirect()->route('klinik.index')->with('success', 'Pasien berhasil didaftarkan!');
 
         } catch (\Exception $e) {
-            // Jika gagal, Mas akan melihat pesan error spesifik di layar (Bukan sekedar berkedip)
-            return back()->with('error', 'Gagal Simpan: ' . $e->getMessage())->withInput();
+            return back()->with('error', 'Gagal Daftar: ' . $e->getMessage())->withInput();
         }
     }
 
     /**
-     * PROSES SIMPAN TINDAKAN (REKAM MEDIS)
+     * Form Input EMR
+     */
+    public function periksa($id)
+    {
+        $pasien = PendaftaranKlinik::with('member')->findOrFail($id);
+        $obats = Obat::where('stok_apotek', '>', 0)->get();
+        return view('klinik.emr_input', compact('pasien', 'obats'));
+    }
+
+    /**
+     * PROSES SIMPAN REKAM MEDIS
+     * Diperbaiki agar tidak "berkedip" dengan mengambil data member dari Database (bukan request).
      */
     public function simpanTindakan(Request $request, $id) 
     {
@@ -100,79 +108,102 @@ class KlinikController extends Controller
 
         try {
             DB::transaction(function () use ($request, $id) {
+                // 1. Ambil data pendaftaran & pasien (PENTING: Jangan ambil member_id dari request!)
                 $pendaftaran = PendaftaranKlinik::findOrFail($id);
-                $member = Member::find($pendaftaran->member_id);
+                $member = $pendaftaran->member;
 
+                if (!$member) {
+                    throw new \Exception("Data Member tidak ditemukan untuk pendaftaran ini.");
+                }
+
+                // 2. Olah Resep
+                $resepNames = [];
                 $resepItems = [];
-                $resepNarasi = [];
+                $nominalObat = 0;
 
                 if ($request->resep_obat) {
-                    foreach ($request->resep_obat as $index => $kode_obat) {
-                        if ($kode_obat) {
-                            $obat = Obat::where('kode_obat', $kode_obat)->first();
-                            $qty = $request->qty[$index];
-                            $resepNarasi[] = $obat->nama_obat . " (" . $qty . ")";
+                    foreach ($request->resep_obat as $index => $kode) {
+                        if ($kode) {
+                            $obat = Obat::where('kode_obat', $kode)->first();
+                            $qty = $request->qty[$index] ?? 1;
                             
+                            $resepNames[] = $obat->nama_obat . " (" . $qty . ")";
                             $resepItems[] = [
-                                'obat_id'    => $obat->id,
                                 'kode_obat'  => $obat->kode_obat,
                                 'nama_obat'  => $obat->nama_obat,
                                 'qty'        => $qty,
-                                'harga_jual' => $obat->harga_jual,
-                                'subtotal'   => $obat->harga_jual * $qty
+                                'harga'      => $obat->harga_jual
                             ];
+                            $nominalObat += $obat->harga_jual * $qty;
                         }
                     }
                 }
 
-                // Simpan Rekam Medis
+                // 3. Simpan Rekam Medis
                 DB::table('rekam_medis')->insert([
                     'pendaftaran_id' => $id,
                     'diagnosa'       => $request->diagnosa,
                     'tindakan'       => $request->tindakan,
-                    'resep_obat'     => count($resepNarasi) > 0 ? implode(', ', $resepNarasi) : null,
-                    'order_data'     => count($resepItems) > 0 ? json_encode($resepItems) : null,
-                    'status_resep'   => count($resepItems) > 0 ? 'pending' : 'none',
+                    'resep_obat'     => count($resepNames) > 0 ? implode(', ', $resepNames) : null,
                     'created_at'     => now(),
                     'updated_at'     => now()
                 ]);
 
-                // Buat Transaksi Faskes (Jasa Medis)
+                // 4. Buat Transaksi Faskes (Klinik)
                 TransaksiFaskes::create([
                     'kode_transaksi'   => 'INV-KLK-' . date('YmdHis'),
                     'tanggal'          => now()->toDateString(),
                     'member_id'        => $pendaftaran->member_id,
-                    'user_id'          => auth()->user()->id,
+                    'user_id'          => auth()->id(),
                     'nama'             => $member->nama_lengkap,
                     'COA'              => 'Klinik',
                     'status'           => 'open',
                     'Debit/Credit'     => 'Credit',
                     'Nominal'          => $request->biaya_tindakan,
-                    'Keterangan'       => 'Jasa Medis: ' . $pendaftaran->no_registrasi,
+                    'Keterangan'       => 'Biaya tindakan klinik: ' . $pendaftaran->no_registrasi,
                     'kode_pendaftaran' => $pendaftaran->no_registrasi,
                     'created_at'       => now(),
+                    'updated_at'       => now(),
                 ]);
 
+                // 5. Parkir ke Tabel orderObat (Untuk Apotek)
+                if (count($resepItems) > 0) {
+                    orderObat::create([
+                        'pendaftaran_klinik_id' => $id,
+                        'tanggal_order'         => now()->toDateString(),
+                        'member_id'             => $pendaftaran->member_id,
+                        'user_id'               => auth()->id(),
+                        'order_body'            => json_encode($resepItems),
+                        'nominal'               => $nominalObat,
+                        'status'                => 'belum',
+                    ]);
+                }
+
+                // 6. Selesaikan Antrian
                 $pendaftaran->update(['status' => 'selesai']);
             });
 
-            return redirect()->route('klinik.index')->with('success', 'Rekam Medis Berhasil Disimpan!');
+            return redirect()->route('klinik.index')->with('success', 'Pemeriksaan Selesai & Resep Terkirim!');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal Simpan Tindakan: ' . $e->getMessage());
+            // Jika error, Mas akan melihat tulisan errornya di layar, tidak berkedip doang.
+            return back()->with('error', 'Gagal Simpan EMR: ' . $e->getMessage())->withInput();
         }
-    }
-
-    public function periksa($id)
-    {
-        $pasien = PendaftaranKlinik::with('member')->findOrFail($id);
-        $obats = Obat::where('stok_apotek', '>', 0)->get();
-        return view('klinik.emr_input', compact('pasien', 'obats'));
     }
 
     public function show($id)
     {
         $data = PendaftaranKlinik::with(['member', 'rekamMedis'])->findOrFail($id);
         return view('klinik.emr_detail', compact('data'));
+    }
+
+    public function bayar($kode_transaksi) {
+        $transaksi = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->firstOrFail();
+        $transaksi->update([
+            'status'       => 'closed',
+            'updated_at'   => now(),
+            'Debit/Credit' => 'Debit'
+        ]);
+        return redirect()->route('klinik.index')->with('success', 'Pembayaran Berhasil!');
     }
 }
