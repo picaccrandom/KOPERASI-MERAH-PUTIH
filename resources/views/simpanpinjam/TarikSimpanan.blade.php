@@ -4,14 +4,14 @@
     {{-- @php
         dd($SimpanansPokok);
     @endphp --}}
-    <div class="bg-white/40 backdrop-blur-2xl mx-14 py-8 px-24 rounded-2xl">
+    <div class="bg-teal-900/40 backdrop-blur-2xl mx-14 py-8 px-24 rounded-2xl">
 
-        <div class="mb-10 border-l-8 border-green-600 pl-4">
+        <div class="mb-10 border-l-8 border-teal-400 pl-4">
             <h1 class="fw-bolder text-shadow-lg text-white uppercase tracking-wider">Formulir <span
-                    class="bg-orange-400 px-2 rounded-md">Penarikan Simpanan</span></h1>
+                    class="bg-teal-400 px-2 rounded-md">Penarikan Simpanan</span></h1>
             <hr class="my-0 mb-2">
-            <p class="pl-1 text-slate-600">Isi dengan cermat sesuai format dan ketentuan <span
-                    class="text-orange-400 font-semibold">Penarikan Simpanan !</span></p>
+            <p class="pl-1 text-white">Isi dengan cermat sesuai format dan ketentuan <span
+                    class="text-teal-400 font-semibold">Penarikan Simpanan !</span></p>
 
         </div>
         <form action="{{ route('simpanan.reduce') }}" method="POST" id="form-pinjaman"
@@ -31,7 +31,7 @@
 
                         <div>
                             <label class="mb-1 ">Saldo Simpanan Sukarela</label>
-                            <input type="text" class="w-full px-3 py-2 cursor-not-allowed text-slate-400 roundedtext-sm"
+                            <input type="text" class="w-full px-3 py-2 cursor-not-allowed text-green-500 text-2xl font-bold rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                 placeholder="Saldo Sukarela" name="saldo-sukarela" id="saldo-sukarela" disabled value="Rp. 0">
                         </div>
                     </div>
@@ -89,6 +89,7 @@
             this.value = this.value.replace(/[^\d]/g, '');
         });
 
+
         function formatRupiah(angka) {
             angka = angka.replace(/[^\d]/g, '');
             if (angka === '') return '';
@@ -119,7 +120,13 @@
                 filtered.forEach(m => {
                     const option = document.createElement('a');
                     option.classList.add('dropdown-item', 'cursor-pointer');
-                    option.textContent = `${m.nik} - ${m.nama_lengkap}`;
+                    option.innerHTML = `<div class="d-flex justify-content-between align-items-center">
+                                            <div style="line-height: 1.2;">
+                                                <small class="text-danger fw-bold d-block">${m.nik}</small>
+                                                <strong class="text-dark text-uppercase font-black" style="font-size: 1rem;">${m.nama_lengkap}</strong>
+                                            </div>
+                                            <i class="fas fa-user-plus text-muted fa-lg"></i>
+                                        </div>`;
                     
                     option.addEventListener('click', function() {
                         document.getElementById('search-member').value = m.nama_lengkap;
@@ -128,7 +135,7 @@
                         // Set saldo sukarela
                         const simpanan = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.saldo), 0);
                         const saldo = simpanan ? simpanan : 0;
-                        saldoSukarelaInput.value = 'Rp. ' + saldo;
+                        saldoSukarelaInput.value = 'Rp. ' + formatRupiah(saldo.toString());
                         nominalInput.placeholder = 'Maksimal: ' + saldo;
                     });
                     dropdown.appendChild(option);

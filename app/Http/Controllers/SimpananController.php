@@ -23,6 +23,13 @@ class SimpananController extends Controller
             ->whereIn('COA', ['Simpan', 'Tarik'])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // cek berkala status dan ubah menjadi aktif/nonaktif berdasarkan adanya simpanan di tiap 3 bulan
+        foreach ($simpanans as $simpanan) {
+            $hasSimpanan = SimpananDetail::where('no_transaksi_sp', $simpanan->no_transaksi_sp)->whereMonth('created_at', '>=', now()->subMonths(3))->exists();
+            $simpanan->status = $hasSimpanan ? 'aktif' : 'nonaktif';
+        }
+        
         return view('simpanpinjam.simpanan', compact('simpanans', 'members'));
     }
 
@@ -32,6 +39,7 @@ class SimpananController extends Controller
     public function create()
     {
         $members = Member::all();
+        // cek simpanan pokok dan wajib yang sudah ada
         $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK') 
             ->whereHas('transaksiSP', function ($q) {
                 $q->whereNotNull('member_id');
@@ -43,8 +51,21 @@ class SimpananController extends Controller
                     'member_id' => $item->transaksiSP->member_id
                 ];
             });
-            
-        return view('simpanpinjam.simpanan-create', compact('members', 'SimpanansPokok'));
+        // cek simpanan wajib yang sudah ada dibulan ini
+        $SimpanansWajib = SimpananDetail::where('jenis', 'WAJIB') 
+            ->whereHas('transaksiSP', function ($q) {
+                $q->whereNotNull('member_id');
+            })
+            ->whereMonth('tanggal', date('m'))
+            ->whereYear('tanggal', date('Y'))
+            ->with('transaksiSP')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'member_id' => $item->transaksiSP->member_id
+                ];
+            });
+        return view('simpanpinjam.simpanan-create', compact('members', 'SimpanansPokok', 'SimpanansWajib'));
     }
 
     /**
@@ -164,7 +185,7 @@ class SimpananController extends Controller
             //     "Penarikan Simpanan - " . $namaMember->nama_lengkap,
             //     $transaksi->no_transaksi_sp,
             //     (float)$request->nominal, 0,
-            //     '2101'
+            //     '2101'   
             // );
 
             // // KREDIT: Kas Koperasi Berkurang
@@ -195,7 +216,10 @@ class SimpananController extends Controller
     {
         if (request()->wantsJson() || request()->expectsJson()) {
             $member = Member::findOrFail($id);
-            $total_simpanan = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
+            $total_simpanan_sukarela = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
+                $q->where('member_id', $id)->where('jenis','sukarela');
+            })->sum('saldo');
+            $total_simpanan_all = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
                 $q->where('member_id', $id);
             })->sum('saldo');
             $status = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
@@ -205,7 +229,8 @@ class SimpananController extends Controller
             return response()->json([
                 'member' => $member,
                 'status' => $status,
-                'total_simpanan' => $total_simpanan,
+                'total_simpanan_all' => $total_simpanan_all,
+                'total_simpanan_sukarela' => $total_simpanan_sukarela,
             ]);
         }
     }

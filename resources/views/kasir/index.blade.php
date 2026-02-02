@@ -3,41 +3,6 @@
 @section('content')
 <style>
     /* =========================================
-       1. DROPDOWN STYLING (BARANG & ANGGOTA)
-       ========================================= */
-    #dropdown-member, #dropdown-barang {
-        background-color: white !important;
-        border: 2px solid #dc3545 !important;
-        border-radius: 12px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        z-index: 2000 !important;
-        padding: 0;
-        overflow: hidden;
-    }
-
-    .dropdown-item {
-        background-color: white !important;
-        color: #1a1a1a !important;
-        border-bottom: 1px solid #eee;
-        padding: 15px !important;
-        transition: all 0.2s ease;
-    }
-
-    .dropdown-item:hover {
-        background-color: #fff5f5 !important;
-        color: #dc3545 !important;
-    }
-
-    #dropdown-barang {
-        border-color: #198754 !important;
-    }
-
-    #dropdown-barang .dropdown-item:hover {
-        background-color: #f0fff4 !important;
-        color: #198754 !important;
-    }
-
-    /* =========================================
        2. PANEL PEMBAYARAN STYLING (PERCANTIK)
        ========================================= */
     .payment-card {
@@ -515,8 +480,8 @@
         document.getElementById('bon_pay').classList.remove('hidden');
     });
 
-document.getElementById('kategori_no').addEventListener('change', () => {
-    document.querySelector('.nik-form').classList.add('hidden');
+    document.getElementById('kategori_no').addEventListener('change', () => {
+        document.querySelector('.nik-form').classList.add('hidden');
         document.getElementById('member_id').value = '';
         document.getElementById('kategori').value = 'reguler';
         inputNik.value = '';

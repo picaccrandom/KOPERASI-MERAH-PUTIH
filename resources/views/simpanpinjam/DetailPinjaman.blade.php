@@ -1,20 +1,29 @@
 @extends('layouts.master')
+
 @section('title', 'Detail Pinjaman')
 
 @section('content')
 
-    <div class="relative bg-white/40 backdrop-blur-2xl rounded-lg mx-12 p-12">
-        <div class="border-l-8 border-l-green-400 pl-4 mb-8">
-            <div class="border-b-2 pb-2 mb-2 border-b-slate-500 inline-block text-4xl font-bold text-white uppercase shadow-sm">
-                Detail <span class="px-1 bg-black text-white rounded-md shadow-md">Pinjaman & Angsuran</span>
+    <div class="relative bg-orange-900/40 backdrop-blur-2xl rounded-lg mx-12 p-12">
+        <div class="border-l-8 border-l-orange-400 pl-4 mb-8">
+            <div class=" text-white flex flex-col gap-3 ">
+               <span class="uppercase text-4xl"> Detail <span class="px-2 bg-orange-400 rounded-md shadow-md font-bold">Pinjaman & Angsuran</span></span> 
+                <p class="italic text-base">Pastikan data di bawah ini benar dan sesuai dengan data anggota !</p>
             </div>
         </div>
 
         <div class="bg-white rounded-lg shadow-lg px-14 py-8">
+            <div class="pl-6">
+                {{-- Info Pinjaman & Anggota --}}
+                <span class="text-2xl uppercase font-bold text-gray-800 mb-4">
+                    <i class="fa-solid fa-circle-user mr-4"></i>
+                    Informasi Pinjaman & Anggota
+                </span>
+            </div>
             <div class="p-6">
-            
+                
                 <!-- Info Anggota -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 bg-slate-400/20 p-6 rounded-lg">
                     <div class="space-y-3">
                         <div>
                             <p class="text-sm text-gray-500">KODE PINJAMAN</p>
@@ -65,13 +74,14 @@
                 </div>
                 
                 <!-- Alamat -->
-                <div class="mb-6 p-4 bg-gray-50 rounded">
+                <div class="mb-6 p-4 bg-gray-100 rounded">
                     <p class="text-sm text-gray-500 mb-1">ALAMAT</p>
                     <p class="text-gray-800">{{ $transaksiInduk->member->alamat }}</p>
                 </div>
                 <div class="mb-4">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="text-lg font-bold text-gray-800">Rincian Angsuran</h4>
+                    <div class="flex justify-start items-center uppercase  text-2xl mb-4 font-semibold">
+                        <i class="fa-solid fa-table-list mr-2"></i>
+                        <span class="text-lg font-bold text-gray-800">Rincian Angsuran</span>
                     </div>
 
                     <div class="overflow-x-auto max-h-64 relative border rounded" id="rincian-angsuran">
@@ -112,7 +122,10 @@
                     </div>
                 </div>
             </div>
-            <a href="{{ route('pinjaman.index') }}" class="text-decoration-none mt-4 inline-block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">Kembali</a>
+            <a href="{{ route('pinjaman.index') }}" class="text-decoration-none group mt-4 inline-block px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition">
+                <i class="fa-solid fa-angles-left mr-1 group-hover:mr-2"></i>
+                Kembali
+            </a>
         </div>
     </div>
 @endsection
@@ -120,6 +133,29 @@
 @section('scripts')
 <script>
 
+    // cegah melewati angsuran pertama
+    document.addEventListener('DOMContentLoaded', () => {
+        const rincianAngsuran = document.getElementById('rincian-angsuran');
+        const rows = rincianAngsuran.querySelectorAll('tbody tr');
+        let firstUnpaidFound = false;
+    
+        rows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(5)');
+            if (statusCell && statusCell.textContent.trim() === 'BELUM') {
+                if (!firstUnpaidFound) {
+                    firstUnpaidFound = true;
+                } else {
+                    // Disable bayar button untuk angsuran setelah yang pertama belum dibayar
+                    const bayarButton = row.querySelector('button');
+                    if (bayarButton) {
+                        bayarButton.disabled = true;
+                        bayarButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    }
+                }
+            }
+        });
+    }); 
+    
     // Fungsi Bayar
     function bayarAngsuran(angsuranId, angsuranKe, memberId) {
         swal.fire({

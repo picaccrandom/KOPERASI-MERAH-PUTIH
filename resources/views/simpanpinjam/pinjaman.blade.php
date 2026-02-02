@@ -4,23 +4,23 @@
 
 @section('content')
     {{-- @php
-        dd($peminjamans)
+        dd($allPeminjamans)
     @endphp --}}
-    <div class="mx-12  px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
+    <div class="mx-12  px-4 bg-orange-900/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
         <div class="mb-2 flex justify-between items-center">
             <div class=" px-6 py-2  flex justify-between items-center">
-                <div class="border-l-8 border-l-red-600 pl-4">
-                    <div
-                        class=" text-white text-5xl text-shadow-md text-shadow-red-300 uppercase font-extrabold tracking-wider">
-                        Pinjaman</div>
+                <div class="border-l-8 border-l-orange-400 pl-4 flex flex-col justify-center items-start gap-3">
+                    <span class=" text-white text-5xl  uppercase font-semibold">
+                        Layanan <span class="bg-orange-400 text-white px-2 py-1 rounded-xl shadow-md">PEMINJAMAN</span></span>
+                    <p class="italic text-white">Dashboard Layanan Peminjaman Koperasi Merah Putih</p>
                 </div>
             </div>
             <div class="flex justify-center items-center ">
                 <a type="a" href="{{ route('pinjaman.create') }}"
-                    class="w-full h-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex justify-center items-center  text-decoration-none shadow-md text-lg uppercase font-semibold">
-                    <i class="fas fa-plus mr-2"></i>
-                    Tambah Pinjaman
+                    class="w-full h-full px-4 py-2 bg-red-600 text-3xl hover:bg-red-700 text-white rounded flex justify-center items-center  text-decoration-none shadow-md  uppercase font-semibold">
+                    <i class="fa-solid fa-money-bill-transfer mr-6"></i>
+                    AJUKAN PEMINJAMAN
                 </a>
             </div>
 
@@ -30,24 +30,27 @@
             <div class="w-full flex flex-col  gap-4">
                 <section class="h-[80dvh] flex gap-2 mb-2" id="form-pencarian">
                     <div class="w-[30%] flex flex-col justify-center items-start gap-y-6">
-                        <div class="h-1/2 bg-white w-full  rounded-3xl overflow-hidden shadow-md">
+                        <div class="h-1/2 bg-white w-full  rounded-2xl overflow-hidden shadow-md">
                             {{-- Form Pencarian dan Filter akan ditempatkan di sini --}}
                             <label for="search-pinjaman"
-                                class="uppercase bg-black text-white text-center font-semibold w-full px-4 py-2.5">
-                                <i class="fas fa-search"></i>
+                                class="uppercase bg-black text-white font-semibold w-full px-4 py-2.5 flex justify-center items-center">
+                                <i class="fas fa-search mr-2"></i>
                                 Search Member
                             </label>
                             <div class="p-4 pt-10 flex flex-col w-full gap-y-6">
-                                <label for="" class="text-slate-400">Masukan Kode Pinjaman</label>
+                                <label for="" class="text-slate-600">Masukan Kode Pinjaman</label>
                                 <input type="text" id="search-pinjaman"
                                     class="w-full ml-4 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64"
-                                    placeholder="Masukkan Kode Pinjaman...">
+                                    placeholder="SP-P-312XXXX">
                                 <div class="dropdown-menu w-[20 %] text-base hidden" id="dropdown-member"></div>
                                 <a href="{{ route('pinjaman.index') }}"
-                                    class="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-decoration-none text-center font-semibold">Refresh</a>
+                                    class="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-decoration-none text-center font-semibold">
+                                    <i class="fa-solid fa-arrows-rotate mr-2"></i>
+                                    Refresh
+                                </a>
                             </div>
                         </div>
-                        <div class="h-1/2 bg-blue-50 border border-blue-200 rounded-lg p-4 hover:bg-blue-100 shadow-md">
+                        <div class="h-1/2 bg-blue-50 border border-blue-200 rounded-2xl p-4 hover:bg-blue-100 shadow-md">
                             {{-- Keterangan --}}
                             <div class="">
                                 <i class="fas fa-info-circle mr-2"></i>
@@ -60,7 +63,12 @@
                         </div>
                     </div>
                     <div
-                        class="bg-white w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
+                        class="bg-white w-full overflow-y-auto rounded-2xl border border-gray-200 overflow-hidden shadow-md">
+                        <div
+                            class="bg-orange-400 px-4 py-3 text-white font-semibold uppercase flex justify-start items-center">
+                            <i class="fa-solid fa-square-poll-horizontal text-2xl mr-3"></i>
+                            Panel Pencarian Pinjaman / Angsuran
+                        </div>
                         <div class="overflow-x-auto flex p-10 px-10">
                             <table class="text-center min-w-full space-y-4">
                                 <thead class="bg-orange-300">
@@ -75,7 +83,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="hidden">
-                                    @foreach ($peminjamans as $peminjaman)
+                                    @forelse ($peminjamans as $peminjaman)
                                         <tr class="pinjaman-row [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
                                             data-index="{{ $loop->index }}">
                                             <td class="font-medium">{{ $peminjaman->no_transaksi_sp }}</td>
@@ -139,7 +147,14 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-4xl text-slate-300 italic h-[28rem]">
+                                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                                Tidak ada data Pinjaman
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -148,14 +163,16 @@
                 <!-- Data Table -->
                 <hr>
                 <!--History Table -->
-                <div class="bg-white  w-full overflow-y-auto rounded-lg border border-gray-200 overflow-hidden shadow-md">
+                <div class="bg-white  w-full overflow-y-auto rounded-2xl border border-gray-200 overflow-hidden shadow-md">
 
-                    <div class="flex justify-between items-center mb-2 mt-2 px-8">
-                        <p class=" bg-slate-400 text-white font-semibold px-4 py-2 text-2xl rounded-md shadow-md mt-2">
-                            Histori Pinjaman</p>
+                    <div class="flex justify-between items-center bg-slate-400 px-4 py-3">
+                        <div class="  text-white font-semibold uppercase h-full flex justify-center items-center tracking-widest text-2xl ">
+                            <i class="fa-solid fa-table mr-3"></i>
+                            Histori Peminjaman Anggota
+                        </div>
                         <div class="relative">
-                            <input type="text" placeholder="Search..." id="search-pinjaman-history"
-                                class="pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
+                            <input type="text" placeholder="No Pinjaman / Nama ..." id="search-pinjaman-history"
+                                class="pl-10 pr-4 py-2 border bg-white text-slate-500 border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-[40rem]">
                             <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                         </div>
                     </div>
@@ -169,7 +186,6 @@
                                         <th>NAMA ANGGOTA</th>
                                         <th>TANGGAL PINJAM</th>
                                         <th>TOTAL PINJAMAN</th>
-                                        <th>JENIS</th>
                                         <th>LAMA BAYAR</th>
                                         <th>JATUH TEMPO</th>
                                         <th>ACTION</th>
@@ -177,9 +193,9 @@
                                 </thead>
                                 <tbody id="pinjaman-history">
                                     @foreach ($peminjamans as $peminjaman)
-                                        <tr class=" [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
+                                        <tr class=" [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 cursor-pointer" onclick="window.location='{{route('pinjaman.detail', $peminjaman->no_transaksi_sp)}}'"
                                             data-index="{{ $loop->index }}">
-                                            <td class="font-medium">{{ $loop->iteration }}</td>
+                                            <td class="font-medium">{{ $peminjaman->no_transaksi_sp }}</td>
                                             <td>
                                                 <div class="flex items-center">
                                                     <div>
@@ -193,15 +209,6 @@
                                             <td>{{ \Carbon\Carbon::parse($peminjaman->tanggal)->format('d F Y') }}</td>
                                             <td class="font-bold text-red-600 text-left text-sm">Rp.
                                                 {{ number_format($peminjaman->Nominal, 0, ',', '.') }}
-                                            </td>
-                                            <td>
-                                                @if ($peminjaman->COA == 'Pinjam')
-                                                    <span
-                                                        class="bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">Peminjaman</span>
-                                                @else
-                                                    <span
-                                                        class="bg-blue-600 text-white px-2 py-1 rounded text-xs font-semibold uppercase shadow-md">BON</span>
-                                                @endif
                                             </td>
                                             <td>
                                                 @if ($peminjaman->COA == 'Pinjam')
@@ -266,15 +273,18 @@
                 const kode = row.cells[0].textContent.toLowerCase();
                 const nama = row.cells[1].textContent.toLowerCase();
                 const tanggal = row.cells[2].textContent.toLowerCase();
-                const lamaBayar = row.cells[3].textContent.toLowerCase();
-                const jatuhTempo = row.cells[4].textContent.toLowerCase();
+                const total = row.cells[3].textContent.toLowerCase();
+                const lamabayar= row.cells[5].textContent.toLowerCase();
+                const jatuhTempo = row.cells[6].textContent.toLowerCase();
 
                 const match =
                     kode.includes(filter) ||
                     nama.includes(filter) ||
                     tanggal.includes(filter) ||
                     status.includes(filter) ||
-                    lamaBayar.includes(filter);
+                    total.includes(filter) ||
+                    lamabayar.includes(filter) ||
+                    jatuhTempo.includes(filter);
 
                 if (match) {
                     row.style.display = '';
