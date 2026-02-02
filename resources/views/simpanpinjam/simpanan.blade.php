@@ -3,7 +3,7 @@
 @section('title', 'Simpanan - Koperasi Merah Putih')
 
 @section('content')
-    <div class="mx-10 px-4 bg-teal-900/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
+    <div class="mx-10 bg-teal-900/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
         <div class="mb-2">
             <div class=" px-6 py-2  flex justify-between items-center">
@@ -33,7 +33,7 @@
             </div>
         </div>
         <hr class="m-0 p-0 mb-4">
-        <section class="h-[80dvh] flex gap-2 mb-2" id="form-pencarian">
+        <section class="h-[80dvh] px-4 flex gap-2 mb-2" id="form-pencarian">
             <div class="w-[20%] flex flex-col justify-center items-start gap-y-4">
                 <div class="h-1/2 w-full bg-white  rounded-3xl overflow-hidden shadow-md">
                     {{-- Form Pencarian dan Filter akan ditempatkan di sini --}}
@@ -166,66 +166,72 @@
                             </tr>
                         </thead>
                         <tbody class="min-h-full">
-                            @foreach ($simpanans as $simpanan)
-                                <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
-                                    <td class="font-medium">{{ $loop->iteration }}</td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="w-full">
-                                                <div class=" text-gray-900 font-semibold">
-                                                    {{ $simpanan->member->nama_lengkap }}
+                                @forelse ($simpanans as $simpanan)
+                                    <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
+                                        <td class="font-medium">{{ $loop->iteration }}</td>
+                                        <td>
+                                            <div class="flex items-center">
+                                                <div class="w-full">
+                                                    <div class=" text-gray-900 font-semibold">
+                                                        {{ $simpanan->member->nama_lengkap }}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
-                                            <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
-                                            @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
+                                        </td>
+                                        <td>
+                                            @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
                                                 <span
-                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
-                                                @else
+                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
+                                                @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
                                                     <span
-                                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
-                                        @endif
-                                        {{ $simpanan->simpananDetails->first()->jenis }}
-                                        </span>
-                                    </td>
-                                    <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
-                                    </td>
-                                    <td class="font-bold text-red-600">Rp
-                                        {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
-                                    <td>
-                                        @if ($simpanan->COA == 'Simpan')
-                                            <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
-                                                Masuk
+                                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
+                                                    @else
+                                                        <span
+                                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
+                                            @endif
+                                            {{ $simpanan->simpananDetails->first()->jenis }}
                                             </span>
-                                        @else
-                                            <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
-                                                Keluar
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="flex justify-center items-center gap-3">
-                                            <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
-                                                class="d-inline delete-form"
-                                                data-name="{{ $simpanan->member->nama_lengkap }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="text-red-600 hover:text-red-900 bg-transparent border-0"
-                                                    title="Hapus">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
+                                        </td>
+                                        <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
+                                        </td>
+                                        <td class="font-bold text-red-600">Rp
+                                            {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
+                                        <td>
+                                            @if ($simpanan->COA == 'Simpan')
+                                                <span
+                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
+                                                    Masuk
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
+                                                    Keluar
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="flex justify-center items-center gap-3">
+                                                <form action="{{ route('simpanan.destroy', $simpanan->id) }}"
+                                                    method="POST" class="d-inline delete-form"
+                                                    data-name="{{ $simpanan->member->nama_lengkap }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="text-red-600 hover:text-red-900 bg-transparent border-0"
+                                                        title="Hapus">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-4xl text-gray-500 italic">
+                                        <i class="fa-solid fa-money-bills mr-2"></i>
+                                        Tidak ada data Simpanan</td>
                                 </tr>
-                            @endforeach
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

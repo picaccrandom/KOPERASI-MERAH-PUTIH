@@ -4,7 +4,7 @@
 
 @section('content')
     {{-- @php
-        dd($peminjamans)
+        dd($allPeminjamans)
     @endphp --}}
     <div class="mx-12  px-4 bg-orange-900/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
@@ -83,7 +83,7 @@
                                     </tr>
                                 </thead>
                                 <tbody class="hidden">
-                                    @foreach ($peminjamans as $peminjaman)
+                                    @forelse ($peminjamans as $peminjaman)
                                         <tr class="pinjaman-row [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
                                             data-index="{{ $loop->index }}">
                                             <td class="font-medium">{{ $peminjaman->no_transaksi_sp }}</td>
@@ -147,7 +147,14 @@
                                                 </td>
                                             </tr>
                                         @endif
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-4xl text-slate-300 italic h-[28rem]">
+                                                <i class="fa-solid fa-credit-card mr-2"></i>
+                                                Tidak ada data Pinjaman
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>

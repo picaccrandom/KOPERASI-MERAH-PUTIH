@@ -8,6 +8,7 @@ use App\Models\KreditAnggota;
 use App\Models\AngsuranPeminjaman;
 use App\Models\Transaksi_SP;
 use App\Models\BonDetail;
+use App\Models\SimpananDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountingService; // Import Service Akuntansi
@@ -26,6 +27,14 @@ class PinjamanController extends Controller
             ->where('COA', 'Pinjam')
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // $allPeminjamans = SimpananDetail::select('simpanan_details.*', 'transaksi__s_p_s.COA as coa', 'transaksi__s_p_s.member_id')
+        //     ->Join('transaksi__s_p_s', 'simpanan_details.no_transaksi_sp', '=', 'transaksi__s_p_s.no_transaksi_sp')
+        //     ->Join('members', 'transaksi__s_p_s.member_id', '=', 'members.id')
+        //     ->whereIn('transaksi__s_p_s.COA', ['Pinjam', 'Angsuran'])
+        //     ->with('member')
+        //     ->orderBy('simpanan_details.created_at', 'desc')
+        //     ->get();
         return view('simpanpinjam.Pinjaman', compact('peminjamans'));
     }   
 
