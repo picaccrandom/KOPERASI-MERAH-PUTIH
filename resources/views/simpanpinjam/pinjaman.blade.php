@@ -12,7 +12,7 @@
             <div class=" px-6 py-2  flex justify-between items-center">
                 <div class="border-l-8 border-l-orange-400 pl-4 flex flex-col justify-center items-start gap-3">
                     <span class=" text-white text-5xl  uppercase font-semibold">
-                        Layanan <span class="bg-orange-400 text-white px-2 py-1 rounded-xl shadow-md">Pinjaman</span></span>
+                        Layanan <span class="bg-orange-400 text-white px-2 py-1 rounded-xl shadow-md">PEMINJAMAN</span></span>
                     <p class="italic text-white">Dashboard Layanan Peminjaman Koperasi Merah Putih</p>
                 </div>
             </div>
@@ -20,7 +20,7 @@
                 <a type="a" href="{{ route('pinjaman.create') }}"
                     class="w-full h-full px-4 py-2 bg-red-600 text-3xl hover:bg-red-700 text-white rounded flex justify-center items-center  text-decoration-none shadow-md  uppercase font-semibold">
                     <i class="fa-solid fa-money-bill-transfer mr-6"></i>
-                    AJUKAN Pinjaman
+                    AJUKAN PEMINJAMAN
                 </a>
             </div>
 

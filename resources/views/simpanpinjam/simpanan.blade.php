@@ -3,34 +3,30 @@
 @section('title', 'Simpanan - Koperasi Merah Putih')
 
 @section('content')
-    <div class="mx-10 px-4 bgwhite/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
+    <div class="mx-10 px-4 bg-teal-900/40 backdrop-blur-2xl rounded-2xl py-8 shadow-2xl">
         <!-- Header Card -->
         <div class="mb-2">
             <div class=" px-6 py-2  flex justify-between items-center">
-                <div class="border-l-8 border-l-green-500 pl-4">
-                    <div class=" text-white text-6xl text-shadow-lg uppercase font-extrabold tracking-wider">simpanan</div>
+                <div class=" px-6 py-2  flex justify-between items-center">
+                    <div class="border-l-8 border-l-teal-400 pl-4 flex flex-col justify-center items-start gap-3">
+                        <span class=" text-white text-5xl  uppercase font-semibold">
+                            Layanan <span
+                                class="bg-teal-400 text-white px-2 py-1 rounded-xl shadow-md">SIMPANAN</span></span>
+                        <p class="italic text-white">Dashboard Layanan Simpanan Koperasi Merah Putih</p>
+                    </div>
                 </div>
 
                 <div class="flex items-center space-x-3">
 
                     <a type="a" href="{{ route('simpanan.create') }}"
-                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center  text-decoration-none shadow-md text-sm uppercase font-semibold">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                            class="bi bi-piggy-bank mr-2" viewBox="0 0 16 16">
-                            <path
-                                d="M5 6.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.138-1.496A6.6 6.6 0 0 1 7.964 4.5c.666 0 1.303.097 1.893.273a.5.5 0 0 0 .286-.958A7.6 7.6 0 0 0 7.964 3.5c-.734 0-1.441.103-2.102.292a.5.5 0 1 0 .276.962" />
-                            <path fill-rule="evenodd"
-                                d="M7.964 1.527c-2.977 0-5.571 1.704-6.32 4.125h-.55A1 1 0 0 0 .11 6.824l.254 1.46a1.5 1.5 0 0 0 1.478 1.243h.263c.3.513.688.978 1.145 1.382l-.729 2.477a.5.5 0 0 0 .48.641h2a.5.5 0 0 0 .471-.332l.482-1.351c.635.173 1.31.267 2.011.267.707 0 1.388-.095 2.028-.272l.543 1.372a.5.5 0 0 0 .465.316h2a.5.5 0 0 0 .478-.645l-.761-2.506C13.81 9.895 14.5 8.559 14.5 7.069q0-.218-.02-.431c.261-.11.508-.266.705-.444.315.306.815.306.815-.417 0 .223-.5.223-.461-.026a1 1 0 0 0 .09-.255.7.7 0 0 0-.202-.645.58.58 0 0 0-.707-.098.74.74 0 0 0-.375.562c-.024.243.082.48.32.654a2 2 0 0 1-.259.153c-.534-2.664-3.284-4.595-6.442-4.595M2.516 6.26c.455-2.066 2.667-3.733 5.448-3.733 3.146 0 5.536 2.114 5.536 4.542 0 1.254-.624 2.41-1.67 3.248a.5.5 0 0 0-.165.535l.66 2.175h-.985l-.59-1.487a.5.5 0 0 0-.629-.288c-.661.23-1.39.359-2.157.359a6.6 6.6 0 0 1-2.157-.359.5.5 0 0 0-.635.304l-.525 1.471h-.979l.633-2.15a.5.5 0 0 0-.17-.534 4.65 4.65 0 0 1-1.284-1.541.5.5 0 0 0-.446-.275h-.56a.5.5 0 0 1-.492-.414l-.254-1.46h.933a.5.5 0 0 0 .488-.393m12.621-.857a.6.6 0 0 1-.098.21l-.044-.025c-.146-.09-.157-.175-.152-.223a.24.24 0 0 1 .117-.173c.049-.027.08-.021.113.012a.2.2 0 0 1 .064.199" />
-                        </svg>
+                        class="px-4 py-2 text-2xl bg-red-600 hover:bg-red-700 text-white rounded flex items-center  text-decoration-none shadow-md uppercase font-semibold">
+                        <i class="fa-solid fa-circle-dollar-to-slot mr-4"></i>
                         Tambah Simpanan
                     </a>
                     <a type="a" href="{{ route('simpanan.tarik') }}"
-                        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded flex items-center  text-decoration-none shadow-md text-sm uppercase font-semibold">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
-                            class="bi bi-wallet2 mr-2" viewBox="0 0 16 16">
-                            <path
-                                d="M12.136.326A1.5 1.5 0 0 1 14 1.78V3h.5A1.5 1.5 0 0 1 16 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 13.5v-9a1.5 1.5 0 0 1 1.432-1.499zM5.562 3H13V1.78a.5.5 0 0 0-.621-.484zM1.5 4a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5z" />
-                        </svg> Tarik Simpanan
+                        class="px-4 py-2 text-2xl bg-orange-600 hover:bg-orange-700 text-white rounded flex items-center  text-decoration-none shadow-md  uppercase font-semibold">
+                        <i class="fa-solid fa-wallet mr-2"></i>
+                        Tarik Simpanan
                     </a>
 
                 </div>
@@ -39,7 +35,7 @@
         <hr class="m-0 p-0 mb-4">
         <section class="h-[80dvh] flex gap-2 mb-2" id="form-pencarian">
             <div class="w-[20%] flex flex-col justify-center items-start gap-y-4">
-                <div class="h-1/2 bg-white  rounded-3xl overflow-hidden shadow-md">
+                <div class="h-1/2 w-full bg-white  rounded-3xl overflow-hidden shadow-md">
                     {{-- Form Pencarian dan Filter akan ditempatkan di sini --}}
                     <label for="search-data-simpanan"
                         class="uppercase bg-black text-white text-center font-semibold w-full px-4 py-2.5">
@@ -73,11 +69,11 @@
                     </p>
                 </div>
             </div>
-            <div class="w-[80%] bg-white rounded-3xl shadow-md overflow-hidden">
+            <div class="w-[80%] bg-white rounded-2xl shadow-md overflow-hidden">
                 {{-- tampil Data Simpanan akan ditempatkan di sini --}}
-                <div
-                    class="text-2xl mb-4 border-b pb-2 bg-black px-4 pt-2 uppercase tracking-wide font-extrabold text-white shadow-md">
-                    <i class="fas fa-user-circle mr-2"></i>Informasi  Anggota
+                <div class="bg-teal-400 px-4 py-3 text-white font-semibold uppercase flex justify-start items-center">
+                    <i class="fa-solid fa-square-poll-horizontal text-2xl mr-3"></i>
+                    Panel Pencarian Simpanan
                 </div>
                 <div class="px-10 pt-3">
                     <!-- Info Anggota -->
@@ -99,15 +95,21 @@
 
                         <div class="space-y-3">
                             <div>
-                                <p class="text-sm text-gray-500">Total Saldo</p>
+                                <p class="text-sm text-gray-500">Total Saldo Keseluruhan</p>
+                                <p class="text-lg font-bold text-sky-600">
+                                    Rp. <span id="total_simpanan">-</span>
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Total Saldo Dapat Diambil</p>
                                 <p class="text-lg font-bold text-red-600">
-                                    Rp. <span id="total_pinjaman">-</span>
+                                    Rp. <span id="total_sukarela">-</span>
                                 </p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Status</p>
                                 <div class="bg-green-600 px-2 shadow-md inline-block rounded-md">
-                                    <p class="text-white m-0" id="jenis-pinjaman">none</p>
+                                    <p class="text-white m-0" id="status">none</p>
                                 </div>
                             </div>
                         </div>
@@ -123,105 +125,110 @@
         </section>
         <hr>
         <!-- Data Table -->
-        <div class="bg-white h-[80dvh] rounded-lg border border-gray-200 overflow-hidden shadow-md">
-            <div class="flex justify-between items-center 300 px-8 mb-2 mt-2">
-                <p class=" bg-slate-400 text-white font-semibold px-4 py-2 text-2xl rounded-md shadow-md mt-2"><i class="fa-regular fa-file mr-2"></i>Histori
+        <div class="bg-white h-[80dvh] rounded-2xl border border-gray-200 overflow-hidden shadow-md">
+            <div class=" bg-slate-400 mb-2 text-white font-semibold px-8 py-3 uppercase flex justify-between items-center">
+                <div class=" text-2xl">
+                    <i class="fa-regular fa-file mr-4"></i>Histori
                     Simpanan dan
-                    Penarikan</p>
+                    Penarikan
+                </div>
                 <div class="flex items-center gap-4">
                     <div>
                         <select id="filter-kategori"
-                            class="px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm">
+                            class="px-3 py-2.5 bg-white text-slate-400 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-xs">
                             <option value="">Semua Kategori</option>
-                            <option value="wajib">Wajib</option>
-                            <option value="pokok">Pokok</option>
-                            <option value="sukarela">Sukarela</option>
+                            <option value="pokok" class="bg-green-800/40 text-white">Pokok</option>
+                            <option value="wajib" class="bg-blue-800/40 text-white">Wajib</option>
+                            <option value="sukarela" class="bg-orange-800/40 text-white">Sukarela</option>
                         </select>
                     </div>
                     <div class="relative">
                         <input type="text" placeholder="Search..." id="search-simpanan"
-                            class="pl-10 pr-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64">
+                            class="pl-10 pr-4 py-2 text-slate-400 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-[25rem]">
                         <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                     </div>
                 </div>
             </div>
 
             <div class="overflow-x-auto flex pb-10 px-10">
-                <table class="text-center min-w-full overflow-hidden space-y-4 ">
-                    <thead class="bg-orange-300">
-                        <tr
-                            class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
-                            <th>NO.</th>
-                            <th>NAMA ANGGOTA</th>
-                            <th>KATEGORI</th>
-                            <th>TANGGAL</th>
-                            <th>NOMINAL/SETORAN</th>
-                            <th>KETERANGAN</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody class="h-full overflow-y-auto">
-                        @foreach ($simpanans as $simpanan)
-                            <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
-                                <td class="font-medium">{{ $loop->iteration }}</td>
-                                <td>
-                                    <div class="flex items-center">
-                                        <div class="w-full">
-                                            <div class=" text-gray-900 font-semibold">{{ $simpanan->member->nama_lengkap }}
+                <div class="w-full h-[35rem] overflow-y-auto">
+                    <table class="text-center min-w-full overflow-hidden space-y-4 ">
+                        <thead class="bg-orange-300">
+                            <tr
+                                class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                                <th>NO.</th>
+                                <th>NAMA ANGGOTA</th>
+                                <th>KATEGORI</th>
+                                <th>TANGGAL</th>
+                                <th>NOMINAL/SETORAN</th>
+                                <th>KETERANGAN</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody class="min-h-full">
+                            @foreach ($simpanans as $simpanan)
+                                <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
+                                    <td class="font-medium">{{ $loop->iteration }}</td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="w-full">
+                                                <div class=" text-gray-900 font-semibold">
+                                                    {{ $simpanan->member->nama_lengkap }}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
-                                        <span
-                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
-                                        @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
+                                    </td>
+                                    <td>
+                                        @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
                                             <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
-                                            @else
+                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
+                                            @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
                                                 <span
-                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
-                                    @endif
-                                    {{ $simpanan->simpananDetails->first()->jenis }}
-                                    </span>
-                                </td>
-                                <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
-                                </td>
-                                <td class="font-bold text-red-600">Rp
-                                    {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
-                                <td>
-                                    @if ($simpanan->COA == 'Simpan')
-                                        <span
-                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
-                                            Masuk
+                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
+                                                @else
+                                                    <span
+                                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
+                                        @endif
+                                        {{ $simpanan->simpananDetails->first()->jenis }}
                                         </span>
-                                    @else
-                                        <span
-                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
-                                            Keluar
-                                        </span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="flex justify-center items-center gap-3">
-                                        <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
-                                            class="d-inline delete-form"
-                                            data-name="{{ $simpanan->member->nama_lengkap }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="text-red-600 hover:text-red-900 bg-transparent border-0"
-                                                title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                                    </td>
+                                    <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
+                                    </td>
+                                    <td class="font-bold text-red-600">Rp
+                                        {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
+                                    <td>
+                                        @if ($simpanan->COA == 'Simpan')
+                                            <span
+                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
+                                                Masuk
+                                            </span>
+                                        @else
+                                            <span
+                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
+                                                Keluar
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center items-center gap-3">
+                                            <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
+                                                class="d-inline delete-form"
+                                                data-name="{{ $simpanan->member->nama_lengkap }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="text-red-600 hover:text-red-900 bg-transparent border-0"
+                                                    title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
@@ -284,11 +291,13 @@
                         document.getElementById('nik').textContent = data.member.nik;
                         document.getElementById('no-telp').textContent = data.member.nomor_hp;
                         document.getElementById('alamat').textContent = data.member.alamat;
-                        document.getElementById('total_pinjaman').textContent = new Intl.NumberFormat('id-ID')
-                            .format(data.total_simpanan);
+                        document.getElementById('total_simpanan').textContent = new Intl.NumberFormat('id-ID')
+                            .format(data.total_simpanan_all);
+                        document.getElementById('total_sukarela').textContent = new Intl.NumberFormat('id-ID')
+                            .format(data.total_simpanan_sukarela);
                         // Update status
                         console.log(data);
-                        const statusElem = document.getElementById('jenis-pinjaman');
+                        const statusElem = document.getElementById('status');
                         if (data.status === 'aktif') {
                             statusElem.textContent = 'Aktif';
                             statusElem.parentElement.className =
@@ -337,7 +346,13 @@
                 filtered.forEach(m => {
                     const option = document.createElement('a');
                     option.classList.add('dropdown-item', 'cursor-pointer');
-                    option.textContent = `${m.nik} - ${m.nama_lengkap}`;
+                    option.innerHTML = `<div class="d-flex   justify-content-between align-items-center">
+                                            <div style="line-height: 1.2;">
+                                                <small class="text-danger fw-bold d-block">${m.nik}</small>
+                                                <strong class="text-dark text-uppercase font-black" style="font-size: 1rem;">${m.nama_lengkap}</strong>
+                                            </div>
+                                            <i class="fas fa-user-plus text-muted fa-lg"></i>
+                                        </div>`;
 
                     option.addEventListener('click', () => {
                         document.getElementById('search-data-simpanan').value =
