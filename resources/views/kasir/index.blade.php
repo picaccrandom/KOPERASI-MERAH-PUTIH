@@ -148,7 +148,7 @@
                     
                     <div class="table-responsive lg:h-[29rem] overflow-y-auto border rounded shadow-sm">
                         <table class="table table-hover table-bordered align-middle" id="table-keranjang">
-                            <thead class="bg-light sticky-top">
+                            <thead class="bg-light sticky-top z-10">
                                 <tr class="text-center uppercase small fw-black">
                                     <th class="py-3 text-dark">Nama Barang</th>
                                     <th width="150" class="text-dark">Harga</th>
@@ -212,9 +212,9 @@
                         
                         <div class="mb-4">
                             <label class="form-label fw-bold small text-muted uppercase">Metode Pembayaran</label>
-                            <select name="metode_bayar" id="metode_bayar" class="form-select border-dark fw-black text-primary py-2 shadow-sm" style="border-radius: 10px;">
+                            <select name="metode_bayar" id="metode_bayar" class="form-select [&>option]:font-semibold border-dark fw-black text-primary py-2 shadow-sm" style="border-radius: 10px;">
                                 <option value="tunai">CASH / TUNAI</option>
-                                <option value="bon">BON / PIUTANG ANGGOTA</option>
+                                <option value="bon" id="bon_pay" class="hidden">BON / PIUTANG ANGGOTA</option>
                             </select>
                         </div>
 
@@ -231,7 +231,7 @@
                             <h1 class="fw-black" id="display-total">Rp 0</h1>
                         </div>
 
-                        <div class="row g-2 mb-4">
+                        <div class="row g-2 mb-3">
                             <div class="col-6">
                                 <label id="nominal-label" class="text-[10px] font-black uppercase text-muted">Dibayar (Tunai)</label>
                                 <div class="input-group">
@@ -245,8 +245,26 @@
                                 <div class="kalkulasi-box shadow-sm text-truncate" id="kalkulasi">Rp 0</div>
                                 <p id="info-ket-bill" class="text-[9px] text-danger mt-1 font-black hidden uppercase"></p>
                             </div>
+                            <div id="quick_acces" class="flex justify-evenly items-center">
+                                <span id="qa_5" class="flex justify-center rounded-md py-1 border-slate-300 cursor-pointer border hover:border hover:border-sky-400 px-2 items-center text-white bg-orange-400 hover:bg-orange-500 active:bg-orange-600" >
+                                    <i class="fa-solid fa-money-bill-1 mr-1"></i>
+                                    Rp.5.000
+                                </span>
+                                <span id="qa_10" class="flex justify-center rounded-md py-1 border-slate-300 cursor-pointer border hover:border hover:border-sky-400 px-2 items-center text-white bg-purple-400 hover:bg-purple-500 active:bg-purple-600">
+                                    <i class="fa-solid fa-money-bill-1 mr-1"></i>
+                                    Rp.10.000
+                                </span>
+                                <span id="qa_50" class="flex justify-center rounded-md py-1 border-slate-300 cursor-pointer border hover:border hover:border-sky-400 px-2 items-center text-white bg-blue-400 hover:bg-blue-500 active:bg-blue-600">
+                                    <i class="fa-solid fa-money-bill-1 mr-1"></i>
+                                    Rp.50.000
+                                </span>
+                                <span id="qa_100" class="flex justify-center rounded-md py-1 border-slate-300 cursor-pointer border hover:border hover:border-sky-400 px-2 items-center text-white bg-red-400 hover:bg-red-500 active:bg-red-600">
+                                    <i class="fa-solid fa-money-bill-1 mr-1"></i>
+                                    Rp.100.000
+                                </span>
+                            </div>
                         </div>
-
+                        <hr >
                         <button type="button" class="btn btn-danger w-100 fw-black py-3 shadow-lg transform active:scale-95 transition-all mb-4" id="btn-proses" style="border-radius: 12px; font-size: 1.1rem; letter-spacing: 1px;">
                             <i class="fas fa-check-circle me-2"></i> SELESAIKAN TRANSAKSI
                         </button>
@@ -494,14 +512,16 @@
     document.getElementById('kategori_yes').addEventListener('change', () => {
         document.querySelector('.nik-form').classList.remove('hidden');
         document.getElementById('kategori').value = 'member';
+        document.getElementById('bon_pay').classList.remove('hidden');
     });
 
-    document.getElementById('kategori_no').addEventListener('change', () => {
-        document.querySelector('.nik-form').classList.add('hidden');
+document.getElementById('kategori_no').addEventListener('change', () => {
+    document.querySelector('.nik-form').classList.add('hidden');
         document.getElementById('member_id').value = '';
         document.getElementById('kategori').value = 'reguler';
         inputNik.value = '';
         document.getElementById('member-info').classList.add('hidden');
+        document.getElementById('bon_pay').classList.add('hidden');
         limitBonAnggota = 0;
         renderTable();
     });
@@ -609,5 +629,26 @@
             dropdownBarang.classList.remove('show');
         }
     });
+
+    // Quick Acces Buttons
+    document.getElementById('qa_5').addEventListener('click', () => {
+        tambahNominal(5000);
+    });
+    document.getElementById('qa_10').addEventListener('click', () => {
+        tambahNominal(10000);
+    });
+    document.getElementById('qa_50').addEventListener('click', () => {
+        tambahNominal(50000);
+    });
+    document.getElementById('qa_100').addEventListener('click', () => {
+        tambahNominal(100000);
+    });
+
+    function tambahNominal(amount) {
+        const nominalInput = document.getElementById('nominal');
+        const currentVal = parseFloat(nominalInput.value) || 0;
+        nominalInput.value = currentVal + amount;
+        KalkulasiNominal();
+    }
 </script>
 @endsection

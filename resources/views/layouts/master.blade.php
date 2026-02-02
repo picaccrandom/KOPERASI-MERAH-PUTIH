@@ -211,7 +211,7 @@
 
     <div style="height: 3px; background: #e63946; width: 100%;"></div>
 
-    <div class="nav-header d-flex align-items-center justify-content-between ">
+    <div class="nav-header d-flex align-items-center justify-content-between z-50">
         <div class="d-flex align-items-center">
             <div id="default-status-text">
                 <small class="text-muted-custom text-uppercase">
