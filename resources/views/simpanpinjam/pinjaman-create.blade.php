@@ -18,7 +18,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                 <div>
                     <label
-                        class="block text-sm font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">Identitas
+                        class="block font-medium text-gray-700 mb-2 text-2xl after:content-['*'] after:text-red-500 after:ml-0.5">Identitas
                         Member</label>
                     <input type="text"
                         class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
@@ -30,13 +30,10 @@
 
                 <div>
                     <label
-                        class="block text-sm font-medium text-gray-700 mb-2 after:content-['*'] after:text-red-500 after:ml-0.5">Jenis
+                        class="block font-medium text-gray-700 mb-2 text-2xl">Jenis
                         Pinjaman </label>
-                    <select name="jenis"
-                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
-                        required>
-                        <option value="uang">Uang</option>
-                    </select>
+                        <input type="text" name="jenis_pinjaman" id="jenis_pinjaman" value="Uang" readonly
+                            class="w-full px-3 py-2 border uppercase text-center bg-slate-300 text-white font-semibold tracking-wider  border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm">
                 </div>
 
 

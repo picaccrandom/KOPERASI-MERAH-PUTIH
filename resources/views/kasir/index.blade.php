@@ -515,8 +515,8 @@
         document.getElementById('bon_pay').classList.remove('hidden');
     });
 
-document.getElementById('kategori_no').addEventListener('change', () => {
-    document.querySelector('.nik-form').classList.add('hidden');
+    document.getElementById('kategori_no').addEventListener('change', () => {
+        document.querySelector('.nik-form').classList.add('hidden');
         document.getElementById('member_id').value = '';
         document.getElementById('kategori').value = 'reguler';
         inputNik.value = '';

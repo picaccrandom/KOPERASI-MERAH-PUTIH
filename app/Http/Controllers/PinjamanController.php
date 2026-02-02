@@ -11,6 +11,7 @@ use App\Models\BonDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountingService; // Import Service Akuntansi
+use Symfony\Component\HttpFoundation\Response;
 
 class PinjamanController extends Controller
 {
@@ -166,7 +167,7 @@ class PinjamanController extends Controller
              * Debit: Kas (1101) | Kredit: Piutang (1201)
              */
             // AccountingService::post(now(), "Terima Angsuran ke-".$angsuran->angsuran_ke." ".$namaMember->nama_lengkap, $transaksi->no_transaksi_sp, $totalBayar, 0, '1101');
-            // AccountingService::post(now(), "Penurunan Piutang (".$transaksi->no_transaksi_sp.")", $transaksi->no_transaksi_sp, 0, $angsuran->jumlah_angsuran, '1201');
+            // AccountingService::po    st(now(), "Penurunan Piutang (".$transaksi->no_transaksi_sp.")", $transaksi->no_transaksi_sp, 0, $angsuran->jumlah_angsuran, '1201');
 
             $limitKredit = KreditAnggota::where('member_id', $memberId)->first();
             if($limitKredit) {
@@ -174,7 +175,12 @@ class PinjamanController extends Controller
             }
 
             DB::commit();
-            return redirect()->back()->with('success', 'Angsuran berhasil & Kas Kantor bertambah!');
+            return response()->json([
+                'success' => true,
+                'message' => 'Angsuran Berhasil!',
+                'data' => [ 'kode_transaksi' => $transaksi->kode_transaksi ]
+            ]);
+            // return redirect()->back()->with('success', 'Angsuran berhasil & Kas Kantor bertambah!');
 
         } catch (\Exception $e) {
             DB::rollBack();
