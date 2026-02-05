@@ -24,6 +24,10 @@ class Transaksi_SP extends Model
         return $this->belongsTo(Member::class);
     }
 
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
     public function angsuranPeminjamans()
     {
         return $this->hasMany(AngsuranPeminjaman::class, 'no_transaksi_sp', 'no_transaksi_sp');

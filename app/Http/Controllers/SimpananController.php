@@ -8,8 +8,10 @@ use App\Models\SimpananDetail;
 use Illuminate\Http\Request;
 use App\Models\SimpananTransaksi;
 use App\Models\Transaksi_SP;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountingService; // Import Service Akuntansi
+use Illuminate\Container\Attributes\Auth;
 
 class SimpananController extends Controller
 {
@@ -79,7 +81,8 @@ class SimpananController extends Controller
             return redirect()->back()->with('error', 'Member tidak ditemukan.');
         }
 
-        DB::transaction(function () use ($request, $namaMember) {
+        
+        $transaksi = DB::transaction(function () use ($request, $namaMember) {
 
             // 1. Buat Transaksi Simpanan (Unit SP)
             $transaksi = Transaksi_SP::create([
@@ -123,6 +126,7 @@ class SimpananController extends Controller
             //     0, (float)$request->nominal,
             //     '2101'
             // );
+            return $transaksi;
         });
 
         // Log Aktivitas
@@ -134,7 +138,7 @@ class SimpananController extends Controller
             'info', 'success'
         );
 
-        return redirect()->route('simpanan.index')->with('success', 'Simpanan berhasil & terjurnal di Kantor Koperasi!');
+        return redirect()->route('simpanan.strukSimpan', ($transaksi->no_transaksi_sp));
     }
 
     /**
@@ -303,5 +307,12 @@ class SimpananController extends Controller
             });
 
         return view('simpanpinjam.TarikSimpanan', compact('members', 'saldoSimpanan'));
+    }
+
+    public function strukSimpan($no_transaksi_sp) {
+        $user = User::findOrFail(Auth()->User()->id);
+        $administrasi = 2;
+        $transaksi = Transaksi_SP::with('member', 'simpananDetails')->where('no_transaksi_sp', $no_transaksi_sp)->first();
+        return view('simpanpinjam.struk-simpanan', compact('transaksi','user', 'administrasi'));
     }
 }

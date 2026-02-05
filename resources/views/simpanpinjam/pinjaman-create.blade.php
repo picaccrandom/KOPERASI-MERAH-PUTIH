@@ -1,14 +1,14 @@
 @extends('layouts.master')
 
 @section('content')
-    <div class="bg-white/40 backdrop-blur-2xl mx-12 py-8 px-12 rounded-2xl">
+    <div class="bg-orange-900/40 backdrop-blur-2xl mx-12 py-8 px-12 rounded-2xl">
 
-        <div class="mb-10 border-l-8 border-red-600 pl-4">
+        <div class="mb-10 border-l-8 border-orange-400 pl-4">
             <h1 class="fw-bolder text-shadow-lg text-white uppercase tracking-wider">Formulir <span
-                    class="bg-red-600 px-2 rounded-md">Peminjaman</span></h1>
+                    class="bg-orange-400 px-2 rounded-md">Peminjaman</span></h1>
             <hr class="my-0 mb-2">
-            <p class="pl-1 text-slate-600">Isi dengan cermat sesuai format dan ketentuan <span
-                    class="text-red-400 font-semibold">Peminjaman !</span></p>
+            <p class="pl-1 text-white italic">Isi dengan cermat sesuai format dan ketentuan <span
+                    class="text-orange-400 font-semibold">Peminjaman !</span></p>
 
         </div>
         <form action="{{ route('pinjaman.store') }}" method="POST"

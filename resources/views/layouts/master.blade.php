@@ -7,6 +7,28 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @media print {
+
+            /* Sembunyikan semua */
+            body * {
+                visibility: hidden;
+            }
+
+            /* Tampilkan hanya area print */
+            .print-area,
+            .print-area * {
+                visibility: visible;
+            }
+
+            /* Posisikan print-area ke kiri atas */
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+        
         :root {
             --koperasi-red: #e63946;
             --koperasi-dark: #1d3557;
