@@ -167,12 +167,12 @@
                         </thead>
                         <tbody class="min-h-full">
                                 @forelse ($simpanans as $simpanan)
-                                    <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
+                                    <tr class="{{ $simpanan->member->status == 'banned'? 'bg-red-600/40' : '' }} [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
                                         <td class="font-medium">{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="flex items-center">
                                                 <div class="w-full">
-                                                    <div class=" text-gray-900 font-semibold">
+                                                    <div class=" text-gray-900 cursor-pointer hover:underline hover:text-blue-600" onclick="window.location='{{ route('member.show', [ 'modul' => 'simpanan','id' => $simpanan->member->id]) }}'">
                                                         {{ $simpanan->member->nama_lengkap }}
                                                     </div>
                                                 </div>

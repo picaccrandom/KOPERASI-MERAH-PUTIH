@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('nama_lengkap');
             $table->string('nomor_hp');
             $table->text('alamat');
+            $table->string('email')->unique()->nullable();
+            $table->string('password')->nullable();
+            $table->enum('status', ['aktif', 'tidak aktif','banned'])->default('aktif');
+            $table->json('foto_ktp')->nullable();
             $table->timestamps();
         });
     }
