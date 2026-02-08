@@ -7,6 +7,28 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @media print {
+
+            /* Sembunyikan semua */
+            body * {
+                visibility: hidden;
+            }
+
+            /* Tampilkan hanya area print */
+            .print-area,
+            .print-area * {
+                visibility: visible;
+            }
+
+            /* Posisikan print-area ke kiri atas */
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+        
         :root {
             --koperasi-red: #e63946;
             --koperasi-dark: #1d3557;
@@ -360,6 +382,19 @@
                 menuAdmin.classList.remove('d-none');
                 menuAdmin.classList.add('d-block');
             }
+        }
+
+        function formatRupiah(angka) {
+            angka = angka.replace(/[^\d]/g, '');
+            if (angka === '') return '';
+            let sisa = angka.length % 3;
+            let rupiah = angka.substr(0, sisa);
+            let ribuan = angka.substr(sisa).match(/\d{3}/g);
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return rupiah;
         }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

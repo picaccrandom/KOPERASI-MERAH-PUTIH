@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreign('no_transaksi_sp')->references('no_transaksi_sp')->on('transaksi__s_p_s')->cascadeOnDelete();
             $table->date('tanggal');
             $table->decimal('saldo', 15, 2)->default(0);
+            $table->decimal('biaya_admin', 15, 2)->default(0);
             $table->enum('jenis', ['pokok', 'wajib', 'sukarela']);
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();

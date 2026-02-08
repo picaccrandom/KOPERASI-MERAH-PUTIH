@@ -12,6 +12,7 @@ class SimpananDetail extends Model
         'no_transaksi_sp',
         'tanggal',
         'saldo',
+        'biaya_admin',
         'jenis',
         'status',
     ];

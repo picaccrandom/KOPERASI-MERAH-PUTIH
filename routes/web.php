@@ -92,6 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/simpanan/{id}/edit', [SimpananController::class, 'edit'])->name('simpanan.edit');
     Route::put('/simpanan/{id}', [SimpananController::class, 'update'])->name('simpanan.update');
     Route::delete('/simpanan/{id}', [SimpananController::class, 'destroy'])->name('simpanan.destroy');
+    Route::get('/simpanan/struk-simpan/{modul}/{no_transaksi_sp}', [SimpananController::class, 'strukSimpan'])->name('simpanan.strukSimpan');
 
     // --- MODUL KLINIK ---
     Route::prefix('klinik')->group(function () {

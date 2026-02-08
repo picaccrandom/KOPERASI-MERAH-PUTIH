@@ -8,8 +8,10 @@ use App\Models\SimpananDetail;
 use Illuminate\Http\Request;
 use App\Models\SimpananTransaksi;
 use App\Models\Transaksi_SP;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountingService; // Import Service Akuntansi
+use Illuminate\Container\Attributes\Auth;
 
 class SimpananController extends Controller
 {
@@ -79,25 +81,35 @@ class SimpananController extends Controller
             return redirect()->back()->with('error', 'Member tidak ditemukan.');
         }
 
-        DB::transaction(function () use ($request, $namaMember) {
+        
+        $transaksi = DB::transaction(function () use ($request, $namaMember) {
+
+            $administrasi = 0;  
+            $nominal = (float)$request->nominal;
+        
+            if($request->jenis === 'Sukarela'){
+                $administrasi = 2;
+                $administrasi = ($nominal * $administrasi)/100;
+            }
 
             // 1. Buat Transaksi Simpanan (Unit SP)
             $transaksi = Transaksi_SP::create([
-                'no_transaksi_sp' => 'SP-S-' . date('YmdHis'),
+                'no_transaksi_sp' => 'SP-S-' . date('YmdHis') . rand(1000, 9999)    ,
                 'tanggal' => now(),
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
                 'COA' => 'Simpan',
                 'Debit/Credit' => 'Debit', // Uang masuk ke unit SP
-                'Nominal' => (float)$request->nominal,
+                'Nominal' => $nominal,
                 'Keterangan' => 'Simpanan ' . $request->jenis . ': ' . ($request->catatan ?? '-'),
             ]);
-
+            
             // 2. Buat Detail Simpanan
             SimpananDetail::create([
                 'no_transaksi_sp' => $transaksi->no_transaksi_sp,
                 'tanggal' => now(),
-                'saldo' => (float)$request->nominal,
+                'saldo' => $nominal - $administrasi,
+                'biaya_admin' => $administrasi,
                 'jenis' => strtoupper($request->jenis), 
                 'status' => 'aktif',
             ]);
@@ -123,6 +135,7 @@ class SimpananController extends Controller
             //     0, (float)$request->nominal,
             //     '2101'
             // );
+            return $transaksi;
         });
 
         // Log Aktivitas
@@ -134,7 +147,7 @@ class SimpananController extends Controller
             'info', 'success'
         );
 
-        return redirect()->route('simpanan.index')->with('success', 'Simpanan berhasil & terjurnal di Kantor Koperasi!');
+        return redirect()->route('simpanan.strukSimpan', ['modul' => 'Simpanan', 'no_transaksi_sp' => $transaksi->no_transaksi_sp]);
     }
 
     /**
@@ -148,29 +161,33 @@ class SimpananController extends Controller
         ]);
 
         $namaMember = Member::where('id', $request->member_id)->first();
+        $nominal = (float)$request->nominal;
+        $administrasi = ($nominal * 2)/100;
 
         if (!$namaMember) {
             return redirect()->back()->with('error', 'Member tidak ditemukan.');
         }
 
-        DB::transaction(function () use ($request, $namaMember) {
+        $transaksi = DB::transaction(function () use ($request, $namaMember ,$nominal, $administrasi) {
             // 1. Buat Transaksi Penarikan (Unit SP)
             $transaksi = Transaksi_SP::create([
-                'no_transaksi_sp' => 'SP-ST-' . date('YmdHis'),
+                'no_transaksi_sp' => 'SP-ST-' . date('YmdHis') . rand(1000, 9999),
                 'tanggal' => now(),
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
                 'COA' => 'Tarik',
                 'Debit/Credit' => 'Credit', // Uang keluar dari unit SP
-                'Nominal' => (float)$request->nominal,
+                'Nominal' => $nominal,
                 'Keterangan' => 'Penarikan Simpanan Sukarela: ' . ($request->catatan ?? '-'),
             ]);
+            
 
             // 2. Buat Detail Simpanan (Minus untuk mengurangi saldo)
             SimpananDetail::create([
                 'no_transaksi_sp' => $transaksi->no_transaksi_sp,
                 'tanggal' => now(),
-                'saldo' => -(float)$request->nominal, 
+                'saldo' => - $nominal + $administrasi, 
+                'biaya_admin' => $administrasi,
                 'jenis' => 'sukarela',
                 'status' => 'aktif',
             ]);
@@ -196,6 +213,7 @@ class SimpananController extends Controller
             //     0, (float)$request->nominal,
             //     '1101'
             // );
+            return $transaksi;
         }); 
 
         // Log Aktivitas
@@ -207,7 +225,8 @@ class SimpananController extends Controller
             'info', 'success'
         );
         
-        return redirect()->route('simpanan.index')->with('success', 'Penarikan berhasil & kas kantor diperbarui!');
+        return redirect()->route('simpanan.strukSimpan', ['modul' => 'Penarikan', 'no_transaksi_sp' => $transaksi->no_transaksi_sp]);
+        // return redirect()->route('simpanan.index')->with('success', 'Penarikan berhasil & kas kantor diperbarui!');
     }
 
     // --- Fungsi Bawaan Lainnya (Dibiarkan Tetap) ---
@@ -295,7 +314,7 @@ class SimpananController extends Controller
             ->with('transaksiSP')
             ->get()
             ->map(function($item) {
-                return [
+                return [        
                     'member_id' => $item->transaksiSP->member_id,
                     'jenis_simpanan' => $item->jenis,
                     'saldo' => $item->saldo,
@@ -303,5 +322,11 @@ class SimpananController extends Controller
             });
 
         return view('simpanpinjam.TarikSimpanan', compact('members', 'saldoSimpanan'));
+    }
+
+    public function strukSimpan( $modul, $no_transaksi_sp) {
+        $user = User::findOrFail(Auth()->User()->id);
+        $transaksi = Transaksi_SP::with('member', 'simpananDetails')->where('no_transaksi_sp', $no_transaksi_sp)->first();
+        return view('simpanpinjam.struk-simpanan', compact('transaksi','user', 'modul'));
     }
 }

@@ -179,7 +179,7 @@
                     <div class="h-[70dvh] overflow-x-auto overflow-y-auto">
                         <div class="flex pb-10 pt-2 px-10">
                             <table class="text-center min-w-full space-y-4">
-                                <thead class="bg-orange-300">
+                                <thead class="bg-black">
                                     <tr
                                         class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
                                         <th>NO.</th>
