@@ -383,6 +383,19 @@
                 menuAdmin.classList.add('d-block');
             }
         }
+
+        function formatRupiah(angka) {
+            angka = angka.replace(/[^\d]/g, '');
+            if (angka === '') return '';
+            let sisa = angka.length % 3;
+            let rupiah = angka.substr(0, sisa);
+            let ribuan = angka.substr(sisa).match(/\d{3}/g);
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return rupiah;
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 

@@ -123,125 +123,124 @@
                 </div>
             </div>
         </section>
-        <hr>
         <!-- Data Table -->
-        <div class="bg-white h-[80dvh] rounded-2xl border border-gray-200 overflow-hidden shadow-md">
-            <div class=" bg-slate-400 mb-2 text-white font-semibold px-8 py-3 uppercase flex justify-between items-center">
-                <div class=" text-2xl">
-                    <i class="fa-regular fa-file mr-4"></i>Histori
-                    Simpanan dan
-                    Penarikan
-                </div>
-                <div class="flex items-center gap-4">
-                    <div>
-                        <select id="filter-kategori"
-                            class="px-3 py-2.5 bg-white text-slate-400 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-xs">
-                            <option value="">Semua Kategori</option>
-                            <option value="pokok" class="bg-green-800/40 text-white">Pokok</option>
-                            <option value="wajib" class="bg-blue-800/40 text-white">Wajib</option>
-                            <option value="sukarela" class="bg-orange-800/40 text-white">Sukarela</option>
-                        </select>
-                    </div>
-                    <div class="relative">
-                        <input type="text" placeholder="Search..." id="search-simpanan"
-                            class="pl-10 pr-4 py-2 text-slate-400 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-[25rem]">
-                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
-                    </div>
-                </div>
-            </div>
 
-            <div class="overflow-x-auto flex pb-10 px-10">
-                <div class="w-full h-[35rem] overflow-y-auto">
-                    <table class="text-center min-w-full overflow-hidden space-y-4 ">
-                        <thead class="bg-orange-300">
-                            <tr
-                                class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
-                                <th>NO.</th>
-                                <th>NAMA ANGGOTA</th>
-                                <th>KATEGORI</th>
-                                <th>TANGGAL</th>
-                                <th>NOMINAL/SETORAN</th>
-                                <th>KETERANGAN</th>
-                                <th>ACTION</th>
-                            </tr>
-                        </thead>
-                        <tbody class="min-h-full">
-                            @forelse ($simpanans as $simpanan)
-                                <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
-                                    <td class="font-medium">{{ $loop->iteration }}</td>
-                                    <td>
-                                        <div class="flex items-center">
-                                            <div class="w-full">
-                                                <div class=" text-gray-900 font-semibold">
-                                                    {{ $simpanan->member->nama_lengkap }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
-                                            <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
-                                            @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
-                                                <span
-                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
-                                                @else
-                                                    <span
-                                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
-                                        @endif
-                                        {{ $simpanan->simpananDetails->first()->jenis }}
-                                        </span>
-                                    </td>
-                                    <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
-                                    </td>
-                                    <td class="font-bold text-red-600">Rp
-                                        {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
-                                    <td>
-                                        @if ($simpanan->COA == 'Simpan')
-                                            <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
-                                                Masuk
-                                            </span>
-                                        @else
-                                            <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
-                                                Keluar
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="flex justify-center items-center gap-3">
-                                            <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
-                                                class="d-inline delete-form"
-                                                data-name="{{ $simpanan->member->nama_lengkap }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"
-                                                    class="text-red-600 hover:text-red-900 bg-transparent border-0"
-                                                    title="Hapus">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center py-4 text-4xl text-gray-500 italic">
-                                        <div class="p-48">
-                                            <i class="fa-solid fa-money-bills mr-2"></i>
-                                            Tidak ada data Simpanan
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+
+    </div>
+    <div class="mt-5 bg-white h-[80dvh] mx-10 rounded-2xl border border-gray-200 overflow-hidden shadow-md">
+        <div class=" bg-slate-400 mb-2 text-white font-semibold px-8 py-3 uppercase flex justify-between items-center">
+            <div class=" text-2xl">
+                <i class="fa-regular fa-file mr-4"></i>Histori
+                Simpanan dan
+                Penarikan
+            </div>
+            <div class="flex items-center gap-4">
+                <div>
+                    <select id="filter-kategori"
+                        class="px-3 py-2.5 bg-white text-slate-400 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-xs">
+                        <option value="">Semua Kategori</option>
+                        <option value="pokok" class="bg-green-800/40 text-white">Pokok</option>
+                        <option value="wajib" class="bg-blue-800/40 text-white">Wajib</option>
+                        <option value="sukarela" class="bg-orange-800/40 text-white">Sukarela</option>
+                    </select>
+                </div>
+                <div class="relative">
+                    <input type="text" placeholder="Search..." id="search-simpanan"
+                        class="pl-10 pr-4 py-2 text-slate-400 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-[25rem]">
+                    <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
                 </div>
             </div>
         </div>
 
-
+        <div class="overflow-x-auto flex pb-10 px-10 ">
+            <div class="w-full h-140 overflow-y-auto">
+                <table class="text-center min-w-full overflow-hidden space-y-4 ">
+                    <thead class="bg-black">
+                        <tr
+                            class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                            <th>NO.</th>
+                            <th>NAMA ANGGOTA</th>
+                            <th>KATEGORI</th>
+                            <th>TANGGAL</th>
+                            <th>NOMINAL</th>
+                            <th>KETERANGAN</th>
+                            <th>ACTION</th>
+                        </tr>
+                    </thead>
+                    <tbody class="min-h-full">
+                        @forelse ($simpanans as $simpanan)
+                            <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
+                                <td class="font-medium">{{ $loop->iteration }}</td>
+                                <td>
+                                    <div class="flex items-center">
+                                        <div class="w-full">
+                                            <div class=" text-gray-900 font-semibold">
+                                                {{ $simpanan->member->nama_lengkap }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
+                                        <span
+                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
+                                        @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
+                                            <span
+                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
+                                            @else
+                                                <span
+                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
+                                    @endif
+                                    {{ $simpanan->simpananDetails->first()->jenis }}
+                                    </span>
+                                </td>
+                                <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
+                                </td>
+                                <td class="font-bold text-red-600">Rp
+                                    {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
+                                <td>
+                                    @if ($simpanan->COA == 'Simpan')
+                                        <span
+                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
+                                            Masuk
+                                        </span>
+                                    @else
+                                        <span
+                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
+                                            Keluar
+                                        </span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="flex justify-center items-center gap-3">
+                                        <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
+                                            class="d-inline delete-form"
+                                            data-name="{{ $simpanan->member->nama_lengkap }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="text-red-600 hover:text-red-900 bg-transparent border-0"
+                                                title="Hapus">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-4xl text-gray-500 italic">
+                                    <div class="p-48">
+                                        <i class="fa-solid fa-money-bills mr-2"></i>
+                                        Tidak ada data Simpanan
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 @endsection
 

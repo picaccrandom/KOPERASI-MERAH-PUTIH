@@ -4,9 +4,9 @@
 
 
 @section('content')
-    {{-- @php
-    dd($transaksi->simpananDetails)
-@endphp --}}
+        {{-- @php
+        dd($transaksi->simpananDetails)
+    @endphp --}}
     <main class="font-inter print-area">
         <div class="w-full mx-auto bg-white px-16 py-6 border border-dashed text-sm font-mono shadow rounded">
 
@@ -15,11 +15,11 @@
                 <div class="flex items-center">
 
                     <!-- Logo -->
-                    <img src="/logo.png" alt="Logo Koperasi" class="w-16 h-16 object-contain">
+                    <img src="{{ asset('img/logo-koperasi.png') }}" alt="Logo Koperasi" class="w-20 h-20 object-contain">
 
                     <!-- Judul -->
                     <div class="flex-1 text-center leading-tight">
-                        <p class="my-1 text-4xl font-black uppercase tracking-wide">
+                        <p class="my-1 text-3xl font-black uppercase tracking-wide">
                             Koperasi Merah Putih
                         </p>
                         <p class="my-1 text-xs">
@@ -35,7 +35,11 @@
 
                     <!-- Jenis Simpanan -->
                     <div class="absolute top-0 right-0 border border-dotted px-3 uppercase py-1 text-xs font-semibold">
-                        Simpanan {{ $transaksi->simpananDetails->first()->jenis }}
+                        @if ($modul === 'Penarikan')
+                            Penarikan Simpanan
+                        @else
+                            Simpanan {{ $transaksi->simpananDetails->first()->jenis }}
+                        @endif
                     </div>
                 </div>
             </div>
@@ -73,14 +77,14 @@
                 <!-- DETAIL SIMPANAN -->
                 <div class="w-1/2 border border-dashed p-3 space-y-2">
                     <div class="flex justify-between">
-                        <span>Nominal Simpanan</span>
-                        <span>Rp {{ $transaksi->Nominal }}</span>
+                        <span>Nominal {{ $modul }}</span>Rp.
+                        <span id="nominal">{{ number_format($transaksi->Nominal, 2, ',', '.') }}</span>
                     </div>
 
                     <div class="flex justify-between">
                         <span>Administrasi 2%</span>
                         <span class="text-red-600">
-                            - <span id="administrasi">Rp {{ ($transaksi->Nominal * $administrasi) / 100 }}</span>
+                            - Rp <span id="nominal"> {{ number_format($transaksi->simpananDetails->first()->biaya_admin, 2, ',', '.') }}</span>
                         </span>
                     </div>
 
@@ -90,10 +94,14 @@
                     </div>
 
                     <div class="flex justify-between items-center font-bold">
-                        <span>Total Simpanan</span>
-                        <span class="bg-slate-200 px-3 py-1 text-2xl">
-                            <span class="border-b border-dashed">Rp
-                                {{ $transaksi->Nominal - ($transaksi->Nominal * $administrasi) / 100 }}</span>
+                        <span>Total {{ $modul }}</span>
+                        <span class="bg-slate-200 px-3 py-1 text-2xl">Rp. 
+                            <span class="border-b border-dashed" id="nominal">
+                                @if ($modul === 'Penarikan')
+                                    {{ number_format(abs($transaksi->simpananDetails->first()->saldo + $transaksi->simpananDetails->first()->biaya_admin), 2, ',', '.') }}
+                                @else
+                                    {{ number_format($transaksi->simpananDetails->first()->saldo, 2, ',', '.') }}</span>
+                                @endif
                         </span>
                     </div>
                 </div>
@@ -125,7 +133,18 @@
 @section('scripts')
     <script>
         window.addEventListener('DOMContentLoaded', () => {
+            
             window.print();
+            if (window.location.href.indexOf('print') > -1) {
+                setTimeout(() => {
+                    window.close();
+                }, 500);
+            }else{
+                setTimeout(() => {
+                    window.location.href = "{{ route('simpanan.index') }}";
+                }, 500);
+            }
+            
         });
     </script>
 @endsection
