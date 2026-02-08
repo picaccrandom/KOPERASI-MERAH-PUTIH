@@ -40,7 +40,7 @@ class SimpananController extends Controller
      */
     public function create()
     {
-        $members = Member::all();
+        $members = Member::where('status', 'aktif')->get();
         // cek simpanan pokok dan wajib yang sudah ada
         $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK') 
             ->whereHas('transaksiSP', function ($q) {
@@ -306,7 +306,7 @@ class SimpananController extends Controller
 
     public function createTarik()
     {
-        $members = Member::all();
+        $members = Member::where('status', 'aktif')->get(   );
         $saldoSimpanan = SimpananDetail::whereIn('jenis', ['sukarela'])
             ->whereHas('transaksiSP', function ($q) {
                 $q->whereNotNull('member_id');

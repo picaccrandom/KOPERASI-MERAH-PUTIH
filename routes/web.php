@@ -44,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/edit/{id}', [MemberController::class, 'edit']);
     Route::post('/update/{id}', [MemberController::class, 'update']);
     Route::get('/hapus/{id}', [MemberController::class, 'destroy']);
+    Route::get('/member/show/{modul}/{id}', [MemberController::class, 'show'])->name('member.show');
+    Route::get('/member/banned/{id}', [MemberController::class, 'banMember'])->name('member.banned');
 
     // --- MODUL ADMIN & MASTER USER ---
     Route::get('/admin', function () { return view('admin_index'); });

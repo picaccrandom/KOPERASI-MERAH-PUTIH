@@ -157,4 +157,17 @@ class MemberController extends Controller
         
         return redirect('/login'); // Tendang balik ke login
     }
+
+    public function show($modul = '', $id = null) {
+        $member = Member::findOrFail($id);
+        return view('member_show', compact('member', 'modul'));
+    }
+
+    public function banMember($id) {
+        $member = Member::findOrFail($id);
+        $member->status = 'banned';
+        $member->save();
+
+        return redirect()->back()->with('success', 'Member telah dibanned.');
+    }
 }

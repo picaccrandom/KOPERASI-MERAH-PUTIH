@@ -50,9 +50,11 @@ class PinjamanController extends Controller
 
     public function create()
     {
-        $members = Member::all();
+        $members = Member::where('status', 'aktif')->get();
         $limitAnggotas = KreditAnggota::all();
-        return view('simpanpinjam.Pinjaman-Create', compact('members', 'limitAnggotas'));
+        $pinjamans = Transaksi_SP::with('member', 'simpananDetails')
+            ->where('COA', 'Simpan')->orderBy('created_at', 'desc')->get();
+        return view('simpanpinjam.Pinjaman-Create', compact('members', 'limitAnggotas', 'pinjamans'));
     }
 
     public function detail($no_transaksi_sp)
@@ -84,12 +86,15 @@ class PinjamanController extends Controller
     {
         DB::transaction(function () use ($request) {
             
-            $totalPinjam = ($request->tenor > 12) 
+            $tenor = $request->tenor ? $request->tenor : $request->tenor_custom;
+
+            $totalPinjam = ($tenor > 12) 
                 ? floatval($request->jumlah_pinjaman * ($request->bunga / 100)/12) + floatval($request->jumlah_pinjaman)
                 : floatval($request->jumlah_pinjaman);
 
             $namaMember = Member::where('id', $request->member_id)->first();
 
+            
             // 1. Buat Transaksi Pinjaman (Unit SP)
             $transaksiSP = Transaksi_SP::create([
                 'no_transaksi_sp' => 'SP-P-'. date('YmdHis'),
@@ -110,10 +115,11 @@ class PinjamanController extends Controller
 
             $limitAnggotas = KreditAnggota::where('id', $transaksiSP->member_id);
             $limitAnggotas->decrement('limit', $transaksiSP->Nominal);
-            
-            foreach (range(1, $request->tenor) as $angsuran_ke) {
+
+            // 2. Buat Angsuran Peminjaman
+            foreach (range(1, $tenor) as $angsuran_ke) {
                 $tanggal_jatuh_tempo_bayar = Carbon::now()->addMonths($angsuran_ke);
-                $jumlah_angsuran = $totalPinjam / $request->tenor;
+                $jumlah_angsuran = $totalPinjam / $tenor;
 
                 DB::table('angsuran_peminjamen')->insert([
                     'no_transaksi_sp' => $transaksiSP->no_transaksi_sp,
@@ -124,7 +130,7 @@ class PinjamanController extends Controller
                     'total_pinjaman' => $totalPinjam,
                     'denda' => 0,
                     'bunga' => $request->bunga,
-                    'tenor' => $request->tenor,
+                    'tenor' => $tenor,
                     'tanggal_pinjaman' => Carbon::now(),
                     'status' => 'belum',
                 ]);
@@ -246,4 +252,6 @@ class PinjamanController extends Controller
 
         return redirect()->route('pinjaman.index')->with('success', 'Data pinjaman dihapus.');
     }
+
+    
 }

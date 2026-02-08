@@ -193,14 +193,14 @@
                                 </thead>
                                 <tbody id="pinjaman-history">
                                     @foreach ($peminjamans as $peminjaman)
-                                        <tr class=" [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 cursor-pointer" onclick="window.location='{{route('pinjaman.detail', $peminjaman->no_transaksi_sp)}}'"
+                                        <tr class="{{ $peminjaman->member->status == 'banned'? 'bg-red-600/40' : '' }} [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50"
                                             data-index="{{ $loop->index }}">
-                                            <td class="font-medium">{{ $peminjaman->no_transaksi_sp }}</td>
+                                            <td class="font-medium cursor-pointer hover:underline hover:text-blue-600" onclick="window.location='{{route('pinjaman.detail', $peminjaman->no_transaksi_sp)}}'">{{ $peminjaman->no_transaksi_sp }}</td>
                                             <td>
                                                 <div class="flex items-center">
                                                     <div>
-                                                        <div class="font-medium text-gray-900">
-                                                            {{ $peminjaman->member->nama_lengkap }}
+                                                        <div class="font-medium text-gray-900 cursor-pointer hover:underline hover:text-blue-600" onclick="window.location='{{route('member.show', ['modul' => 'pinjaman', 'id' => $peminjaman->member->id])}}'">
+                                                           {{ $peminjaman->member->nama_lengkap }}
                                                         </div>
                                                         <div class="text-xs text-gray-500">{{ $peminjaman->no_hp }}</div>
                                                     </div>
@@ -272,16 +272,13 @@
 
                 const kode = row.cells[0].textContent.toLowerCase();
                 const nama = row.cells[1].textContent.toLowerCase();
-                const tanggal = row.cells[2].textContent.toLowerCase();
-                const total = row.cells[3].textContent.toLowerCase();
-                const lamabayar= row.cells[5].textContent.toLowerCase();
-                const jatuhTempo = row.cells[6].textContent.toLowerCase();
+                const total = row.cells[2].textContent.toLowerCase();
+                const lamabayar = row.cells[3].textContent.toLowerCase();
+                const jatuhTempo = row.cells[4].textContent.toLowerCase();
 
                 const match =
                     kode.includes(filter) ||
                     nama.includes(filter) ||
-                    tanggal.includes(filter) ||
-                    status.includes(filter) ||
                     total.includes(filter) ||
                     lamabayar.includes(filter) ||
                     jatuhTempo.includes(filter);

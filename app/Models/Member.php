@@ -9,7 +9,7 @@ class Member extends Model
 {
     use HasFactory;
     // Ini agar Laravel mengizinkan kolom-kolom ini diisi secara massal
-    protected $fillable = ['nik', 'nama_lengkap', 'nomor_hp', 'alamat'];
+    protected $fillable = ['nik', 'nama_lengkap', 'nomor_hp', 'alamat', 'email', 'status', 'foto_ktp'];
 
     public function pinjamans()
     {
