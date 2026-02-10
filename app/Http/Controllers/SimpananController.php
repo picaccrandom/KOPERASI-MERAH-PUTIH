@@ -99,7 +99,7 @@ class SimpananController extends Controller
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
                 'COA' => 'Simpan',
-                'Debit/Credit' => 'Debit', // Uang masuk ke unit SP
+                'Debit/Credit' => 'Credit', // Uang masuk ke unit SP
                 'Nominal' => $nominal,
                 'Keterangan' => 'Simpanan ' . $request->jenis . ': ' . ($request->catatan ?? '-'),
             ]);
@@ -176,7 +176,7 @@ class SimpananController extends Controller
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
                 'COA' => 'Tarik',
-                'Debit/Credit' => 'Credit', // Uang keluar dari unit SP
+                'Debit/Credit' => 'Debit', // Uang keluar dari unit SP
                 'Nominal' => $nominal,
                 'Keterangan' => 'Penarikan Simpanan Sukarela: ' . ($request->catatan ?? '-'),
             ]);

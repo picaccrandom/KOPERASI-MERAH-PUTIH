@@ -122,7 +122,7 @@ class KasirController extends Controller {
                         'member_id' => $request->member_id,
                         'nama' => $namaMember->nama_lengkap ?? 'Member',
                         'COA' => 'Bon',
-                        'Debit/Credit' => 'Credit',
+                        'Debit/Credit' => 'Debit',
                         'Nominal' => $transaksi->total_bon,
                         'Keterangan' => 'Bon Gerai: ' . ($transaksi->kode_transaksi),
                     ]);
