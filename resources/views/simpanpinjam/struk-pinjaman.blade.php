@@ -206,34 +206,37 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.title = "Struk Pinjaman {{ $no_transaksi_sp }}";
-
-            // Dapatkan nilai nominal pinjaman
-            const nominalPinjaman = parseFloat(document.getElementById('besaran-pinjaman').textContent.replace(
-                /[^0-9,-]+/g, "").replace(
-                ',', '.')) || 0;
+            $modul = "{{ $modul }}";
+            if ($modul == 'Pinjaman') {
+                document.title = "Struk Pinjaman {{ $no_transaksi_sp }}";
+    
+                // Dapatkan nilai nominal pinjaman
+                const nominalPinjaman = parseFloat(document.getElementById('besaran-pinjaman').textContent.replace(
+                    /[^0-9,-]+/g, "").replace(
+                    ',', '.')) || 0;
+                    
+                // Hitung total potongan
+                const admin = parseFloat(document.getElementById('admin').textContent.replace(/[^0-9,-]+/g, "").replace(
+                    ',', '.')) || 0;
+                const materai = parseFloat(document.getElementById('materai').textContent.replace(/[^0-9,-]+/g, "")
+                    .replace(',', '.')) || 0;
+                const angsuran = parseFloat(document.getElementById('angsuran').textContent.replace(/[^0-9,-]+/g, "")
+                    .replace(',', '.')) || 0;
+                const denda = parseFloat(document.getElementById('denda').textContent.replace(/[^0-9,-]+/g, "").replace(
+                    ',', '.')) || 0;
+                const mitra = parseFloat(document.getElementById('mitra').textContent.replace(/[^0-9,-]+/g, "").replace(
+                    ',', '.')) || 0;
+    
+                const totalPotongan = admin + materai + angsuran + denda + mitra;
+    
+                // Tampilkan total potongan
+                document.getElementById('potongan').textContent = '- Rp ' + totalPotongan.toLocaleString('id-ID');
                 
-            // Hitung total potongan
-            const admin = parseFloat(document.getElementById('admin').textContent.replace(/[^0-9,-]+/g, "").replace(
-                ',', '.')) || 0;
-            const materai = parseFloat(document.getElementById('materai').textContent.replace(/[^0-9,-]+/g, "")
-                .replace(',', '.')) || 0;
-            const angsuran = parseFloat(document.getElementById('angsuran').textContent.replace(/[^0-9,-]+/g, "")
-                .replace(',', '.')) || 0;
-            const denda = parseFloat(document.getElementById('denda').textContent.replace(/[^0-9,-]+/g, "").replace(
-                ',', '.')) || 0;
-            const mitra = parseFloat(document.getElementById('mitra').textContent.replace(/[^0-9,-]+/g, "").replace(
-                ',', '.')) || 0;
-
-            const totalPotongan = admin + materai + angsuran + denda + mitra;
-
-            // Tampilkan total potongan
-            document.getElementById('potongan').textContent = '- Rp ' + totalPotongan.toLocaleString('id-ID');
-            
-            // Tampilkan jumlah penerimaan
-            const jumlahPenerimaan = nominalPinjaman - totalPotongan;
-            console.log(nominalPinjaman, totalPotongan, jumlahPenerimaan);
-            document.getElementById('penerimaan').textContent = 'Rp ' + jumlahPenerimaan.toLocaleString('id-ID');
+                // Tampilkan jumlah penerimaan
+                const jumlahPenerimaan = nominalPinjaman - totalPotongan;
+                console.log(nominalPinjaman, totalPotongan, jumlahPenerimaan);
+                document.getElementById('penerimaan').textContent = 'Rp ' + jumlahPenerimaan.toLocaleString('id-ID');
+            }
             
             // otomatis cetak struk saat halaman dimuat
             window.print();
