@@ -13,6 +13,7 @@ use App\Models\BonDetail;
 use App\Models\TransaksiFaskes; // Tambahan untuk Laporan
 use App\Models\Obat;            // Tambahan untuk Laporan
 use App\Models\PendaftaranKlinik; // Tambahan untuk Laporan
+use App\Models\SimpananDetail;
 use Illuminate\Support\Facades\DB;
 
 class KasirController extends Controller {
@@ -21,7 +22,8 @@ class KasirController extends Controller {
         $barangs = Barang::where('stok', '>', 0)->get();
         $members = Member::all();
         $limitBon = KreditAnggota::all();
-        return view('kasir.index', compact('barangs', 'members', 'limitBon'));
+        $SimpananMember = SimpananDetail::where('jenis', 'sukarela')->with('transaksiSP')->get(); 
+        return view('kasir.index', compact('barangs', 'members', 'limitBon', 'SimpananMember'));
     }
 
     /**

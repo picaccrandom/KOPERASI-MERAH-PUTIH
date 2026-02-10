@@ -180,6 +180,7 @@
                             <select name="metode_bayar" id="metode_bayar" class="form-select [&>option]:font-semibold border-dark fw-black text-primary py-2 shadow-sm" style="border-radius: 10px;">
                                 <option value="tunai">CASH / TUNAI</option>
                                 <option value="bon" id="bon_pay" class="hidden">BON / PIUTANG ANGGOTA</option>
+                                <option value="simpanan" id="simpanan_pay" class="hidden">SIMPANAN</option>
                             </select>
                         </div>
 
@@ -219,7 +220,7 @@
                                     <i class="fa-solid fa-money-bill-1 mr-1"></i>
                                     Rp.10.000
                                 </span>
-                                <span id="qa_50" class="flex justify-center rounded-md py-1 border-slate-300 cursor-pointer border hover:border hover:border-sky-400 px-2 items-center text-white bg-blue-400 hover:bg-blue-500 active:bg-blue-600">
+                                <span id="qa_50" class="flex justify-center  rounded-md py-1 border-slate-300 cursor-pointer border hover:border hover:border-sky-400 px-2 items-center text-white bg-blue-400 hover:bg-blue-500 active:bg-blue-600">
                                     <i class="fa-solid fa-money-bill-1 mr-1"></i>
                                     Rp.50.000
                                 </span>
@@ -251,12 +252,14 @@
     const memberData = @json($members);
     const barangData = @json($barangs);
     const kreditMember = @json($limitBon);
+    const simpananMember = @json($SimpananMember);  
     let limitBonAnggota = 0;
 
     const inputNik = document.getElementById('nik-input');
     const dropdownMember = document.getElementById('dropdown-member');
     const inputSearchBarang = document.getElementById('search-barang');
     const dropdownBarang = document.getElementById('dropdown-barang');
+    const dropdownMetodeBayar = document.getElementById('metode_bayar');
 
     /**
      * =========================================
@@ -312,6 +315,17 @@
         // Cari Limit BON
         const limitObj = kreditMember.find(l => l.member_id === m.id);
         limitBonAnggota = limitObj ? limitObj.limit : 0;
+        
+        const simpananObj = simpananMember.find(s => s.transaksi_s_p.member_id === m.id);
+        if(simpananObj.saldo > 10000){
+            infoBox.innerHTML += ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`;
+            // dropdownMetodeBayar.querySelector('option[value="bon"]').classList.add('hidden');
+            dropdownMetodeBayar.querySelector('option[value="simpanan"]').classList.remove('hidden');
+        }else{
+            infoBox.innerHTML += ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`;
+            // dropdownMetodeBayar.querySelector('option[value="bon"]').classList.remove('hidden');
+            dropdownMetodeBayar.querySelector('option[value="simpanan"]').classList.add('hidden');
+        }
         
         if(document.getElementById('metode_bayar').value === 'bon') {
             document.getElementById('info-ket-bill').innerText = '*MAKS. PIUTANG: RP ' + limitBonAnggota.toLocaleString();
@@ -500,6 +514,7 @@
         if(isBon) {
             document.getElementById('info-ket-bill').innerText = '*MAKS. PIUTANG: RP ' + limitBonAnggota.toLocaleString();
         }
+
         renderTable();
     });
 
