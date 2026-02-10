@@ -220,7 +220,7 @@
 
                         // tangkap riwayat peminjaman
                         const riwayatPinjaman = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
-                            .length;
+                            .filter(p => p.COA === 'Pinjam').length;
                         const limit = found ? Number(found.limit) : 0;
                         limitSpan.textContent = limit.toLocaleString('id-ID');
                         // tangkap status member

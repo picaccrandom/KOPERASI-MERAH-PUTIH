@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountingService; // Import Service Akuntansi
 use Symfony\Component\HttpFoundation\Response;
+use Stevebauman\Location\Facades\Location; // Import Location Facade
 
 class PinjamanController extends Controller
 {
@@ -53,7 +54,7 @@ class PinjamanController extends Controller
         $members = Member::where('status', 'aktif')->get();
         $limitAnggotas = KreditAnggota::all();
         $pinjamans = Transaksi_SP::with('member', 'simpananDetails')
-            ->where('COA', 'Simpan')->orderBy('created_at', 'desc')->get();
+            ->orderBy('created_at', 'desc')->get();
         return view('simpanpinjam.Pinjaman-Create', compact('members', 'limitAnggotas', 'pinjamans'));
     }
 
@@ -84,20 +85,27 @@ class PinjamanController extends Controller
      */
     public function store(Request $request)
     {
-        DB::transaction(function () use ($request) {
+        $no_transaksi_sp = null;
+
+        DB::transaction(function () use ($request , &$no_transaksi_sp) {
             
             $tenor = $request->tenor ? $request->tenor : $request->tenor_custom;
 
-            $totalPinjam = ($tenor > 12) 
-                ? floatval($request->jumlah_pinjaman * ($request->bunga / 100)/12) + floatval($request->jumlah_pinjaman)
-                : floatval($request->jumlah_pinjaman);
+            $nominalBunga = ($tenor > 12) 
+                ? floatval($request->jumlah_pinjaman * ($request->bunga / 100)) 
+                : 0;
+
+            $totalPinjam = floatval($request->jumlah_pinjaman) + ($nominalBunga * $tenor );
+            // $totalPinjam = ($tenor > 12) 
+            //     ? floatval($request->jumlah_pinjaman * ($request->bunga / 100)) + floatval($request->jumlah_pinjaman)
+            //     : floatval($request->jumlah_pinjaman);
 
             $namaMember = Member::where('id', $request->member_id)->first();
 
             
             // 1. Buat Transaksi Pinjaman (Unit SP)
             $transaksiSP = Transaksi_SP::create([
-                'no_transaksi_sp' => 'SP-P-'. date('YmdHis'),
+                'no_transaksi_sp' => 'SP-P-'. date('YmdHis'). rand(1000, 9999),
                 'tanggal' => Carbon::now(),
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
@@ -106,6 +114,8 @@ class PinjamanController extends Controller
                 'Nominal' => (float)$request->jumlah_pinjaman,
                 'Keterangan' => 'Pinjaman Anggota: ' . ($request->catatan ?? '-'),
             ]);
+
+            $no_transaksi_sp = $transaksiSP->no_transaksi_sp;
 
             /** * 2. INTEGRASI AKUNTANSI: PENCAIRAN
              * Debit: Piutang (1201) | Kredit: Kas (1101)
@@ -126,7 +136,7 @@ class PinjamanController extends Controller
                     'user_id' => $request->user_id,
                     'angsuran_ke' => $angsuran_ke,
                     'batas_bayar' => $tanggal_jatuh_tempo_bayar,
-                    'jumlah_angsuran' => $jumlah_angsuran,
+                    'jumlah_angsuran' => $jumlah_angsuran + $nominalBunga,
                     'total_pinjaman' => $totalPinjam,
                     'denda' => 0,
                     'bunga' => $request->bunga,
@@ -135,11 +145,12 @@ class PinjamanController extends Controller
                     'status' => 'belum',
                 ]);
             }
+
         });
 
         writeLog('Pinjaman', 'Create', 'transaksi__s_p_s', null, null, json_encode($request->all()), 'Pinjaman baru & Jurnal otomatis ID: ' . $request->member_id, 'info', 'success');
         
-        return redirect()->route('pinjaman.index')->with('success', 'Pinjaman berhasil & otomatis terjurnal!');
+        return redirect()->route('pinjaman.strukPinjaman', ['modul' => 'Pinjaman', 'no_transaksi_sp' => $no_transaksi_sp]);
     }
 
     /**
@@ -168,7 +179,7 @@ class PinjamanController extends Controller
             ]);
 
             $transaksi = Transaksi_SP::create([
-                'no_transaksi_sp' => 'SP-A-'. date('YmdHis'),
+                'no_transaksi_sp' => 'SP-A-'. date('YmdHis'). rand(1000, 9999),
                 'tanggal' => $tanggal_bayar,
                 'member_id' => $memberId,
                 'nama' => $namaMember->nama_lengkap ?? 'Anggota',
@@ -193,9 +204,8 @@ class PinjamanController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Angsuran Berhasil!',
-                'data' => [ 'kode_transaksi' => $transaksi->kode_transaksi ]
+                'data' => ['no_transaksi_sp' => $transaksi->no_transaksi_sp ]
             ]);
-            // return redirect()->back()->with('success', 'Angsuran berhasil & Kas Kantor bertambah!');
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -213,7 +223,7 @@ class PinjamanController extends Controller
             $status = BonDetail::where('no_transaksi_sp', $no_transaksi_sp)->first();
 
             $transaksiSP = Transaksi_SP::create([
-                'no_transaksi_sp' => 'SP-LB-'. date('YmdHis'),
+                'no_transaksi_sp' => 'SP-LB-'. date('YmdHis') . rand(1000, 9999),
                 'tanggal' => Carbon::now(),
                 'member_id' => $bon->member_id,
                 'nama' => $bon->nama ?? 'Anggota',
@@ -253,5 +263,22 @@ class PinjamanController extends Controller
         return redirect()->route('pinjaman.index')->with('success', 'Data pinjaman dihapus.');
     }
 
-    
+    public function cetakStrukPinjaman($modul = '', $no_transaksi_sp = '', Request $request) {
+        $pinjaman = Transaksi_SP::with('member','user')->where('no_transaksi_sp', $no_transaksi_sp)->first();
+        $angsuran = AngsuranPeminjaman::where('no_transaksi_sp', $no_transaksi_sp)->get();
+        $loc = Location::get($request->ip()); // Ganti dengan IP dinamis jika diperlukan
+        $loc = $loc ? $loc->cityName : 'Nangsri';
+        return view('simpanpinjam.struk-pinjaman', compact('pinjaman', 'modul', 'no_transaksi_sp', 'angsuran', 'loc'));
+    }
+
+    // cetakan struk angsuran
+    public function cetakStrukAngsuran($modul = '', $no_transaksi_sp = '', $id_angsuran = '') {
+        // get data angsuran
+        $angsuran = AngsuranPeminjaman::where('id', $id_angsuran)->first();
+
+        // get data pinjaman
+        $pinjaman = Transaksi_SP::with('member','user')->where('no_transaksi_sp', $angsuran->no_transaksi_sp)->first();
+
+        return view('simpanpinjam.struk-pinjaman', compact('angsuran', 'modul', 'pinjaman' ,'no_transaksi_sp'));
+    }
 }

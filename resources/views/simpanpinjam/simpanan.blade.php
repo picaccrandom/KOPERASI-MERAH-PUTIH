@@ -124,299 +124,235 @@
             </div>
         </section>
         <!-- Data Table -->
+        <hr>
+        <div class="bg-white h-[80dvh] rounded-2xl border border-gray-200 overflow-hidden shadow-md">
+            <div class=" bg-slate-400 mb-2 text-white font-semibold px-8 py-3 uppercase flex justify-between items-center">
+                <div class=" text-2xl">
+                    <i class="fa-regular fa-file mr-4"></i>Histori
+                    Simpanan dan
+                    Penarikan
+                </div>
+                <div class="flex items-center gap-4">
+                    <div>
+                        <select id="filter-kategori"
+                            class="px-3 py-2.5 bg-white text-slate-400 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-xs">
+                            <option value="">Semua Kategori</option>
+                            <option value="pokok" class="bg-green-800/40 text-white">Pokok</option>
+                            <option value="wajib" class="bg-blue-800/40 text-white">Wajib</option>
+                            <option value="sukarela" class="bg-orange-800/40 text-white">Sukarela</option>
+                        </select>
+                    </div>
+                    <div class="relative">
+                        <input type="text" placeholder="Search..." id="search-simpanan"
+                            class="pl-10 pr-4 py-2 text-slate-400 bg-white border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-[25rem]">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
 
-        <div class="overflow-x-auto flex pb-10 px-10">
-            <div class="w-full h-[35rem] overflow-y-auto">
-                <table class="text-center min-w-full overflow-hidden space-y-4 ">
-                    <thead class="bg-orange-300">
-                        <tr
-                            class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
-                            <th>NO.</th>
-                            <th>NAMA ANGGOTA</th>
-                            <th>KATEGORI</th>
-                            <th>TANGGAL</th>
-                            <th>NOMINAL/SETORAN</th>
-                            <th>KETERANGAN</th>
-                            <th>ACTION</th>
-                        </tr>
-                    </thead>
-                    <tbody class="min-h-full">
-                        @forelse ($simpanans as $simpanan)
+            <div class="overflow-x-autoflex pb-10 px-10 ">
+                <div class="w-full h-140 overflow-y-auto">
+                    <table class="text-center min-w-full overflow-hidden space-y-4 ">
+                        <thead class="bg-black">
                             <tr
-                                class="{{ $simpanan->member->status == 'banned' ? 'bg-red-600/40' : '' }} [&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
-                                <td class="font-medium">{{ $loop->iteration }}</td>
-                                <td>
-                                    <div class="flex items-center">
-                                        <div class="w-full">
-                                            <div class=" text-gray-900 cursor-pointer hover:underline hover:text-blue-600"
-                                                onclick="window.location='{{ route('member.show', ['modul' => 'simpanan', 'id' => $simpanan->member->id]) }}'">
-                                                {{ $simpanan->member->nama_lengkap }}
+                                class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                                <th>NO.</th>
+                                <th>NAMA ANGGOTA</th>
+                                <th>KATEGORI</th>
+                                <th>TANGGAL</th>
+                                <th>NOMINAL</th>
+                                <th>KETERANGAN</th>
+                                <th>ACTION</th>
+                            </tr>
+                        </thead>
+                        <tbody class="min-h-full">
+                            @forelse ($simpanans as $simpanan)
+                                <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
+                                    <td class="font-medium">{{ $loop->iteration }}</td>
+                                    <td>
+                                        <div class="flex items-center">
+                                            <div class="w-full">
+                                                <div class=" text-gray-900 font-semibold">
+                                                    {{ $simpanan->member->nama_lengkap }}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
-                                        <span
-                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
-                                        @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
+                                    </td>
+                                    <td>
+                                        @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
                                             <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
-                                            @else
+                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
+                                            @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
                                                 <span
-                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
-                                    @endif
-                                    {{ $simpanan->simpananDetails->first()->jenis }}
-                                    </span>
-                                </td>
-                                <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
-                                </td>
-                                <td class="font-bold text-red-600">Rp
-                                    {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
-                                <td>
-                                    @if ($simpanan->COA == 'Simpan')
-                                        <span
-                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
-                                            Masuk
+                                                    class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
+                                                @else
+                                                    <span
+                                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
+                                        @endif
+                                        {{ $simpanan->simpananDetails->first()->jenis }}
                                         </span>
-                                    @else
-                                        <span
-                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
-                                            Keluar
-                                        </span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <div class="flex justify-center items-center gap-3">
-                                        <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
-                                            class="d-inline delete-form" data-name="{{ $simpanan->member->nama_lengkap }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="text-red-600 hover:text-red-900 bg-transparent border-0"
-                                                title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center py-4 text-4xl text-gray-500 italic">
-                                    <i class="fa-solid fa-money-bills mr-2"></i>
-                                    Tidak ada data Simpanan
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="overflow-x-auto flex pb-10 px-10 ">
-        <div class="w-full h-140 overflow-y-auto">
-            <table class="text-center min-w-full overflow-hidden space-y-4 ">
-                <thead class="bg-black">
-                    <tr
-                        class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
-                        <th>NO.</th>
-                        <th>NAMA ANGGOTA</th>
-                        <th>KATEGORI</th>
-                        <th>TANGGAL</th>
-                        <th>NOMINAL</th>
-                        <th>KETERANGAN</th>
-                        <th>ACTION</th>
-                    </tr>
-                </thead>
-                <tbody class="min-h-full">
-                    @forelse ($simpanans as $simpanan)
-                        <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
-                            <td class="font-medium">{{ $loop->iteration }}</td>
-                            <td>
-                                <div class="flex items-center">
-                                    <div class="w-full">
-                                        <div class=" text-gray-900 font-semibold">
-                                            {{ $simpanan->member->nama_lengkap }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                @if ($simpanan->simpananDetails->first()->jenis == 'wajib')
-                                    <span
-                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-blue-100 text-blue-800">
-                                    @elseif ($simpanan->simpananDetails->first()->jenis == 'pokok')
-                                        <span
-                                            class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-100 text-green-800">
+                                    </td>
+                                    <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
+                                    </td>
+                                    <td class="font-bold text-red-600">Rp
+                                        {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
+                                    <td>
+                                        @if ($simpanan->COA == 'Simpan')
+                                            <span
+                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
+                                                Masuk
+                                            </span>
                                         @else
                                             <span
-                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-orange-100 text-orange-800">
-                                @endif
-                                {{ $simpanan->simpananDetails->first()->jenis }}
-                                </span>
-                            </td>
-                            <td>{{ Carbon\Carbon::parse($simpanan->simpananDetails->first()->tanggal)->format('d F Y') }}
-                            </td>
-                            <td class="font-bold text-red-600">Rp
-                                {{ number_format($simpanan->simpananDetails->sum('saldo'), 0, ',', '.') }}</td>
-                            <td>
-                                @if ($simpanan->COA == 'Simpan')
-                                    <span
-                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-green-400 text-white">
-                                        Masuk
-                                    </span>
-                                @else
-                                    <span
-                                        class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
-                                        Keluar
-                                    </span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="flex justify-center items-center gap-3">
-                                    <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
-                                        class="d-inline delete-form" data-name="{{ $simpanan->member->nama_lengkap }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="text-red-600 hover:text-red-900 bg-transparent border-0"
-                                            title="Hapus">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-4 text-4xl text-gray-500 italic">
-                                <div class="p-48">
-                                    <i class="fa-solid fa-money-bills mr-2"></i>
-                                    Tidak ada data Simpanan
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                                                class="px-2 py-1 text-[1rem] font-semibold uppercase rounded bg-red-400 text-white">
+                                                Keluar
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="flex justify-center items-center gap-3">
+                                            <form action="{{ route('simpanan.destroy', $simpanan->id) }}" method="POST"
+                                                class="d-inline delete-form"
+                                                data-name="{{ $simpanan->member->nama_lengkap }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="text-red-600 hover:text-red-900 bg-transparent border-0"
+                                                    title="Hapus">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-4xl text-gray-500 italic">
+                                        <div class="p-48">
+                                            <i class="fa-solid fa-money-bills mr-2"></i>
+                                            Tidak ada data Simpanan
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
-    </div>
-@endsection
+        @endsection
 
-@section('scripts')
-    <script>
-        // SweetAlert untuk konfirmasi hapus
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+        @section('scripts')
+            <script>
+                // SweetAlert untuk konfirmasi hapus
+                document.querySelectorAll('.delete-form').forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
 
-                const memberName = this.getAttribute('data-name');
+                        const memberName = this.getAttribute('data-name');
 
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    html: `Data simpanan untuk <strong>${memberName}</strong> akan dihapus permanen!`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Ya, Hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        this.submit();
-                    }
+                        Swal.fire({
+                            title: 'Apakah Anda yakin?',
+                            html: `Data simpanan untuk <strong>${memberName}</strong> akan dihapus permanen!`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Ya, Hapus!',
+                            cancelButtonText: 'Batal'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                this.submit();
+                            }
+                        });
+                    });
                 });
-            });
-        });
 
 
-        // Search fungsi
-        const searchInput = document.getElementById('search-simpanan');
-        const kategoriFilter = document.getElementById('filter-kategori');
-        const members = @json($members);
-        let memberId = 0;
+                // Search fungsi
+                const searchInput = document.getElementById('search-simpanan');
+                const kategoriFilter = document.getElementById('filter-kategori');
+                const members = @json($members);
+                let memberId = 0;
 
 
 
-        document.getElementById('cari-member').addEventListener('click', function() {
-            if (memberId) {
-                fetch(`/simpanan/show/${memberId}`, {
-                        method: 'GET',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(res => {
-                        if (!res.ok) throw new Error('Gagal mengambil data dari server.');
-                        return res.json();
-                    })
-                    .then(data => {
-                        // Update informasi anggota di halaman
-                        document.getElementById('nama-anggota').textContent = data.member.nama_lengkap;
-                        document.getElementById('nik').textContent = data.member.nik;
-                        document.getElementById('no-telp').textContent = data.member.nomor_hp;
-                        document.getElementById('alamat').textContent = data.member.alamat;
-                        document.getElementById('total_simpanan').textContent = new Intl.NumberFormat('id-ID')
-                            .format(data.total_simpanan_all);
-                        document.getElementById('total_sukarela').textContent = new Intl.NumberFormat('id-ID')
-                            .format(data.total_simpanan_sukarela);
-                        // Update status
-                        console.log(data);
-                        const statusElem = document.getElementById('status');
-                        if (data.status === 'aktif') {
-                            statusElem.textContent = 'Aktif';
-                            statusElem.parentElement.className =
-                                'bg-green-600 px-2 shadow-md inline-block rounded-md';
-                        } else {
-                            statusElem.textContent = 'Nonaktif';
-                            statusElem.parentElement.className =
-                                'bg-orange-600 px-2 shadow-md inline-block rounded-md';
-                        }
-                    })
-                    .catch(err => {
+                document.getElementById('cari-member').addEventListener('click', function() {
+                    if (memberId) {
+                        fetch(`/simpanan/show/${memberId}`, {
+                                method: 'GET',
+                                headers: {
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                }
+                            })
+                            .then(res => {
+                                if (!res.ok) throw new Error('Gagal mengambil data dari server.');
+                                return res.json();
+                            })
+                            .then(data => {
+                                // Update informasi anggota di halaman
+                                document.getElementById('nama-anggota').textContent = data.member.nama_lengkap;
+                                document.getElementById('nik').textContent = data.member.nik;
+                                document.getElementById('no-telp').textContent = data.member.nomor_hp;
+                                document.getElementById('alamat').textContent = data.member.alamat;
+                                document.getElementById('total_simpanan').textContent = new Intl.NumberFormat('id-ID')
+                                    .format(data.total_simpanan_all);
+                                document.getElementById('total_sukarela').textContent = new Intl.NumberFormat('id-ID')
+                                    .format(data.total_simpanan_sukarela);
+                                // Update status
+                                console.log(data);
+                                const statusElem = document.getElementById('status');
+                                if (data.status === 'aktif') {
+                                    statusElem.textContent = 'Aktif';
+                                    statusElem.parentElement.className =
+                                        'bg-green-600 px-2 shadow-md inline-block rounded-md';
+                                } else {
+                                    statusElem.textContent = 'Nonaktif';
+                                    statusElem.parentElement.className =
+                                        'bg-orange-600 px-2 shadow-md inline-block rounded-md';
+                                }
+                            })
+                            .catch(err => {
+                                swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: 'Gagal mengambil data anggota. Cek koneksi Anda.',
+                                    timer: 3000,
+                                    showConfirma: true
+                                });
+                                console.error(err);
+                            });
+                    } else {
                         swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: 'Gagal mengambil data anggota. Cek koneksi Anda.',
+                            text: 'Silakan pilih member terlebih dahulu dari hasil pencarian!',
                             timer: 3000,
                             showConfirma: true
                         });
-                        console.error(err);
-                    });
-            } else {
-                swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Silakan pilih member terlebih dahulu dari hasil pencarian!',
-                    timer: 3000,
-                    showConfirma: true
+                    }
+
                 });
-            }
 
-        });
+                document.getElementById('search-data-simpanan').addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    const filtered = members.filter(m =>
+                        m.nama_lengkap.toLowerCase().includes(query) ||
+                        m.nik.toLowerCase().includes(query)
+                    );
 
-        document.getElementById('search-data-simpanan').addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            const filtered = members.filter(m =>
-                m.nama_lengkap.toLowerCase().includes(query) ||
-                m.nik.toLowerCase().includes(query)
-            );
+                    console.log(filtered);
+                    const dropdown = document.getElementById('dropdown-member');
 
-            console.log(filtered);
-            const dropdown = document.getElementById('dropdown-member');
+                    dropdown.innerHTML = '';
 
-            dropdown.innerHTML = '';
-
-            if (filtered.length > 0 && query !== '') {
-                filtered.forEach(m => {
-                    const option = document.createElement('a');
-                    option.classList.add('dropdown-item', 'cursor-pointer');
-                    option.innerHTML = `<div class="d-flex   justify-content-between align-items-center">
+                    if (filtered.length > 0 && query !== '') {
+                        filtered.forEach(m => {
+                            const option = document.createElement('a');
+                            option.classList.add('dropdown-item', 'cursor-pointer');
+                            option.innerHTML = `<div class="d-flex   justify-content-between align-items-center">
                                             <div style="line-height: 1.2;">
                                                 <small class="text-danger fw-bold d-block">${m.nik}</small>
                                                 <strong class="text-dark text-uppercase font-black" style="font-size: 1rem;">${m.nama_lengkap}</strong>
@@ -424,75 +360,75 @@
                                             <i class="fas fa-user-plus text-muted fa-lg"></i>
                                         </div>`;
 
-                    option.addEventListener('click', () => {
-                        document.getElementById('search-data-simpanan').value =
-                            `${m.nik} - ${m.nama_lengkap}`;
-                        memberId = m.id; // Set the member ID
+                            option.addEventListener('click', () => {
+                                document.getElementById('search-data-simpanan').value =
+                                    `${m.nik} - ${m.nama_lengkap}`;
+                                memberId = m.id; // Set the member ID
+                                dropdown.classList.add('hidden');
+                                dropdown.classList.remove('show');
+                            });
+                            dropdown.appendChild(option);
+                        });
+                        dropdown.classList.remove('hidden');
+                        dropdown.classList.add('show');
+                    } else {
                         dropdown.classList.add('hidden');
                         dropdown.classList.remove('show');
+                    }
+                });
+
+
+                function filterTable() {
+                    const searchValue = searchInput.value.toLowerCase();
+                    const kategoriValue = kategoriFilter.value.toLowerCase();
+                    const rows = document.querySelectorAll('table tbody tr');
+
+                    rows.forEach(row => {
+                        const namaAnggota = row.cells[1].textContent.toLowerCase();
+                        const kategori = row.cells[2].textContent.toLowerCase();
+                        const tanggal = row.cells[3].textContent.toLowerCase();
+                        const keterangan = row.cells[5].textContent.toLowerCase();
+
+                        const cocokSearch =
+                            namaAnggota.includes(searchValue) ||
+                            kategori.includes(searchValue) ||
+                            tanggal.includes(searchValue) ||
+                            keterangan.includes(searchValue);
+
+                        const cocokKategori =
+                            kategoriValue === '' || kategori.includes(kategoriValue);
+
+                        if (cocokSearch && cocokKategori) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
                     });
-                    dropdown.appendChild(option);
-                });
-                dropdown.classList.remove('hidden');
-                dropdown.classList.add('show');
-            } else {
-                dropdown.classList.add('hidden');
-                dropdown.classList.remove('show');
-            }
-        });
-
-
-        function filterTable() {
-            const searchValue = searchInput.value.toLowerCase();
-            const kategoriValue = kategoriFilter.value.toLowerCase();
-            const rows = document.querySelectorAll('table tbody tr');
-
-            rows.forEach(row => {
-                const namaAnggota = row.cells[1].textContent.toLowerCase();
-                const kategori = row.cells[2].textContent.toLowerCase();
-                const tanggal = row.cells[3].textContent.toLowerCase();
-                const keterangan = row.cells[5].textContent.toLowerCase();
-
-                const cocokSearch =
-                    namaAnggota.includes(searchValue) ||
-                    kategori.includes(searchValue) ||
-                    tanggal.includes(searchValue) ||
-                    keterangan.includes(searchValue);
-
-                const cocokKategori =
-                    kategoriValue === '' || kategori.includes(kategoriValue);
-
-                if (cocokSearch && cocokKategori) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
                 }
-            });
-        }
 
 
-        searchInput.addEventListener('input', filterTable);
-        kategoriFilter.addEventListener('change', filterTable);
+                searchInput.addEventListener('input', filterTable);
+                kategoriFilter.addEventListener('change', filterTable);
 
-        @if (session('success'))
-            {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sukses',
-                    text: '{{ session('success') }}',
-                    timer: 3000,
-                    showConfirma: false
-                });
-            }
-        @elseif (session('error')) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: '{{ session('error') }}',
-                    timer: 3000,
-                    showConfirma: true
-                });
-            }
-        @endif
-    </script>
-@endsection
+                @if (session('success'))
+                    {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Sukses',
+                            text: '{{ session('success') }}',
+                            timer: 3000,
+                            showConfirma: false
+                        });
+                    }
+                @elseif (session('error')) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: '{{ session('error') }}',
+                            timer: 3000,
+                            showConfirma: true
+                        });
+                    }
+                @endif
+            </script>
+        @endsection

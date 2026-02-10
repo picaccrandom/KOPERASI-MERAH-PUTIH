@@ -169,8 +169,6 @@
             if (result.isConfirmed) {
                 swal.showLoading();
 
-                
-
                 fetch(`/pinjaman/bayar-angsuran/${memberId}/${angsuranId}`, {
                     method: 'POST',
                     headers: {
@@ -186,9 +184,11 @@
                 })
                 .then(data => {
                     // Berhasil: Munculkan sukses lalu reload
-                    swal.fire('Berhasil!', data.message, 'success').then(() => {
-                        location.reload();
-                    });
+                    window.location.href = `/pinjaman/struk-pinjaman/Angsuran/${data.data.no_transaksi_sp}/${angsuranId}`;
+                    
+                    // swal.fire('Berhasil!', data.message, 'success').then(() => {
+                    //     location.reload();
+                    // });
                 })
                 .catch(err => {
                     // Jika terjadi error (atau respon bukan JSON)
