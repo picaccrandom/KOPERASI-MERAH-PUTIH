@@ -317,14 +317,21 @@
         limitBonAnggota = limitObj ? limitObj.limit : 0;
         
         const simpananObj = simpananMember.find(s => s.transaksi_s_p.member_id === m.id);
-        if(simpananObj.saldo > 10000){
-            infoBox.innerHTML += ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`;
+        if(!simpananObj){
+            dropdownMetodeBayar.querySelector('option[value="simpanan"]').classList.add('hidden');
+            console.log('Tidak ada simpanan');
+            return;
+        }
+        if(simpananObj && simpananObj.saldo > 10000){
+            infoBox.innerHTML += ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`; 
             // dropdownMetodeBayar.querySelector('option[value="bon"]').classList.add('hidden');
             dropdownMetodeBayar.querySelector('option[value="simpanan"]').classList.remove('hidden');
+            console.log(true);
         }else{
             infoBox.innerHTML += ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`;
             // dropdownMetodeBayar.querySelector('option[value="bon"]').classList.remove('hidden');
             dropdownMetodeBayar.querySelector('option[value="simpanan"]').classList.add('hidden');
+            console.log(false);
         }
         
         if(document.getElementById('metode_bayar').value === 'bon') {
