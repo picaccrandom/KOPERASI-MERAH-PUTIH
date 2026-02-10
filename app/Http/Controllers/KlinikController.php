@@ -144,7 +144,7 @@ class KlinikController extends Controller
                     'nama'             => $member->nama_lengkap,
                     'COA'              => 'Klinik',
                     'status'           => 'open',
-                    'Debit/Credit'     => 'Credit',
+                    'Debit/Credit'     => 'Debit',
                     'Nominal'          => $request->biaya_tindakan,
                     'Keterangan'       => 'Biaya tindakan klinik: ' . $pendaftaran->no_registrasi,
                     'kode_pendaftaran' => $pendaftaran->no_registrasi,
@@ -183,7 +183,7 @@ class KlinikController extends Controller
             $transaksi->update([
                 'status'       => 'closed',
                 'updated_at'   => now(),
-                'Debit/Credit' => 'Debit'
+                'Debit/Credit' => 'Credit'
             ]);
 
             // Jika request meminta JSON (untuk SweetAlert)
