@@ -21,10 +21,7 @@ class DatabaseSeeder extends Seeder
     
     public function run(): void
     {
-        Member::factory(10)->create();
-        Barang::factory(10)->create();
-        KreditAnggota::factory(10)->create();
-
+        // Create users
         User::factory()->create([
             'name' => 'Yoga Test',
             'username' => 'yoga',
@@ -39,6 +36,35 @@ class DatabaseSeeder extends Seeder
             'name' => 'Hendra Test',
             'username' => 'hendra',
             'password' => Hash::make('password'),
+        ]);
+
+        // Call all seeders
+        $this->call([
+            BarangSeeder::class,
+            MemberSeeder::class,
+            KreditAnggotaSeeder::class,
+            StokMasukSeeder::class,
+            TransaksiSeeder::class,
+            TransaksiDetailSeeder::class,
+            PendaftaranKlinikSeeder::class,
+            RekamMedisSeeder::class,
+            ObatSeeder::class,
+            PasienSeeder::class,
+            DistribusiBarangSeeder::class,
+            UserRecSeeder::class,
+            StokMutasiSeeder::class,
+            FakturSeeder::class,
+            AccountSeeder::class,
+            JurnalSeeder::class,
+            TransaksiFaskesSeeder::class,
+            TransaksiObatDetailSeeder::class,
+            TransaksiSPSeeder::class,
+            AngsuranPeminjamanSeeder::class,
+            SimpananDetailSeeder::class,
+            BonDetailSeeder::class,
+            OrderObatSeeder::class,
+            OrderSeeder::class,
+            // LogSeeder::class,
         ]);
     }
 }

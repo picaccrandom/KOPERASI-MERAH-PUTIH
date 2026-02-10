@@ -77,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pinjaman/detail/{no_transaksi_sp}', [PinjamanController::class, 'detail'])->name('pinjaman.detail');
     Route::post('/pinjaman/bayar-angsuran/{memberId}/{id_angsuran}', [PinjamanController::class, 'bayarAngsuran'])->name('pinjaman.bayarAngsuran');
     Route::delete('/pinjaman/{no_transaksi_sp}', [PinjamanController::class, 'destroy'])->name('pinjaman.destroy');
+    Route::get('/pinjaman/struk-pinjaman/{modul}/{no_transaksi_sp}/{id_angsuran}', [PinjamanController::class, 'cetakStrukAngsuran'])->name('pinjaman.strukAngsuran');
+    Route::get('/pinjaman/struk-pinjaman/{modul}/{no_transaksi_sp}', [PinjamanController::class, 'cetakStrukPinjaman'])->name('pinjaman.strukPinjaman');
 
     // --- MODUL BON ---
     Route::get('/bon', [PinjamanController::class, 'indexBon'])->name('bon.indexBon');

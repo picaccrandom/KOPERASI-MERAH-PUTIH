@@ -65,12 +65,12 @@
                 <!-- DATA ANGGOTA -->
                 <div class="w-1/2 border border-dotted p-3 space-y-2">
                     <p class="text-base">
-                        <span class="font-semibold">Nama Anggota:</span><br>
-                        {{ $transaksi->nama }}
+                        <span class="font-semibold">Nomor Induk Kependudukan:</span><br>
+                        {{ $transaksi->member->nik }}
                     </p>
                     <p class="text-base">
-                        <span class="font-semibold">ID Anggota:</span><br>
-                        {{ $transaksi->member_id }}
+                        <span class="font-semibold">Nama Anggota:</span><br>
+                        {{ $transaksi->nama }}
                     </p>
                 </div>
 
