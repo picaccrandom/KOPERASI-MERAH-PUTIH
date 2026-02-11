@@ -20,7 +20,7 @@ return new class extends Migration
             $table->dateTime('tgl_transaksi');
             $table->decimal('grand_total', 15, 2);
 
-            $table->enum('tipe_pembayaran', ['tunai','bon']);
+            $table->enum('tipe_pembayaran', ['tunai','bon', 'simpanan']);
             $table->enum('status', ['open','closed'])->default('closed');
             $table->decimal('total_bon', 15, 2)->default(0);
             $table->decimal('total_tunai', 15, 2)->default(0);

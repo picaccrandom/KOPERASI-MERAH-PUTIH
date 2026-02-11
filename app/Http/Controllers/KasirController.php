@@ -13,32 +13,37 @@ use App\Models\BonDetail;
 use App\Models\TransaksiFaskes; // Tambahan untuk Laporan
 use App\Models\Obat;            // Tambahan untuk Laporan
 use App\Models\PendaftaranKlinik; // Tambahan untuk Laporan
+use App\Models\SimpananDetail;
 use Illuminate\Support\Facades\DB;
 
-class KasirController extends Controller {
-    
-    public function index() {
+class KasirController extends Controller
+{
+
+    public function index()
+    {
         $barangs = Barang::where('stok', '>', 0)->get();
         $members = Member::all();
         $limitBon = KreditAnggota::all();
-        return view('kasir.index', compact('barangs', 'members', 'limitBon'));
+        $SimpananMember = SimpananDetail::where('jenis', 'sukarela')->with('transaksiSP')->get();
+        return view('kasir.index', compact('barangs', 'members', 'limitBon', 'SimpananMember'));
     }
 
     /**
      * PUSAT LAPORAN TERPADU (5 LAPORAN JADI SATU)
      * Menangani laporan dari Gerai, Apotek, dan Klinik
      */
-    public function pusatLaporan(Request $request) {
+    public function pusatLaporan(Request $request)
+    {
         $type = $request->get('type', 'omzet');
-        $tgl_mulai = $request->get('tgl_mulai', date('Y-m-01')); 
+        $tgl_mulai = $request->get('tgl_mulai', date('Y-m-01'));
         $tgl_selesai = $request->get('tgl_selesai', date('Y-m-d'));
-        
+
         $data = collect();
 
         switch ($type) {
             case 'omzet':
-                $gerai = Transaksi::whereBetween('created_at', [$tgl_mulai.' 00:00:00', $tgl_selesai.' 23:59:59'])->get();
-                $faskes = TransaksiFaskes::whereBetween('created_at', [$tgl_mulai.' 00:00:00', $tgl_selesai.' 23:59:59'])->get();
+                $gerai = Transaksi::whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59'])->get();
+                $faskes = TransaksiFaskes::whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59'])->get();
                 $data = $gerai->concat($faskes)->sortByDesc('created_at');
                 break;
 
@@ -49,33 +54,34 @@ class KasirController extends Controller {
             case 'piutang':
                 // 1. Ambil Piutang dari Gerai (Menggunakan kolom total_bon)
                 $geraiBon = Transaksi::where('total_bon', '>', 0)
-                            ->whereBetween('created_at', [$tgl_mulai.' 00:00:00', $tgl_selesai.' 23:59:59'])->get();
-                
+                    ->whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59'])->get();
+
                 // 2. Ambil Piutang dari Apotek/Klinik 
                 // PERBAIKAN: Gunakan kolom 'Nominal' dan filter 'Debit/Credit' nya adalah 'Credit'
                 $faskesBon = TransaksiFaskes::where('Debit/Credit', 'Credit')
-                            ->where('Nominal', '>', 0)
-                            ->whereBetween('created_at', [$tgl_mulai.' 00:00:00', $tgl_selesai.' 23:59:59'])->get();
-                
+                    ->where('Nominal', '>', 0)
+                    ->whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59'])->get();
+
                 $data = $geraiBon->concat($faskesBon);
                 break;
 
             case 'klinik':
                 $data = PendaftaranKlinik::with(['member', 'rekamMedis'])
-                        ->whereBetween('created_at', [$tgl_mulai.' 00:00:00', $tgl_selesai.' 23:59:59'])
-                        ->get();
+                    ->whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59'])
+                    ->get();
                 break;
 
             case 'labarugi':
                 $data = TransaksiFaskes::where('status', 'closed')
-                        ->whereBetween('created_at', [$tgl_mulai.' 00:00:00', $tgl_selesai.' 23:59:59'])->get();
+                    ->whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59'])->get();
                 break;
         }
 
         return view('kantor.akuntansi.pusat_laporan', compact('data', 'type', 'tgl_mulai', 'tgl_selesai'));
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $transaksi = null;
 
         try {
@@ -94,7 +100,7 @@ class KasirController extends Controller {
                     'status' => 'closed',
                     'total_tunai' => $request->total_tunai ?? 0,
                     'total_bon' => $request->total_bon ?? 0,
-                    'COA' => 'Gerai' 
+                    'COA' => 'Gerai'
                 ]);
 
                 // 2. Loop barang yang dibeli
@@ -117,7 +123,7 @@ class KasirController extends Controller {
                 // 3. Logika BON / Piutang
                 if ($request->kategori == 'member' && $request->metode_bayar == 'bon') {
                     $Transaksi_SP = Transaksi_SP::create([
-                        'no_transaksi_sp' => 'SP-B-'. date('YmdHis'),
+                        'no_transaksi_sp' => 'SP-B-' . date('YmdHis'),
                         'tanggal' => $transaksi->tgl_transaksi,
                         'member_id' => $request->member_id,
                         'nama' => $namaMember->nama_lengkap ?? 'Member',
@@ -137,6 +143,31 @@ class KasirController extends Controller {
                         $limitBon->decrement('limit', $transaksi->total_bon);
                     }
                 }
+
+                // 4. Logika Simpanan
+                if ($request->metode_bayar == 'simpanan') {
+                    // buat transaksi simpanan
+                    $transaksi_SP = Transaksi_SP::create([
+                        'no_transaksi_sp' => 'SP-S-' . date('YmdHis').rand(1000,9999),
+                        'tanggal' => $transaksi->tgl_transaksi,
+                        'member_id' => $request->member_id,
+                        'nama' => $namaMember->nama_lengkap ?? 'Member',
+                        'COA' => 'Simpanan',
+                        'Debit/Credit' => 'Debit',
+                        'Nominal' => $transaksi->grand_total,
+                        'Keterangan' => 'Pembayaran Gerai via Simpanan: ' . ($transaksi->kode_transaksi),
+                    ]);
+                    
+                    // buat detail simpanan
+                    $simpanan = SimpananDetail::create([
+                        'no_transaksi_sp' => $transaksi_SP->no_transaksi_sp,
+                        'tanggal' => $transaksi->tgl_transaksi,
+                        'saldo' => -$transaksi->grand_total,
+                        'biaya_admin' => 0,
+                        'jenis' => 'sukarela',
+                        'status' => 'aktif',
+                    ]);
+                }
             });
 
             if (function_exists('writeLog')) {
@@ -146,9 +177,8 @@ class KasirController extends Controller {
             return response()->json([
                 'success' => true,
                 'message' => 'Transaksi Berhasil!',
-                'data' => [ 'kode_transaksi' => $transaksi->kode_transaksi ]
+                'data' => ['kode_transaksi' => $transaksi->kode_transaksi]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -157,7 +187,8 @@ class KasirController extends Controller {
         }
     }
 
-    public function cetakStruk($kode_transaksi, $kembalian = 0) {
+    public function cetakStruk($kode_transaksi, $kembalian = 0)
+    {
         $transaksi = Transaksi::where('kode_transaksi', $kode_transaksi)->first();
         $details = TransaksiDetail::where('kode_transaksi', $kode_transaksi)->with('barang')->get();
 
