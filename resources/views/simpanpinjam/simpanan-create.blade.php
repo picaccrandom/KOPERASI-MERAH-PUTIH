@@ -47,11 +47,20 @@
                     <div class="grid grid-cols-6 gap-4">
                         <div class="col-span-4 row-span-2">
                             <label class="mb-1 after:content-['*'] after:text-red-500 after:pl-1">Nominal/Setoran</label>
-                            <div class="flex items-center gap-4 text-5xl h-full">
+                            <div class="flex items-center gap-4 text-5xl h-full relative">
                                 <p>Rp. </p>
                                 <input type="text"
-                                    class="w-full h-full px-3 py-2 bg-slate-400/40 backdrop-blur-2xl rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    class="w-full h-full px-3 py-2 bg-slate-400/40 backdrop-blur-2xl relative rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                     name="nominal" id="nominal" placeholder="..." autocomplete="off">
+                                <div class="absolute top-3 right-5 flex text-xs" id="admin_pay">
+                                    <input type="text" name="administrasi" id="administrasi" value="true" hidden
+                                        readonly>
+                                    <span
+                                        class=" px-2 py-1 font-bold text-center  border border-green-400 text-white rounded bg-green-400">+ Rp.
+                                        5.000</span>
+                                    <i
+                                        class="fa-solid fa-x text-red-500 font-bold  hover:bg-slate-50 p-0.5 absolute -top-1 -right-1 text-xs rounded-md px-0.5 "></i>
+                                </div>
                             </div>
                             <p id="ket-input-nominal"
                                 class="text-red-500 text-xs tracking-widest font-thin pl-28 w-full mt-1 hidden"></p>
@@ -144,6 +153,14 @@
                 nominalInput.value = '';
             }
 
+        });
+
+        document.getElementById('admin_pay').addEventListener('click', function() {
+            const adminToggle = document.getElementById('admin_pay');
+            adminToggle.innerHTML = '';
+            ketInputNominal.textContent =
+                '*Biaya administrasi sebesar Rp. 5000 akan dikenakan untuk simpanan sukarela.';
+            ketInputNominal.classList.remove('hidden');
         });
 
         document.getElementById('search-member').addEventListener('input', function() {
