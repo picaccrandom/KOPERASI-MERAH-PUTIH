@@ -175,8 +175,14 @@
                 swal.fire('Error', 'Silahkan pilih member dari daftar yang tersedia.', 'error');
                 return;
             }
-            console.log(rawNominal, saldo + 5000);
-            if(saldo + 5000 >= rawNominal) {
+
+            if(rawNominal < 20000) {
+                swal.fire('Error', 'Nominal penarikan maksimal Rp. 20.000 per transaksi.', 'error');
+                return;
+            }
+            
+            
+            if(parseInt(saldo) <= parseInt(rawNominal) + 5000) {
                 swal.fire('Error', 'Nominal tidak mencukupi.', 'error');
                 return;
             }
