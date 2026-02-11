@@ -43,28 +43,28 @@ class SimpananController extends Controller
         $members = Member::where('status', 'aktif')->get();
         // cek simpanan pokok dan wajib yang sudah ada
         $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK') 
-            ->whereHas('transaksiSP', function ($q) {
+            ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
-            ->with('transaksiSP')
+            ->with('transaksi')
             ->get()
             ->map(function($item) {
                 return [
-                    'member_id' => $item->transaksiSP->member_id
+                    'member_id' => $item->transaksi->member_id
                 ];
             });
         // cek simpanan wajib yang sudah ada dibulan ini
         $SimpanansWajib = SimpananDetail::where('jenis', 'WAJIB') 
-            ->whereHas('transaksiSP', function ($q) {
+            ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
             ->whereMonth('tanggal', date('m'))
             ->whereYear('tanggal', date('Y'))
-            ->with('transaksiSP')
+            ->with('transaksi')
             ->get()
             ->map(function($item) {
                 return [
-                    'member_id' => $item->transaksiSP->member_id
+                    'member_id' => $item->transaksi->member_id
                 ];
             });
         return view('simpanpinjam.simpanan-create', compact('members', 'SimpanansPokok', 'SimpanansWajib'));
@@ -235,13 +235,13 @@ class SimpananController extends Controller
     {
         if (request()->wantsJson() || request()->expectsJson()) {
             $member = Member::findOrFail($id);
-            $total_simpanan_sukarela = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
+            $total_simpanan_sukarela = SimpananDetail::whereHas('transaksi', function($q) use ($id) {
                 $q->where('member_id', $id)->where('jenis','sukarela');
             })->sum('saldo');
-            $total_simpanan_all = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
+            $total_simpanan_all = SimpananDetail::whereHas('transaksi', function($q) use ($id) {
                 $q->where('member_id', $id);
             })->sum('saldo');
-            $status = SimpananDetail::whereHas('transaksiSP', function($q) use ($id) {
+            $status = SimpananDetail::whereHas('transaksi', function($q) use ($id) {
                 $q->where('member_id', $id);
             })->exists() ? 'aktif' : 'nonaktif';
 
@@ -308,14 +308,14 @@ class SimpananController extends Controller
     {
         $members = Member::where('status', 'aktif')->get(   );
         $saldoSimpanan = SimpananDetail::whereIn('jenis', ['sukarela'])
-            ->whereHas('transaksiSP', function ($q) {
+            ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
-            ->with('transaksiSP')
+            ->with('transaksi')
             ->get()
             ->map(function($item) {
                 return [        
-                    'member_id' => $item->transaksiSP->member_id,
+                    'member_id' => $item->transaksi->member_id,
                     'jenis_simpanan' => $item->jenis,
                     'saldo' => $item->saldo,
                 ];
