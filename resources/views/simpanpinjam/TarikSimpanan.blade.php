@@ -136,7 +136,9 @@
                         dropdown.classList.remove('show', 'hidden');
                         // Set saldo sukarela
                         const simpanan = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.saldo), 0);
-                        const saldo = simpanan ? simpanan : 0;
+                        let saldo = simpanan ? simpanan : 0;
+                        const biayaAdmin = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.biaya_admin), 0);
+                        saldo -= biayaAdmin;
                         saldoSukarelaInput.value = 'Rp. ' + formatRupiah(saldo.toString());
                         nominalInput.placeholder = 'Maksimal: ' + saldo;
                     });

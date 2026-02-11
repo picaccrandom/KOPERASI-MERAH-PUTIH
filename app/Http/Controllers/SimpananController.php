@@ -87,12 +87,10 @@ class SimpananController extends Controller
             //
             $nominal = (float)$request->nominal;
 
-            if ($request->administrasi == 'true') {
-                $administrasi = 0;
-            } else {
-                $administrasi = 5000;
+            $administrasi = 5000;
+            if ($request->administrasi != 'true') {
                 $nominal = $nominal - $administrasi;
-            }
+            } 
 
             // 1. Buat Transaksi Simpanan (Unit SP)
             $transaksi = Transaksi_SP::create([
@@ -168,7 +166,7 @@ class SimpananController extends Controller
 
         $namaMember = Member::where('id', $request->member_id)->first();
         $nominal = (float)$request->nominal;
-        $administrasi = ($nominal * 2) / 100;
+        $administrasi = 5000;
 
         if (!$namaMember) {
             return redirect()->back()->with('error', 'Member tidak ditemukan.');
@@ -192,7 +190,7 @@ class SimpananController extends Controller
             SimpananDetail::create([
                 'no_transaksi_sp' => $transaksi->no_transaksi_sp,
                 'tanggal' => now(),
-                'saldo' => -$nominal + $administrasi,
+                'saldo' => -$nominal,
                 'biaya_admin' => $administrasi,
                 'jenis' => 'sukarela',
                 'status' => 'aktif',
@@ -251,6 +249,9 @@ class SimpananController extends Controller
             $total_simpanan_all = SimpananDetail::whereHas('transaksiSP', function ($q) use ($id) {
                 $q->where('member_id', $id);
             })->sum('saldo');
+            $biaya_admin = SimpananDetail::whereHas('transaksiSP', function ($q) use ($id) {
+                $q->where('member_id', $id);
+            })->sum('biaya_admin');
             $status = SimpananDetail::whereHas('transaksiSP', function ($q) use ($id) {
                 $q->where('member_id', $id);
             })->exists() ? 'aktif' : 'nonaktif';
@@ -259,7 +260,7 @@ class SimpananController extends Controller
                 'member' => $member,
                 'status' => $status,
                 'total_simpanan_all' => $total_simpanan_all,
-                'total_simpanan_sukarela' => $total_simpanan_sukarela,
+                'total_simpanan_sukarela' => $total_simpanan_sukarela - $biaya_admin,
             ]);
         }
     }
@@ -328,6 +329,7 @@ class SimpananController extends Controller
                     'member_id' => $item->transaksiSP->member_id,
                     'jenis_simpanan' => $item->jenis,
                     'saldo' => $item->saldo,
+                    'biaya_admin' => $item->biaya_admin,
                 ];
             });
 

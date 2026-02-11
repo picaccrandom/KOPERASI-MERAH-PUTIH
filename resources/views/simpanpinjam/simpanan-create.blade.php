@@ -52,7 +52,7 @@
                                 <input type="text"
                                     class="w-full h-full px-3 py-2 bg-slate-400/40 backdrop-blur-2xl relative rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                     name="nominal" id="nominal" placeholder="..." autocomplete="off">
-                                <div class="absolute top-3 right-5 flex text-xs" id="admin_pay">
+                                <div class="absolute top-3 right-5 flex text-xs hidden" id="admin_pay">
                                     <input type="text" name="administrasi" id="administrasi" value="true" hidden
                                         readonly>
                                     <span
@@ -147,6 +147,7 @@
                 ketInputNominal.classList.remove('hidden');
 
             } else if (selectedJenis === 'Sukarela') {
+                document.getElementById('admin_pay').classList.remove('hidden');
                 nominalInput.value = '';
                 nominalInput.placeholder = 'Masukkan Nominal Bebas...';
             } else {
