@@ -83,6 +83,8 @@
 
         nominalInput.addEventListener('blur', function() {
             this.value = formatRupiah(this.value);
+            ketInputNominal.innerHTML = '*Biaya administrasi penarikan simpanan sebesar Rp. 5.000 per transaksi.';
+            ketInputNominal.classList.remove('hidden');
         });
 
         nominalInput.addEventListener('focus', function() {
@@ -134,7 +136,9 @@
                         dropdown.classList.remove('show', 'hidden');
                         // Set saldo sukarela
                         const simpanan = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.saldo), 0);
-                        const saldo = simpanan ? simpanan : 0;
+                        let saldo = simpanan ? simpanan : 0;
+                        const biayaAdmin = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.biaya_admin), 0);
+                        saldo -= biayaAdmin;
                         saldoSukarelaInput.value = 'Rp. ' + formatRupiah(saldo.toString());
                         nominalInput.placeholder = 'Maksimal: ' + saldo;
                     });
@@ -171,6 +175,17 @@
 
             if (!memberId) {
                 swal.fire('Error', 'Silahkan pilih member dari daftar yang tersedia.', 'error');
+                return;
+            }
+
+            if(rawNominal < 20000) {
+                swal.fire('Error', 'Nominal penarikan maksimal Rp. 20.000 per transaksi.', 'error');
+                return;
+            }
+            
+            
+            if(parseInt(saldo) <= parseInt(rawNominal) + 5000) {
+                swal.fire('Error', 'Nominal tidak mencukupi.', 'error');
                 return;
             }
 
