@@ -110,7 +110,7 @@ class PinjamanController extends Controller
                 'member_id' => $request->member_id,
                 'nama' => $namaMember->nama_lengkap,
                 'COA' => 'Pinjam',
-                'Debit/Credit' => 'Credit', // Uang keluar dari kas
+                'Debit/Credit' => 'Debit', // Uang keluar dari kas
                 'Nominal' => (float)$request->jumlah_pinjaman,
                 'Keterangan' => 'Pinjaman Anggota: ' . ($request->catatan ?? '-'),
             ]);
@@ -184,7 +184,7 @@ class PinjamanController extends Controller
                 'member_id' => $memberId,
                 'nama' => $namaMember->nama_lengkap ?? 'Anggota',
                 'COA' => 'Angsuran',
-                'Debit/Credit' => 'Debit', // Uang masuk
+                'Debit/Credit' => 'Credit', // Uang masuk
                 'Nominal' => $totalBayar,
                 'Keterangan' => 'Pembayaran Angsuran ke-' . $angsuran->angsuran_ke,
             ]);
@@ -228,7 +228,7 @@ class PinjamanController extends Controller
                 'member_id' => $bon->member_id,
                 'nama' => $bon->nama ?? 'Anggota',
                 'COA' => 'Lunas Bon',
-                'Debit/Credit' => 'Debit',
+                'Debit/Credit' => 'Credit', // Uang masuk
                 'Nominal' => $bon->Nominal,
                 'Keterangan' => 'Pelunasan Bon: ' . ($bon->Keterangan ?? '-'),
             ]);

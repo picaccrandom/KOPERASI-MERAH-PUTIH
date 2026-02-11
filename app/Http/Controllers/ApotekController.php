@@ -113,7 +113,7 @@ class ApotekController extends Controller
                     'nama' => $member->nama_lengkap ?? 'Pasien Klinik',
                     'COA' => 'Apotek',
                     'status' => 'closed',
-                    'Debit/Credit' => 'Debit',
+                    'Debit/Credit' => 'Credit',
                     'Nominal' => 0,
                 ]);
 
@@ -187,7 +187,7 @@ class ApotekController extends Controller
                     'nama' => 'Member OTS',
                     'COA' => 'Apotek',
                     'status' => 'closed',
-                    'Debit/Credit' => 'Debit',
+                    'Debit/Credit' => 'Credit', //uang masuk
                     'Nominal' => $totalBayar,
                     'Keterangan' => 'Jual: ' . $obat->nama_obat,
                 ]);
@@ -245,7 +245,7 @@ class ApotekController extends Controller
                     'nama' => 'Penjualan Keranjang',
                     'COA' => 'Apotek',
                     'status' => 'closed',
-                    'Debit/Credit' => 'Debit',
+                    'Debit/Credit' => 'Credit',
                     'Nominal' => $total,
                 ]);
 
