@@ -3,8 +3,8 @@
 @section('content')
     <style>
         /* =========================================
-           2. PANEL PEMBAYARAN STYLING (PERCANTIK)
-           ========================================= */
+                                                                       2. PANEL PEMBAYARAN STYLING (PERCANTIK)
+                                                                       ========================================= */
         .payment-card {
             border-radius: 15px;
             border: none;
@@ -109,7 +109,7 @@
                                     </span>
                                     <input type="text" id="search-barang"
                                         class="form-control form-control-lg font-bold border-dark"
-                                        placeholder="Masukkan Kode atau Nama Barang..." autocomplete="off">
+                                        placeholder="Masukkan Kode atau Nama Barang..." autocomplete="off" autofocus>
                                 </div>
 
                                 <div class="dropdown-menu w-100" id="dropdown-barang"
@@ -120,7 +120,7 @@
 
                         <div class="table-responsive lg:h-[29rem] overflow-y-auto border rounded shadow-sm">
                             <table class="table table-hover table-bordered align-middle" id="table-keranjang">
-                                <thead class="bg-light sticky-top z-10">
+                                <thead class="bg-light ">
                                     <tr class="text-center uppercase small fw-black">
                                         <th class="py-3 text-dark">Nama Barang</th>
                                         <th width="150" class="text-dark">Harga</th>
@@ -362,7 +362,7 @@
             }, {
                 saldo: 0
             }) : null;
-            
+
             if (simpananObj && simpananObj.saldo > 10000) {
                 infoBox.innerHTML +=
                     ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`;
@@ -377,7 +377,7 @@
 
             if (document.getElementById('metode_bayar').value === 'bon') {
                 document.getElementById('info-ket-bill').innerText = '*MAKS. PIUTANG: RP ' + limitBonAnggota
-                .toLocaleString();
+                    .toLocaleString();
             }
             renderTable();
         }
@@ -401,6 +401,8 @@
                 (b.kode_barang && b.kode_barang.toLowerCase().includes(query))
             );
 
+
+
             if (filtered.length > 0) {
                 dropdownBarang.classList.add('show');
                 filtered.forEach(b => {
@@ -417,22 +419,47 @@
                             <small class="badge ${b.stok < 10 ? 'bg-warning text-dark' : 'bg-light text-muted'} border">Stok: ${b.stok}</small>
                         </div>
                     </div>`;
-                    item.onclick = function() {
-                        tambahKeKeranjang(b);
-                        inputSearchBarang.value = '';
-                        dropdownBarang.classList.remove('show');
-                    };
+                    if (item.click) {
+                        item.onclick = function() {
+                            tambahKeKeranjang(b);
+                            inputSearchBarang.value = '';
+                            dropdownBarang.classList.remove('show');
+                        };
+                    }
+
+                    // inisial untuk delay input cegah dobel input barcode
+                    isprosesing = false;
+                    inputSearchBarang.addEventListener('keydown', function(e) {
+                        if (e.key === 'Enter') {
+
+                            isprosesing = true;
+                            
+                            e.preventDefault();
+                            barcode = inputSearchBarang.value;
+                            b = barangData.find(item => item.kode_barang === barcode);
+                            if (b) {
+                                tambahKeKeranjang(b);
+                                inputSearchBarang.value = '';
+                                dropdownBarang.classList.remove('show');
+                            }
+
+                            setTimeout(() => {
+                                
+                            }, 1000);
+                        }
+
+                    });
                     dropdownBarang.appendChild(item);
                 });
             } else {
                 dropdownBarang.classList.add('show');
                 dropdownBarang.innerHTML =
-                '<div class="p-3 text-center text-muted">Barang tidak ditemukan...</div>';
+                    '<div class="p-3 text-center text-muted">Barang tidak ditemukan...</div>';
             }
         });
 
         function tambahKeKeranjang(b) {
-            const exist = keranjang.find(item => item.id === b.id);
+            const exist = keranjang.find(item => item.kode_barang === b.kode_barang);
             if (exist) {
                 if (exist.qty < b.stok) {
                     exist.qty++;
@@ -450,6 +477,7 @@
             }
             renderTable();
         }
+
 
         /**
          * =========================================
