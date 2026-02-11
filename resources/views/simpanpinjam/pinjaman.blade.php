@@ -18,8 +18,8 @@
             </div>
             <div class="flex justify-center items-center ">
                 <a type="a" href="{{ route('pinjaman.create') }}"
-                    class="w-full h-full px-4 py-2 bg-red-600 text-3xl hover:bg-red-700 text-white rounded flex justify-center items-center  text-decoration-none shadow-md  uppercase font-semibold">
-                    <i class="fa-solid fa-money-bill-transfer mr-6"></i>
+                    class="w-full h-full px-10 py-6 tracking-wider bg-red-600 text-2xl hover:bg-red-700 text-white rounded-2xl hover: flex justify-center items-center  text-decoration-none shadow-md  uppercase font-black">
+                    <i class="fa-solid fa-money-bill-transfer mr-8"></i>
                     AJUKAN PEMINJAMAN
                 </a>
             </div>
