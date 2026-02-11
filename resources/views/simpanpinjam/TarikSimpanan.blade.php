@@ -83,6 +83,8 @@
 
         nominalInput.addEventListener('blur', function() {
             this.value = formatRupiah(this.value);
+            ketInputNominal.innerHTML = '*Biaya administrasi penarikan simpanan sebesar Rp. 5.000 per transaksi.';
+            ketInputNominal.classList.remove('hidden');
         });
 
         nominalInput.addEventListener('focus', function() {
@@ -171,6 +173,11 @@
 
             if (!memberId) {
                 swal.fire('Error', 'Silahkan pilih member dari daftar yang tersedia.', 'error');
+                return;
+            }
+            console.log(rawNominal, saldo + 5000);
+            if(saldo + 5000 >= rawNominal) {
+                swal.fire('Error', 'Nominal tidak mencukupi.', 'error');
                 return;
             }
 
