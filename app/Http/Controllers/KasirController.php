@@ -24,7 +24,7 @@ class KasirController extends Controller
         $barangs = Barang::where('stok', '>', 0)->get();
         $members = Member::all();
         $limitBon = KreditAnggota::all();
-        $SimpananMember = SimpananDetail::where('jenis', 'sukarela')->with('transaksiSP')->get();
+        $SimpananMember = SimpananDetail::where('jenis', 'sukarela')->with('transaksi')->get();
         return view('kasir.index', compact('barangs', 'members', 'limitBon', 'SimpananMember'));
     }
 

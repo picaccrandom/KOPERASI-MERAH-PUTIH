@@ -17,22 +17,26 @@
         <form action="{{ route('simpanan.reduce') }}" method="POST" id="form-pinjaman"
             class="bg-white px-12 py-12 [&_label]:text-[1rem] [&_label]:pl-1 rounded-md shadow-xl">
             @csrf
-            
+
             <div class="relative bg-white rounded-lg">
                 <div class="p-0"> {{-- Hapus padding berlebih dan hapus tag form kedua di sini --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="mb-1 after:content-['*'] after:text-red-500 after:pl-1">Identitas Member</label>
-                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
-                                placeholder="Masukan Nama atau NIK Member ..." name="search-member" id="search-member" required autocomplete="off">
+                            <input type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                                placeholder="Masukan Nama atau NIK Member ..." name="search-member" id="search-member"
+                                required autocomplete="off">
                             <input type="hidden" name="member_id" id="member_id">
                             <div class="dropdown-menu w-[47%] text-base hidden" id="dropdown-member"></div>
                         </div>
 
                         <div>
                             <label class="mb-1 ">Saldo Simpanan Sukarela</label>
-                            <input type="text" class="w-full px-3 py-2 cursor-not-allowed text-green-500 text-2xl font-bold rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                                placeholder="Saldo Sukarela" name="saldo-sukarela" id="saldo-sukarela" disabled value="Rp. 0">
+                            <input type="text"
+                                class="w-full px-3 py-2 cursor-not-allowed text-green-500 text-2xl font-bold rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                placeholder="Saldo Sukarela" name="saldo-sukarela" id="saldo-sukarela" disabled
+                                value="Rp. 0">
                         </div>
                     </div>
 
@@ -41,26 +45,31 @@
                             <label class="mb-1 after:content-['*'] after:text-red-500 after:pl-1">Nominal/Setoran</label>
                             <div class="flex items-center gap-4 text-5xl h-full">
                                 <p>Rp. </p>
-                                <input type="text" class="w-full h-full px-3 py-2 bg-slate-400/40 backdrop-blur-2xl rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                <input type="text"
+                                    class="w-full h-full px-3 py-2 bg-slate-400/40 backdrop-blur-2xl rounded focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                     name="nominal" id="nominal" placeholder="..." autocomplete="off">
                             </div>
-                            <p id="ket-input-nominal" class="text-red-500 text-xs tracking-widest font-thin pl-28 w-full mt-1 hidden"></p>
+                            <p id="ket-input-nominal"
+                                class="text-red-500 text-xs tracking-widest font-thin pl-28 w-full mt-1 hidden"></p>
                         </div>
 
                         <div class="col-span-2 h-full row-span-2">
                             <label class="mb-1">Catatan/Keterangan (Opsional)</label>
-                            <textarea class="w-full px-3 outline-none py-2 border border-slate-200 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm h-full"
-                                    rows="6" placeholder="Contoh: untuk beli motor..." name="catatan"></textarea>
+                            <textarea
+                                class="w-full px-3 outline-none py-2 border border-slate-200 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm h-full"
+                                rows="6" placeholder="Contoh: untuk beli motor..." name="catatan"></textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="mt-8 flex justify-end gap-4 font-bold">
-                <a href="{{ route('simpanan.index') }}" class="no-underline px-8 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm text-black">
+                <a href="{{ route('simpanan.index') }}"
+                    class="no-underline px-8 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm text-black">
                     Batal
                 </a>
-                <button type="button" id="btn-simpan" class="px-8 py-2 bg-orange-700 hover:bg-orange-800 text-white rounded text-sm">
+                <button type="button" id="btn-simpan"
+                    class="px-8 py-2 bg-orange-700 hover:bg-orange-800 text-white rounded text-sm">
                     Tarik Simpanan
                 </button>
             </div>
@@ -112,10 +121,10 @@
                 m.nama_lengkap.toLowerCase().includes(query) ||
                 m.nik.toLowerCase().includes(query)
             );
-            
+
             const dropdown = document.getElementById('dropdown-member');
             const memberIdInput = document.getElementById('member_id');
-            
+
             dropdown.innerHTML = '';
 
             if (filtered.length > 0 && query !== '') {
@@ -129,15 +138,18 @@
                                             </div>
                                             <i class="fas fa-user-plus text-muted fa-lg"></i>
                                         </div>`;
-                    
+
                     option.addEventListener('click', function() {
                         document.getElementById('search-member').value = m.nama_lengkap;
                         memberIdInput.value = m.id;
                         dropdown.classList.remove('show', 'hidden');
                         // Set saldo sukarela
-                        const simpanan = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.saldo), 0);
+                        const simpanan = simpanansPokok.filter(s => s.member_id === m.id).reduce((
+                            total, s) => total + Number(s.saldo), 0);
                         let saldo = simpanan ? simpanan : 0;
-                        const biayaAdmin = simpanansPokok.filter(s => s.member_id === m.id).reduce((total, s) => total + Number(s.biaya_admin), 0);
+                        const biayaAdmin = simpanansPokok.filter(s => s.member_id === m.id).reduce((
+                            total, s) => total + Number(s.biaya_admin), 0);
+                        console.log(saldo, biayaAdmin)
                         saldo -= biayaAdmin;
                         saldoSukarelaInput.value = 'Rp. ' + formatRupiah(saldo.toString());
                         nominalInput.placeholder = 'Maksimal: ' + saldo;
@@ -155,7 +167,8 @@
             const memberId = document.getElementById('member_id').value;
             const rawNominal = this.value.replace(/[^\d]/g, '');
             if (memberId) {
-                const simpanan = simpanansPokok.filter(s => s.member_id === parseInt(memberId)).reduce((total, s) => total + Number(s.saldo), 0);
+                const simpanan = simpanansPokok.filter(s => s.member_id === parseInt(memberId)).reduce((total, s) =>
+                    total + Number(s.saldo), 0);
                 const saldo = simpanan ? simpanan : 0;
 
                 if (parseInt(rawNominal) > saldo) {
@@ -170,7 +183,8 @@
         document.getElementById('btn-simpan').addEventListener('click', function() {
             const memberId = document.getElementById('member_id').value;
             const rawNominal = nominalInput.value.replace(/[^\d]/g, '');
-            const simpanan = simpanansPokok.filter(s => s.member_id === parseInt(memberId)).reduce((total, s) => total + Number(s.saldo), 0);
+            const simpanan = simpanansPokok.filter(s => s.member_id === parseInt(memberId)).reduce((total, s) =>
+                total + Number(s.saldo), 0);
             const saldo = simpanan ? simpanan : 0;
 
             if (!memberId) {
@@ -178,13 +192,13 @@
                 return;
             }
 
-            if(rawNominal < 20000) {
+            if (rawNominal < 20000) {
                 swal.fire('Error', 'Nominal penarikan maksimal Rp. 20.000 per transaksi.', 'error');
                 return;
             }
-            
-            
-            if(parseInt(saldo) <= parseInt(rawNominal) + 5000) {
+
+
+            if (parseInt(saldo) <= parseInt(rawNominal) + 5000) {
                 swal.fire('Error', 'Nominal tidak mencukupi.', 'error');
                 return;
             }

@@ -8,7 +8,6 @@ use App\Models\KreditAnggota;
 use App\Models\AngsuranPeminjaman;
 use App\Models\Transaksi_SP;
 use App\Models\BonDetail;
-use App\Models\SimpananDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\AccountingService; // Import Service Akuntansi
@@ -90,7 +89,6 @@ class PinjamanController extends Controller
         DB::transaction(function () use ($request , &$no_transaksi_sp) {
             
             
-            // dd($admin + $materai + $mitra);
             
             $tenor = $request->tenor ? $request->tenor : $request->tenor_custom;
 
@@ -99,9 +97,6 @@ class PinjamanController extends Controller
                 : 0;
 
             $totalPinjam = floatval($request->jumlah_pinjaman) + ($nominalBunga * $tenor );
-            // $totalPinjam = ($tenor > 12) 
-            //     ? floatval($request->jumlah_pinjaman * ($request->bunga / 100)) + floatval($request->jumlah_pinjaman)
-            //     : floatval($request->jumlah_pinjaman);
 
 
             $namaMember = Member::where('id', $request->member_id)->first();

@@ -285,6 +285,7 @@
         const barangData = @json($barangs);
         const kreditMember = @json($limitBon);
         const simpananMember = @json($SimpananMember);
+        console.log(simpananMember);
         let limitBonAnggota = 0;
 
         const inputNik = document.getElementById('nik-input');
@@ -351,7 +352,7 @@
 
             // Cari Saldo Simpanan berdasarkan Member ID    
             const simpananList = simpananMember.filter(
-                s => Number(s.transaksi_s_p?.member_id) === Number(m.id)
+                s => Number(s.transaksi?.member_id) === Number(m.id)
             );
 
             // Hitung Total Simpanan 
@@ -362,7 +363,6 @@
             }, {
                 saldo: 0
             }) : null;
-
             if (simpananObj && simpananObj.saldo > 10000) {
                 infoBox.innerHTML +=
                     ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`;
