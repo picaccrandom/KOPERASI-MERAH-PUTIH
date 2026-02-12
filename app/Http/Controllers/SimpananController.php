@@ -42,29 +42,29 @@ class SimpananController extends Controller
     {
         $members = Member::where('status', 'aktif')->get();
         // cek simpanan pokok dan wajib yang sudah ada
-        $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK')
-            ->whereHas('transaksiSP', function ($q) {
+        $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK') 
+            ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
-            ->with('transaksiSP')
+            ->with('transaksi')
             ->get()
             ->map(function ($item) {
                 return [
-                    'member_id' => $item->transaksiSP->member_id
+                    'member_id' => $item->transaksi->member_id
                 ];
             });
         // cek simpanan wajib yang sudah ada dibulan ini
-        $SimpanansWajib = SimpananDetail::where('jenis', 'WAJIB')
-            ->whereHas('transaksiSP', function ($q) {
+        $SimpanansWajib = SimpananDetail::where('jenis', 'WAJIB') 
+            ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
             ->whereMonth('tanggal', date('m'))
             ->whereYear('tanggal', date('Y'))
-            ->with('transaksiSP')
+            ->with('transaksi')
             ->get()
             ->map(function ($item) {
                 return [
-                    'member_id' => $item->transaksiSP->member_id
+                    'member_id' => $item->transaksi->member_id
                 ];
             });
         return view('simpanpinjam.simpanan-create', compact('members', 'SimpanansPokok', 'SimpanansWajib'));
@@ -319,14 +319,14 @@ class SimpananController extends Controller
     {
         $members = Member::where('status', 'aktif')->get();
         $saldoSimpanan = SimpananDetail::whereIn('jenis', ['sukarela'])
-            ->whereHas('transaksiSP', function ($q) {
+            ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
-            ->with('transaksiSP')
+            ->with('transaksi')
             ->get()
-            ->map(function ($item) {
-                return [
-                    'member_id' => $item->transaksiSP->member_id,
+            ->map(function($item) {
+                return [        
+                    'member_id' => $item->transaksi->member_id,
                     'jenis_simpanan' => $item->jenis,
                     'saldo' => $item->saldo,
                     'biaya_admin' => $item->biaya_admin,

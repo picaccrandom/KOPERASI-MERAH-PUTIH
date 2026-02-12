@@ -64,14 +64,14 @@ class PinjamanController extends Controller
                     ->orderBy('angsuran_ke', 'asc')
                     ->get();
 
-        $transaksiInduk = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)
-            ->with('member', 'angsuranPeminjamans')
-            ->first();
-
-        if (!$transaksiInduk) {
-            return redirect()->back()->with('error', 'Data transaksi tidak ditemukan.');
+        if (request()->wantsJson() || request()->is('api/*')) {
+            return response()->json([
+                'success' => true,
+                'data' => $pinjaman
+            ]);
         }
 
+        $transaksiInduk = Transaksi_SP::where('no_transaksi_sp', $no_transaksi_sp)->first();
         return view('simpanpinjam.DetailPinjaman', compact('pinjaman', 'transaksiInduk'));
     }
 
