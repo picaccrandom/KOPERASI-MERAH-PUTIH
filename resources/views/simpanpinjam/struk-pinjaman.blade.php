@@ -123,7 +123,7 @@
                         </tr>
                         <tr>
                             <td class="py-1 w-6">1.</td>
-                            <td>Administrasi 3%</td>
+                            <td>Administrasi 0.2%</td>
                             <td class="text-right" id="admin">Rp
                                 {{ number_format($pinjaman->Nominal * 0.02, 0, ',', '.') }}</td>
                         </tr>
@@ -132,7 +132,7 @@
                             <td>Materai / MAP / Foto Agunan</td>
                             <td class="text-right" id="materai">Rp 10.000</td>
                         </tr>
-                        <tr>
+                        {{-- <tr>
                             <td class="py-1">3.</td>
                             <td>Angsuran 1 Bulan</td>
                             <td class="text-right" id="angsuran">Rp
@@ -143,10 +143,10 @@
                             <td>Denda</td>
                             <td class="text-right" id="denda">Rp
                                 {{ number_format($angsuran->first()->denda ?? 0, 0, ',', '.') }}</td>
-                        </tr>
+                        </tr> --}}
                         <tr>
-                            <td class="py-1">5.</td>
-                            <td>Mitra 1%</td>
+                            <td class="py-1">3.</td>
+                            <td>Mitra 0,1%</td>
                             <td class="text-right" id="mitra">Rp
                                 {{ number_format($pinjaman->Nominal * 0.01, 0, ',', '.') }}</td>
                         </tr>
@@ -220,14 +220,14 @@
                     ',', '.')) || 0;
                 const materai = parseFloat(document.getElementById('materai').textContent.replace(/[^0-9,-]+/g, "")
                     .replace(',', '.')) || 0;
-                const angsuran = parseFloat(document.getElementById('angsuran').textContent.replace(/[^0-9,-]+/g, "")
-                    .replace(',', '.')) || 0;
-                const denda = parseFloat(document.getElementById('denda').textContent.replace(/[^0-9,-]+/g, "").replace(
-                    ',', '.')) || 0;
+                // const angsuran = parseFloat(document.getElementById('angsuran').textContent.replace(/[^0-9,-]+/g, "")
+                //     .replace(',', '.')) || 0;
+                // const denda = parseFloat(document.getElementById('denda').textContent.replace(/[^0-9,-]+/g, "").replace(
+                //     ',', '.')) || 0;
                 const mitra = parseFloat(document.getElementById('mitra').textContent.replace(/[^0-9,-]+/g, "").replace(
                     ',', '.')) || 0;
     
-                const totalPotongan = admin + materai + angsuran + denda + mitra;
+                const totalPotongan = admin + materai + mitra;
     
                 // Tampilkan total potongan
                 document.getElementById('potongan').textContent = '- Rp ' + totalPotongan.toLocaleString('id-ID');
@@ -246,7 +246,11 @@
                 }, 500);
             } else {
                 setTimeout(() => {
-                    window.location.href = "{{ route('pinjaman.index') }}";
+                    if($modul == 'Pinjaman') {
+                        window.location.href = "{{ route('pinjaman.index') }}";
+                    } else {
+                        window.location.href = "{{ route('pinjaman.detail', ['no_transaksi_sp' => $angsuran->no_transaksi_sp]) }}";
+                    }
                 }, 500);
             }
 

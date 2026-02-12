@@ -209,7 +209,7 @@
                         const found = limitAnggotas.find(l => Number(l.member_id) === Number(
                             selectedId));
                         // tangkap saldo simpanan data member
-                        const saldoSimpanan = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
+                        let saldoSimpanan = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
                             .reduce((total, p) => {
                                 const saldoSukarela = (p.simpanan_details || [])
                                             .filter(d => d.jenis === 'sukarela')
@@ -217,7 +217,14 @@
 
                                         return total + saldoSukarela;
                                     }, 0);                        
+                        const biayaAdmin = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
+                            .reduce((total, p) => {
+                                const admin = (p.simpanan_details || [])
+                                            .reduce((subTotal, d) => subTotal + Number(d.biaya_admin), 0);
 
+                                        return total + admin;
+                                    }, 0);
+                        saldoSimpanan -= biayaAdmin;
                         // tangkap riwayat peminjaman
                         const riwayatPinjaman = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
                             .filter(p => p.COA === 'Pinjam').length;

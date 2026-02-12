@@ -89,6 +89,9 @@ class PinjamanController extends Controller
 
         DB::transaction(function () use ($request , &$no_transaksi_sp) {
             
+            
+            // dd($admin + $materai + $mitra);
+            
             $tenor = $request->tenor ? $request->tenor : $request->tenor_custom;
 
             $nominalBunga = ($tenor > 12) 
@@ -99,6 +102,7 @@ class PinjamanController extends Controller
             // $totalPinjam = ($tenor > 12) 
             //     ? floatval($request->jumlah_pinjaman * ($request->bunga / 100)) + floatval($request->jumlah_pinjaman)
             //     : floatval($request->jumlah_pinjaman);
+
 
             $namaMember = Member::where('id', $request->member_id)->first();
 
@@ -161,9 +165,12 @@ class PinjamanController extends Controller
             DB::beginTransaction();
 
             $angsuran = AngsuranPeminjaman::findOrFail($id_angsuran);
-            $limitPerangsuran = ($angsuran->tenor > 12) 
-                ? ($angsuran->total_pinjaman - ($angsuran->jumlah_pinjaman * ($angsuran->bunga / 100)))/12 
-                : 0;
+            $limitAnggotas = Transaksi_SP::where('no_transaksi_sp', $angsuran->no_transaksi_sp)->first();
+            if ($angsuran->tenor > 12) {
+                $limitAnggotas->Nominal +=  $limitAnggotas->Nominal * (($angsuran->bunga / 100) * $angsuran->tenor);
+            }else{
+                $limitAnggotas = $limitAnggotas->Nominal;
+            }
 
             $tanggal_bayar = Carbon::now();
             $durasiDenda = max(0, Carbon::parse($angsuran->batas_bayar)->diffInDays($tanggal_bayar, false));
@@ -195,9 +202,13 @@ class PinjamanController extends Controller
             // AccountingService::post(now(), "Terima Angsuran ke-".$angsuran->angsuran_ke." ".$namaMember->nama_lengkap, $transaksi->no_transaksi_sp, $totalBayar, 0, '1101');
             // AccountingService::po    st(now(), "Penurunan Piutang (".$transaksi->no_transaksi_sp.")", $transaksi->no_transaksi_sp, 0, $angsuran->jumlah_angsuran, '1201');
 
+            // 4. Update/kembalikan Limit Kredit Anggota
             $limitKredit = KreditAnggota::where('member_id', $memberId)->first();
-            if($limitKredit) {
-                $limitKredit->increment('limit', $angsuran->jumlah_angsuran - $limitPerangsuran);
+            $isLunas = AngsuranPeminjaman::where('no_transaksi_sp', $angsuran->no_transaksi_sp)->
+                where('status', 'belum')->count() == 0;
+            // jika lunas, kembalikan seluruh limit kredit
+            if($isLunas) {
+                $limitKredit->increment('limit', $limitAnggotas);
             }
 
             DB::commit();
