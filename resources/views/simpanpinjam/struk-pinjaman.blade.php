@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- @php
-    dd($angsuran, $pinjaman, $no_transaksi_sp, $loc);
+    dd($angsuran,$modul , $pinjaman, $no_transaksi_sp, $loc);
 @endphp --}}
     <main class="print-area">
         <div class="max-w-4xl mx-auto bg-white border border-black p-6 pt-12 font-mono text-sm relative">
@@ -107,7 +107,7 @@
                         <tr>
                             <td colspan="2">Pelunasan</td>
                             <td class="text-right font-bold" id="pelunasan">Rp
-                                {{ number_format($angsuran->first()->total_pinjaman, 0, ',', '.') }}
+                                {{ $angsuran->isNotEmpty() ? number_format($angsuran->first()->total_pinjaman, 0, ',', '.') : '0' }}
                             </td>
                         </tr>
                         <tr>
@@ -206,8 +206,8 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            $modul = "{{ $modul }}";
-            if ($modul == 'Pinjaman') {
+            const modul = @json($modul);
+            if (modul == 'Pinjaman') {
                 document.title = "Struk Pinjaman {{ $no_transaksi_sp }}";
     
                 // Dapatkan nilai nominal pinjaman
@@ -244,15 +244,7 @@
                 setTimeout(() => {
                     window.close();
                 }, 500);
-            } else {
-                setTimeout(() => {
-                    if($modul == 'Pinjaman') {
-                        window.location.href = "{{ route('pinjaman.index') }}";
-                    } else {
-                        window.location.href = `{{ route('pinjaman.detail',$angsuran->no_transaksi_sp) }}`;
-                    }
-                }, 500);
-            }
+            } 
 
         });
     </script>

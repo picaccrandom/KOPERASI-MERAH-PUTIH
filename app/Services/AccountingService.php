@@ -21,7 +21,7 @@ class AccountingService
             $ref = ($tipe == 'debit' ? 'DB-' : 'KR-') . date('YmdHis') . rand(10, 99);
 
             /**
-             * 2. Simpan transaksi ke tabel jurnals
+         * 2. Simpan transaksi ke tabel jurnals
              * Kolom 'debit' atau 'kredit' diisi sesuai tipe transaksi, 
              * sedangkan kolom lawannya diisi 0 agar tidak Null.
              */

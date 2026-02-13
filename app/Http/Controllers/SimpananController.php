@@ -87,11 +87,14 @@ class SimpananController extends Controller
             //
             $nominal = (float)$request->nominal;
 
-            $administrasi = 5000;
+            $administrasi = 0;
+            if ($request->jenis == 'Sukarela') {
+                $administrasi = 5000;
+            }
+
             if ($request->administrasi != 'true') {
                 $nominal = $nominal - $administrasi;
             }
-
             // 1. Buat Transaksi Simpanan (Unit SP)
             $transaksi = Transaksi_SP::create([
                 'no_transaksi_sp' => 'SP-S-' . date('YmdHis') . rand(1000, 9999),
@@ -105,7 +108,7 @@ class SimpananController extends Controller
             ]);
 
             // 2. Buat Detail Simpanan
-            SimpananDetail::create([
+            $simpanan =  SimpananDetail::create([
                 'no_transaksi_sp' => $transaksi->no_transaksi_sp,
                 'tanggal' => now(),
                 'saldo' => $nominal,
@@ -118,27 +121,24 @@ class SimpananController extends Controller
              * Skema: Debit Kas (1101), Kredit Simpanan (2101)
              */
 
-            // DEBIT: Kas Koperasi bertambah
-            // AccountingService::post(
-            //     now(),
-            //     "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap,
-            //     $transaksi->no_transaksi_sp,
-            //     (float)$request->nominal,
-            //     0,
-            //     '1101'
-            // );
-            AccountingService::catatJurnal('1101', (float)$request->nominal, "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap, "kredit");
+            // DEBIT: Kas Koperasi bertambah (Saldo bertambah di Akun Kas Koperasi )
+            AccountingService::catatJurnal('1101', (float)$request->nominal, "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap, "debit");
 
 
-            // KREDIT: Kewajiban Simpanan Anggota bertambah
-            AccountingService::post(
-                now(),
-                "Penerimaan Tabungan Anggota (" . $transaksi->no_transaksi_sp . ")",
-                $transaksi->no_transaksi_sp,
-                0,
-                (float)$request->nominal,
-                '2101'
-            );
+            if ($simpanan->jenis == "SUKARELA") {
+                // KREDIT: Kewajiban Simpanan Anggota bertambah (Saldo Bertambah di akun simpanan sukarela)
+                AccountingService::catatJurnal('2101', (float)$request->nominal, "Penerimaan Tabungan Anggota (" . $transaksi->no_transaksi_sp . ")", "debit");
+
+                // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Admin)
+                AccountingService::catatJurnal('1101', $simpanan->biaya_admin, "Biaya Admin Setoran Simpanan " . $transaksi->no_transaksi_sp, "debit");
+            } else {
+                // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi )
+                AccountingService::catatJurnal('4201', (float)$request->nominal, "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap, "debit");
+            }
+            // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Admin)
+            AccountingService::catatJurnal('4201', $simpanan->biaya_admin, "Biaya Admin Setoran Simpanan " . $transaksi->no_transaksi_sp, "debit");
+
+
             return $transaksi;
         });
 
@@ -191,7 +191,7 @@ class SimpananController extends Controller
 
 
             // 2. Buat Detail Simpanan (Minus untuk mengurangi saldo)
-            SimpananDetail::create([
+            $simpanan = SimpananDetail::create([
                 'no_transaksi_sp' => $transaksi->no_transaksi_sp,
                 'tanggal' => now(),
                 'saldo' => -$nominal,
@@ -204,23 +204,18 @@ class SimpananController extends Controller
              * Skema: Debit Simpanan (2101), Kredit Kas (1101)
              */
 
-            // // DEBIT: Kewajiban Simpanan Berkurang
-            // AccountingService::post(
-            //     now(),
-            //     "Penarikan Simpanan - " . $namaMember->nama_lengkap,
-            //     $transaksi->no_transaksi_sp,
-            //     (float)$request->nominal, 0,
-            //     '2101'   
-            // );
+            // KREDIT: Kas Koperasi Berkurang (Saldo Berkurang di Akun Kas Koperasi )
+            AccountingService::catatJurnal('1101', (float)$request->nominal, "Penarikan Simpanan (" . $transaksi->no_transaksi_sp . ")", "kredit");
 
-            // // KREDIT: Kas Koperasi Berkurang
-            // AccountingService::post(
-            //     now(),
-            //     "Pengeluaran Kas Penarikan (" . $transaksi->no_transaksi_sp . ")",
-            //     $transaksi->no_transaksi_sp,
-            //     0, (float)$request->nominal,
-            //     '1101'
-            // );
+            // KREDIT: Tanggungan Simpanan Anggota Sukarela berkurang (Saldo Bertambah di akun simpanan sukarela)
+            AccountingService::catatJurnal('2101', (float)$request->nominal, "Penarikan Tabungan Anggota " . strtoupper($simpanan->jenis) . " - " . $namaMember->nama_lengkap, "kredit");
+
+            // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Admin)
+            AccountingService::catatJurnal('1101', $simpanan->biaya_admin, "Biaya Admin Penarikan Simpanan " . $transaksi->no_transaksi_sp, "debit");
+
+            // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Admin)
+            AccountingService::catatJurnal('4201', $simpanan->biaya_admin, "Biaya Admin Penarikan Simpanan " . $transaksi->no_transaksi_sp, "debit");
+
             return $transaksi;
         });
 

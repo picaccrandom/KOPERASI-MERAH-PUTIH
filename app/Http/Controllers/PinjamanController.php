@@ -28,13 +28,6 @@ class PinjamanController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // $allPeminjamans = SimpananDetail::select('simpanan_details.*', 'transaksi__s_p_s.COA as coa', 'transaksi__s_p_s.member_id')
-        //     ->Join('transaksi__s_p_s', 'simpanan_details.no_transaksi_sp', '=', 'transaksi__s_p_s.no_transaksi_sp')
-        //     ->Join('members', 'transaksi__s_p_s.member_id', '=', 'members.id')
-        //     ->whereIn('transaksi__s_p_s.COA', ['Pinjam', 'Angsuran'])
-        //     ->with('member')
-        //     ->orderBy('simpanan_details.created_at', 'desc')
-        //     ->get();
         return view('simpanpinjam.Pinjaman', compact('peminjamans'));
     }
 
@@ -117,14 +110,23 @@ class PinjamanController extends Controller
 
             $no_transaksi_sp = $transaksiSP->no_transaksi_sp;
 
+            // Jumlahkan Biaya Administrasi (Admin, Keperluan Materai, Mitra)
+            $administrasi = ($transaksiSP->Nominal * 0.02) + 10000 + ($transaksiSP->Nominal * 0.01);
+
             /** * 2. INTEGRASI AKUNTANSI: PENCAIRAN
              * Debit: Piutang (1201) | Kredit: Kas (1101)
              */
-            // AccountingService::post(now(), "Pencairan Pinjaman: " . $namaMember->nama_lengkap, $transaksiSP->no_transaksi_sp, (float)$request->jumlah_pinjaman, 0, '1201');
-            AccountingService::catatJurnal('1201', (float)$request->jumlah_pinjaman, "Pencairan Pinjaman: " . $namaMember->nama_lengkap, "debit");
 
-            // AccountingService::post(now(), "Pengeluaran Kas Pinjaman (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, (float)$request->jumlah_pinjaman, '1101');
-            AccountingService::catatJurnal('1101', (float)$request->jumlah_pinjaman, "Pengeluaran Kas Pinjaman (".$transaksiSP->no_transaksi_sp.")", "kredit");
+            // KREDIT: Kas Koperasi Berkurang (Saldo Berkurang di Akun Kas Koperasi )
+            AccountingService::catatJurnal('1101', $transaksiSP->Nominal, "Pencairan Pinjaman (" . $transaksiSP->no_transaksi_sp . ")", "kredit");
+
+            // DEBIT: Saldo Piutang Anggota Bertambah (Saldo Bertambah di akun Piutang Anggota)
+            AccountingService::catatJurnal('1201', $transaksiSP->Nominal, "Penarikan Pinjaman Anggota " . $namaMember->nama_lengkap, "debit");
+
+            // DEBIT: Kas koperasi (Saldo bertambah di Akun Kas Koperasi Biaya Administrasi)
+            AccountingService::catatJurnal('1101', $administrasi, "Biaya Administrassi(admin, materai, mitra) Penarikan Pinjaman " . $transaksiSP->no_transaksi_sp, "debit");
+            // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Administrasi)
+            AccountingService::catatJurnal('4201', $administrasi, "Biaya Administrassi(admin, materai, mitra) Penarikan Pinjaman " . $transaksiSP->no_transaksi_sp, "debit");
 
             $limitAnggotas = KreditAnggota::where('id', $transaksiSP->member_id);
             $limitAnggotas->decrement('limit', $transaksiSP->Nominal);
@@ -174,6 +176,8 @@ class PinjamanController extends Controller
             $tanggal_bayar = Carbon::now();
             $durasiDenda = max(0, Carbon::parse($angsuran->batas_bayar)->diffInDays($tanggal_bayar, false));
             $denda = ($durasiDenda > 0) ? (5000 * $durasiDenda) : 0;
+
+
             $totalBayar = $angsuran->jumlah_angsuran + $denda;
 
             $namaMember = Member::where('id', $memberId)->first();
@@ -198,17 +202,34 @@ class PinjamanController extends Controller
             /** * 3. INTEGRASI AKUNTANSI: ANGSURAN
              * Debit: Kas (1101) | Kredit: Piutang (1201)
              */
-            // AccountingService::catatJurnal(now(), "Penurunan Piutang (".$transaksi->no_transaksi_sp.")", $transaksi->no_transaksi_sp, 0, $angsuran->jumlah_angsuran, '1201');
-            // AccountingService::catatJurnal(now(), "Terima Angsuran ke-".$angsuran->angsuran_ke." ".$namaMember->nama_lengkap, $transaksi->no_transaksi_sp, $totalBayar, 0, '1101');
+            // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
             AccountingService::catatJurnal('1101', $totalBayar, "Terima Angsuran ke-" . $angsuran->angsuran_ke . " " . $namaMember->nama_lengkap, "debit");
+
+            // KREDIT: Saldo Piutang Anggota Berkurang (Saldo Berkurang di akun Piutang Anggota)
             AccountingService::catatJurnal('1201', $totalBayar, "Penurunan Piutang (" . $transaksi->no_transaksi_sp . ")", "kredit");
 
+
+            // jika memiliki denda
+            if ($denda > 0) {
+                // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi dari denda)
+                AccountingService::catatJurnal('1101', $denda, "Pendapatan Denda ke-" . $angsuran->angsuran_ke . " Kode " . $angsuran->no_transaksi_sp, "debit");
+
+                // DEBIT: Kas Simpan Pinjam Dari denda (Saldo Bertambah di akun Simpan Pinjam)
+                AccountingService::catatJurnal('4201', $denda, "Pendapatan Denda dari angsuran (" . $transaksi->no_transaksi_sp . ")", "debit");
+            }
+            
             // 4. Update/kembalikan Limit Kredit Anggota
             $limitKredit = KreditAnggota::where('member_id', $memberId)->first();
             $isLunas = AngsuranPeminjaman::where('no_transaksi_sp', $angsuran->no_transaksi_sp)->where('status', 'belum')->count() == 0;
             // jika lunas, kembalikan seluruh limit kredit
             if ($isLunas) {
                 $limitKredit->increment('limit', $limitAnggotas);
+                $bunga = $angsuran->total_pinjaman - $limitAnggotas;
+                // DEBIT: Kas Koperasi Bertambah untuk bunga (Saldo Bertambah di Akun Kas Koperasi )
+                AccountingService::catatJurnal('1101', $bunga, "Bunga Pinjaman " . $angsuran->no_transaksi_sp, "debit");
+
+                // DEBIT: Saldo Kas Simpan Pinjam Bertambah Bunga (Saldo Bertambah di akun Simpan Pinjam)
+                AccountingService::catatJurnal('4201', $bunga, "Bunga Pinjaman dari (" . $angsuran->no_transaksi_sp . ")", "debit");
             }
 
             DB::commit();
@@ -245,8 +266,19 @@ class PinjamanController extends Controller
             ]);
 
             /** * 4. INTEGRASI AKUNTANSI: PELUNASAN BON */
-            // AccountingService::post(now(), "Pelunasan Bon - ".$bon->nama, $transaksiSP->no_transaksi_sp, $bon->Nominal, 0, '1101');
-            // AccountingService::post(now(), "Penutupan Piutang Bon (".$transaksiSP->no_transaksi_sp.")", $transaksiSP->no_transaksi_sp, 0, $bon->Nominal, '1201');
+            // Unit Pinjaman
+            // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
+            AccountingService::catatJurnal('1101', $transaksiSP->Nominal,  "Pelunasan Bon - " . $bon->nama, $transaksiSP->no_transaksi_sp, "debit");
+
+            // KREDIT: Saldo Piutang Anggota Berkurang (Saldo Berkurang di akun Piutang Anggota)
+            AccountingService::catatJurnal('1201', $transaksiSP->Nominal, "Penutupan Piutang Bon (" . $transaksiSP->no_transaksi_sp . ")", $transaksiSP->no_transaksi_sp, "kredit");
+
+            // Update Unit Pendapatan
+            // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
+            AccountingService::catatJurnal('1101', $transaksiSP->Nominal, "Pendapatan Gerai (" . $transaksiSP->no_transaksi_sp . ")", "debit");
+
+            // DEBIT: Kas Pendapatan Gerai Bertambah (Saldo Bertambah di akun Pendapatan Gerai)
+            AccountingService::catatJurnal('4301', $transaksiSP->Nominal, "Pendapatan dari Pembelian Anggota " . $transaksiSP->nama . " untuk Gerai", "debit");
 
             $status->update(['status' => 'lunas']);
             KreditAnggota::where('member_id', $bon->member_id)->increment('limit', $bon->Nominal);
@@ -282,8 +314,15 @@ class PinjamanController extends Controller
     {
         $pinjaman = Transaksi_SP::with('member', 'user')->where('no_transaksi_sp', $no_transaksi_sp)->first();
         $angsuran = AngsuranPeminjaman::where('no_transaksi_sp', $no_transaksi_sp)->get();
-        $loc = Location::get($request->ip()); // Ganti dengan IP dinamis jika diperlukan
-        $loc = $loc ? $loc->cityName : 'Nangsri';
+
+        // Handle Location dengan try-catch
+        try {
+            $loc = Location::get($request->ip());
+            $loc = $loc ? $loc->cityName : 'Nangsri';
+        } catch (\Exception $e) {
+            $loc = 'Nangsri';
+        }
+
         return view('simpanpinjam.struk-pinjaman', compact('pinjaman', 'modul', 'no_transaksi_sp', 'angsuran', 'loc'));
     }
 

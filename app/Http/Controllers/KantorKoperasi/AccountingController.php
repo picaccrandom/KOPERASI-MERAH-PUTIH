@@ -31,11 +31,11 @@ class AccountingController extends Controller
             $date = Carbon::today()->subDays($i);
             $days[] = $date->format('d M');
 
-            $income = Jurnal::whereHas('account', function($q) {
+            $income = Jurnal::whereHas('account', function ($q) {
                 $q->where('kategori', 'Pendapatan');
             })->whereDate('tgl_transaksi', $date)->sum('kredit');
 
-            $expense = Jurnal::whereHas('account', function($q) {
+            $expense = Jurnal::whereHas('account', function ($q) {
                 $q->where('kategori', 'Beban');
             })->whereDate('tgl_transaksi', $date)->sum('debit');
 
@@ -43,16 +43,20 @@ class AccountingController extends Controller
             $expenseData[] = $expense;
         }
 
-        $totalAset = Account::where('kategori', 'Aset')->get()->sum(function($acc) {
+        $totalAset = Account::where('kategori', 'Aset')->get()->sum(function ($acc) {
             return $acc->saldo_awal + ($acc->jurnals->sum('debit') - $acc->jurnals->sum('kredit'));
         });
 
-        $totalPendapatanBulanIni = Jurnal::whereHas('account', function($q) {
+        $totalPendapatanBulanIni = Jurnal::whereHas('account', function ($q) {
             $q->where('kategori', 'Pendapatan');
         })->whereMonth('tgl_transaksi', date('m'))->sum('kredit');
 
         return view('kantor.akuntansi.dashboard_statistik', compact(
-            'days', 'incomeData', 'expenseData', 'totalAset', 'totalPendapatanBulanIni'
+            'days',
+            'incomeData',
+            'expenseData',
+            'totalAset',
+            'totalPendapatanBulanIni'
         ));
     }
 
@@ -64,7 +68,7 @@ class AccountingController extends Controller
         $type = $request->query('type');
         $tgl_mulai = $request->query('tgl_mulai');
         $tgl_selesai = $request->query('tgl_selesai');
-        
+
         $data = collect();
         $title = "Pilih Parameter Laporan";
 
@@ -72,19 +76,19 @@ class AccountingController extends Controller
             switch ($type) {
                 case 'pendapatan':
                     $title = "Laporan Pendapatan Keseluruhan";
-                    if($tgl_mulai && $tgl_selesai) {
-                        $data = Jurnal::whereHas('account', function($q) {
+                    if ($tgl_mulai && $tgl_selesai) {
+                        $data = Jurnal::whereHas('account', function ($q) {
                             $q->where('kategori', 'Pendapatan');
                         })
-                        ->whereBetween('tgl_transaksi', [$tgl_mulai, $tgl_selesai])
-                        ->orderBy('tgl_transaksi', 'asc')
-                        ->get();
+                            ->whereBetween('tgl_transaksi', [$tgl_mulai, $tgl_selesai])
+                            ->orderBy('tgl_transaksi', 'asc')
+                            ->get();
                     }
                     break;
 
                 case 'penjualan':
                     $title = "Laporan Penjualan Kasir";
-                    if($tgl_mulai && $tgl_selesai) {
+                    if ($tgl_mulai && $tgl_selesai) {
                         // Mengambil dari tabel transaksis
                         $data = DB::table('transaksis')
                             ->whereBetween('created_at', [$tgl_mulai . ' 00:00:00', $tgl_selesai . ' 23:59:59'])
@@ -106,8 +110,12 @@ class AccountingController extends Controller
 
     public function showLedger($id)
     {
-        $account = Account::with(['jurnals' => function($q) {
-            $q->orderBy('tgl_transaksi', 'asc');
+        $account = Account::with(['jurnals' => function ($q) {
+            $q->orderBy('tgl_transaksi', 'asc')->where(
+                function ($query) {
+                    $query->where('kredit', '>', 0)->orWhere('debit', '>', 0);
+                }
+            );
         }])->findOrFail($id);
 
         return view('kantor.akuntansi.ledger', compact('account'));

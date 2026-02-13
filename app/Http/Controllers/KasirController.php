@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
-use App\Models\Member;
-use App\Models\Transaksi;
-use App\Models\Transaksi_SP;
-use Illuminate\Http\Request;
-use App\Models\KreditAnggota;
-use App\Models\TransaksiDetail;
 use App\Models\BonDetail;
-use App\Models\TransaksiFaskes; // Tambahan untuk Laporan
+use App\Models\KreditAnggota;
+use App\Models\Member;
 use App\Models\Obat;            // Tambahan untuk Laporan
 use App\Models\PendaftaranKlinik; // Tambahan untuk Laporan
 use App\Models\SimpananDetail;
+use App\Models\Transaksi_SP;
+use App\Models\Transaksi;
+use App\Models\TransaksiDetail;
+use App\Models\TransaksiFaskes; // Tambahan untuk Laporan
+use App\Services\AccountingService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class KasirController extends Controller
@@ -120,6 +121,17 @@ class KasirController extends Controller
                     }
                 }
 
+                if($request->metode_bayar == 'tunai' || 'simpanan'){
+                    // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
+                    AccountingService::catatJurnal('1101', $transaksi->grand_total, "Pendapatan Gerai (" . $transaksi->kode_transaksi . ")", "debit");
+    
+                    $request->metode_bayar == "simpanan" ?
+                    // DEBIT: Kas Pendapatan Gerai Bertambah (Saldo Bertambah di akun Pendapatan Gerai)
+                    AccountingService::catatJurnal('4301', $transaksi->grand_total, "Pendapatan dari Pembelian Anggota " . $namaMember->nama_lengkap . " untuk Gerai", "debit"):
+                    AccountingService::catatJurnal('4301', $transaksi->grand_total, "Pendapatan Gerai " . $transaksi->kode_transaksi, "debit");
+                }
+
+
                 // 3. Logika BON / Piutang
                 if ($request->kategori == 'member' && $request->metode_bayar == 'bon') {
                     $Transaksi_SP = Transaksi_SP::create([
@@ -142,13 +154,20 @@ class KasirController extends Controller
                     if ($limitBon) {
                         $limitBon->decrement('limit', $transaksi->total_bon);
                     }
+
+                    // KREDIT: Kas Koperasi Berkurang (Saldo Berkurang di Akun Kas Koperasi )
+                    AccountingService::catatJurnal('1101', $Transaksi_SP->Nominal, "Pencairan Bon (" . $Transaksi_SP->no_transaksi_sp . ")", "kredit");
+
+                    // DEBIT: Kas Piutang Anggota Bertambah (Saldo bertambah di Akun Kas Piutang Anggota)
+                    AccountingService::catatJurnal('1201', $Transaksi_SP->Nominal, "Pembayaran untuk BON Anggota" . $namaMember->nama_lengkap . "NO Transaksi " . $Transaksi_SP->no_transaksi_sp, "debit");
                 }
 
                 // 4. Logika Simpanan
                 if ($request->metode_bayar == 'simpanan') {
                     // buat transaksi simpanan
+
                     $transaksi_SP = Transaksi_SP::create([
-                        'no_transaksi_sp' => 'SP-S-' . date('YmdHis').rand(1000,9999),
+                        'no_transaksi_sp' => 'SP-S-' . date('YmdHis') . rand(1000, 9999),
                         'tanggal' => $transaksi->tgl_transaksi,
                         'member_id' => $request->member_id,
                         'nama' => $namaMember->nama_lengkap ?? 'Member',
@@ -157,7 +176,7 @@ class KasirController extends Controller
                         'Nominal' => $transaksi->grand_total,
                         'Keterangan' => 'Pembayaran Gerai via Simpanan: ' . ($transaksi->kode_transaksi),
                     ]);
-                    
+
                     // buat detail simpanan
                     $simpanan = SimpananDetail::create([
                         'no_transaksi_sp' => $transaksi_SP->no_transaksi_sp,
@@ -167,6 +186,12 @@ class KasirController extends Controller
                         'jenis' => 'sukarela',
                         'status' => 'aktif',
                     ]);
+
+                    // KREDIT: Kas Koperasi Berkurang (Saldo Berkurang di Akun Kas Koperasi )
+                    AccountingService::catatJurnal('1101', $transaksi_SP->Nominal, "Pencairan Pembayaran Gerai Via Simpanan (" . $transaksi_SP->no_transaksi_sp . ")", "kredit");
+
+                    // KREDIT: Tanggungan Simpanan Anggota Sukarela berkurang (Saldo Bertambah di akun simpanan sukarela)
+                    AccountingService::catatJurnal('2101', $transaksi_SP->Nominal, "Penarikan Tabungan Anggota " . $namaMember->nama_lengkap . " untuk Gerai", "kredit");
                 }
             });
 
