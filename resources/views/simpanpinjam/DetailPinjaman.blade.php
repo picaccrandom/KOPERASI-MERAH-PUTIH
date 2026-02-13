@@ -75,14 +75,14 @@
                     <div class="shadow-lg px-6 py-4 rounded-lg">
                         <div class="mb-4 flex flex-col justify-center items-center">
                             <p class="text-sm text-gray-800 font-semibold border-b border-slate-400">JUMLAH ANGSURAN MENDATANG</p>
-                            <p class=" font-bold text-green-600 text-7xl">
-                                {{ number_format($pinjaman->where('status', 'belum')->count() ?? 0, 0, ',', '.') }}
+                            <p class=" font-bold text-green-600 text-7xl uppercase">
+                                {{ $pinjaman->where('status', 'belum')->count() ? number_format($pinjaman->where('status', 'belum')->count() ?? 0, 0, ',', '.') : "Lunas" }}
                             </p>
                         </div>
                         <div class="flex flex-col justify-center items-center">
                             <p class="text-sm text-gray-800 font-semibold border-b border-b-slate-400">SISA PINJAMAN</p>
                             <p class="font-bold text-red-600 text-4xl bg-slate-200 px-4 py-2 rounded-md shadow-md">
-                                Rp. {{ number_format(($pinjaman->first()->total_pinjaman ?? 0) - ($pinjaman->where('status', 'lunas')->sum('jumlah_angsuran') ?? 0), 0, ',', '.') }}
+                                {{ $pinjaman->where('status', 'belum')->count() ? "Rp. ". number_format(($pinjaman->first()->total_pinjaman ?? 0) - ($pinjaman->where('status', 'lunas')->sum('jumlah_angsuran') ?? 0), 0, ',', '.') : "LUNAS" }}
                             </p>
                         </div>
                     </div>

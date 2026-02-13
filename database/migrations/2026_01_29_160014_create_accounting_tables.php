@@ -9,7 +9,8 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void {
+    public function up(): void
+    {
         // Tabel Daftar Akun (Co-A)
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
@@ -28,7 +29,8 @@ return new class extends Migration
             $table->string('referensi'); // No Invoice dari Kasir/Apotek/SP
             $table->decimal('debit', 15, 2)->default(0);
             $table->decimal('kredit', 15, 2)->default(0);
-            $table->foreignId('account_id')->constrained('accounts');
+            $table->string('kode_akun');
+            $table->foreign('kode_akun')->references('kode_akun')->on('accounts')->onDelete('cascade');
             $table->timestamps();
         });
     }

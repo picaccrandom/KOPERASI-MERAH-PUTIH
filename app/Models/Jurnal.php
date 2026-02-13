@@ -15,7 +15,7 @@ class Jurnal extends Model
         'referensi', // Diisi No Invoice/Faktur dari Excel Mas
         'debit',
         'kredit',
-        'account_id'
+        'kode_akun'
     ];
 
     /**
@@ -24,6 +24,6 @@ class Jurnal extends Model
      */
     public function account()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo(Account::class, 'kode_akun', 'kode_akun');
     }
 }

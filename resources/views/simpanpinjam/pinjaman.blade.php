@@ -41,7 +41,7 @@
                                 <label for="" class="text-slate-600">Masukan Kode Pinjaman</label>
                                 <input type="text" id="search-pinjaman"
                                     class="w-full ml-4 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64"
-                                    placeholder="SP-P-312XXXX" autocomplete="off    ">
+                                    placeholder="SP-P-312XXXX" autocomplete="off">
                                 <div class="dropdown-menu w-[20 %] text-base hidden" id="dropdown-member"></div>
                                 <a href="{{ route('pinjaman.index') }}"
                                     class="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-decoration-none text-center font-semibold">
