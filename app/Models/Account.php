@@ -22,7 +22,7 @@ class Account extends Model
      */
     public function jurnals()
     {
-        return $this->hasMany(Jurnal::class);
+        return $this->hasMany(Jurnal::class, 'kode_akun', 'kode_akun');
     }
 
     /**

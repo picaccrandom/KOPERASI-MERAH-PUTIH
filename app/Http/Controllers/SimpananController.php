@@ -42,7 +42,7 @@ class SimpananController extends Controller
     {
         $members = Member::where('status', 'aktif')->get();
         // cek simpanan pokok dan wajib yang sudah ada
-        $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK') 
+        $SimpanansPokok = SimpananDetail::where('jenis', 'POKOK')
             ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
@@ -54,7 +54,7 @@ class SimpananController extends Controller
                 ];
             });
         // cek simpanan wajib yang sudah ada dibulan ini
-        $SimpanansWajib = SimpananDetail::where('jenis', 'WAJIB') 
+        $SimpanansWajib = SimpananDetail::where('jenis', 'WAJIB')
             ->whereHas('transaksi', function ($q) {
                 $q->whereNotNull('member_id');
             })
@@ -90,7 +90,7 @@ class SimpananController extends Controller
             $administrasi = 5000;
             if ($request->administrasi != 'true') {
                 $nominal = $nominal - $administrasi;
-            } 
+            }
 
             // 1. Buat Transaksi Simpanan (Unit SP)
             $transaksi = Transaksi_SP::create([
@@ -123,18 +123,22 @@ class SimpananController extends Controller
             //     now(),
             //     "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap,
             //     $transaksi->no_transaksi_sp,
-            //     (float)$request->nominal, 0,
+            //     (float)$request->nominal,
+            //     0,
             //     '1101'
             // );
+            AccountingService::catatJurnal('1101', (float)$request->nominal, "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap, "kredit");
+
 
             // KREDIT: Kewajiban Simpanan Anggota bertambah
-            // AccountingService::post(
-            //     now(),
-            //     "Penerimaan Tabungan Anggota (" . $transaksi->no_transaksi_sp . ")",
-            //     $transaksi->no_transaksi_sp,
-            //     0, (float)$request->nominal,
-            //     '2101'
-            // );
+            AccountingService::post(
+                now(),
+                "Penerimaan Tabungan Anggota (" . $transaksi->no_transaksi_sp . ")",
+                $transaksi->no_transaksi_sp,
+                0,
+                (float)$request->nominal,
+                '2101'
+            );
             return $transaksi;
         });
 
@@ -324,8 +328,8 @@ class SimpananController extends Controller
             })
             ->with('transaksi')
             ->get()
-            ->map(function($item) {
-                return [        
+            ->map(function ($item) {
+                return [
                     'member_id' => $item->transaksi->member_id,
                     'jenis_simpanan' => $item->jenis,
                     'saldo' => $item->saldo,

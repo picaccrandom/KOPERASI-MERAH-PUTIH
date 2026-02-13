@@ -27,7 +27,7 @@ class AccountingService
              */
             
             return Jurnal::create([
-                'account_id'    => $accountId,
+                'kode_akun'    => $accountId,
                 'tgl_transaksi' => now(),
                 'referensi'     => $ref,
                 'keterangan'    => strtoupper($keterangan),

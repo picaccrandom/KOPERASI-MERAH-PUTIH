@@ -249,7 +249,7 @@
                     if($modul == 'Pinjaman') {
                         window.location.href = "{{ route('pinjaman.index') }}";
                     } else {
-                        window.location.href = "{{ route('pinjaman.detail', ['no_transaksi_sp' => $angsuran->no_transaksi_sp]) }}";
+                        window.location.href = `{{ route('pinjaman.detail',$angsuran->no_transaksi_sp) }}`;
                     }
                 }, 500);
             }
