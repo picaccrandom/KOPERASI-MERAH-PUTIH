@@ -29,10 +29,10 @@
                 </div>
 
                 <div>
-                    <label class="block font-medium text-gray-700 mb-2 text-2xl">Keterangan</label>
+                    <p></p>
                     <ul class="text-sm flex justify-between gap-2.5 text-center bg-slate-400/20 rounded-md shadow p-2">
                         <li>Status Anggota <hr class="my-1"><span class=" font-semibold uppercase" id="status-member">none</span></li>
-                        <li>Saldo Simpanan (Sukarela)  <hr class="my-1"><span id="saldo-simpanan" class="text-red-500">Rp. 0,00</span></li>
+                        <li>Saldo Simpanan (Sukarela)  <hr class="my-1"><span id="saldo-simpanan" class="text-red-500 font-semibold">Nonaktif</span></li>
                         <li>Riwayat Pinjaman  <hr class="my-1"><span id="riwayat-pinjaman" class="text-orange-500">- kali</span></li>
                     </ul>
                 </div>
@@ -243,7 +243,7 @@
                         `Maks ${limit.toLocaleString('id-ID')}`);
                         // add keterangan member
                         document.getElementById('status-member').innerHTML = m.status;
-                        document.getElementById('saldo-simpanan').textContent = `Rp. ${Number(saldoSimpanan).toLocaleString('id-ID')},00`;
+                        document.getElementById('saldo-simpanan').textContent = $saldoSimpanan >= 0 ? "Nonaktif" : `Rp. ${Number(saldoSimpanan).toLocaleString('id-ID')},00`;
                         document.getElementById('riwayat-pinjaman').textContent = `${riwayatPinjaman} kali`;
 
                     });

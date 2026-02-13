@@ -87,8 +87,9 @@ class SimpananController extends Controller
             //
             $nominal = (float)$request->nominal;
 
-            $administrasi = 5000;
+            $administrasi = 0;
             if ($request->administrasi != 'true') {
+                $administrasi = 5000;
                 $nominal = $nominal - $administrasi;
             } 
 
@@ -243,16 +244,16 @@ class SimpananController extends Controller
     {
         if (request()->wantsJson() || request()->expectsJson()) {
             $member = Member::findOrFail($id);
-            $total_simpanan_sukarela = SimpananDetail::whereHas('transaksiSP', function ($q) use ($id) {
+            $total_simpanan_sukarela = SimpananDetail::whereHas('transaksi', function ($q) use ($id) {
                 $q->where('member_id', $id)->where('jenis', 'sukarela');
             })->sum('saldo');
-            $total_simpanan_all = SimpananDetail::whereHas('transaksiSP', function ($q) use ($id) {
+            $total_simpanan_all = SimpananDetail::whereHas('transaksi', function ($q) use ($id) {
                 $q->where('member_id', $id);
             })->sum('saldo');
-            $biaya_admin = SimpananDetail::whereHas('transaksiSP', function ($q) use ($id) {
+            $biaya_admin = SimpananDetail::whereHas('transaksi', function ($q) use ($id) {
                 $q->where('member_id', $id);
             })->sum('biaya_admin');
-            $status = SimpananDetail::whereHas('transaksiSP', function ($q) use ($id) {
+            $status = SimpananDetail::whereHas('transaksi', function ($q) use ($id) {
                 $q->where('member_id', $id);
             })->exists() ? 'aktif' : 'nonaktif';
 

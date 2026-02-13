@@ -41,7 +41,7 @@
                                 <label for="" class="text-slate-600">Masukan Kode Pinjaman</label>
                                 <input type="text" id="search-pinjaman"
                                     class="w-full ml-4 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64"
-                                    placeholder="SP-P-312XXXX">
+                                    placeholder="SP-P-312XXXX" autocomplete="off    ">
                                 <div class="dropdown-menu w-[20 %] text-base hidden" id="dropdown-member"></div>
                                 <a href="{{ route('pinjaman.index') }}"
                                     class="bg-blue-400 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-decoration-none text-center font-semibold">
@@ -69,11 +69,11 @@
                             <i class="fa-solid fa-square-poll-horizontal text-2xl mr-3"></i>
                             Panel Pencarian Pinjaman / Angsuran
                         </div>
-                        <div class="overflow-x-auto flex p-10 px-10">
+                        <div class="overflow-x-auto flex pt-2">
                             <table class="text-center min-w-full space-y-4">
                                 <thead class="bg-orange-300">
                                     <tr
-                                        class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                                        class="text-white italic [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
                                         <th>KODE PINJAMAN</th>
                                         <th>NAMA ANGGOTA</th>
                                         <th>TOTAL PINJAMAN</th>
@@ -90,7 +90,7 @@
                                             <td>
                                                 <div class="flex items-center">
                                                     <div>
-                                                        <div class="font-medium text-gray-900">
+                                                        <div class="font-medium text-gray-900 hover:text-blue-600 cursor-pointer " onclick="window.location='{{route('member.show', ['modul' => 'pinjaman', 'id' => $peminjaman->member->id])}}'">
                                                             {{ $peminjaman->member->nama_lengkap }}
                                                         </div>
                                                     </div>
@@ -131,7 +131,7 @@
                                             </td>
                                         </tr>
                                         @if ($peminjaman->COA == 'Pinjam')
-                                            <tr class="bg-slate-100 ket-pinjaman" data-index="{{ $loop->index }}">
+                                            <tr class="bg-slate-100 ket-pinjaman italic" data-index="{{ $loop->index }}">
                                                 <td colspan="8" class="text-start  pl-12 py-4">
                                                     <i class="bi bi-arrow-return-right text-black"></i>
                                                     Angsuran Terdekat:
@@ -181,7 +181,7 @@
                             <table class="text-center min-w-full space-y-4">
                                 <thead class="bg-black">
                                     <tr
-                                        class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold [&>th]:uppercase [&>th]:tracking-wider">
+                                        class="text-white [&>th]:px-6 [&>th]:py-3 [&>th]:text-left [&>th]:text-sm [&>th]:font-semibold text-4xl [&>th]:uppercase [&>th]:tracking-wider">
                                         <th>NO.</th>
                                         <th>NAMA ANGGOTA</th>
                                         <th>TANGGAL PINJAM</th>
@@ -202,7 +202,6 @@
                                                         <div class="font-medium text-gray-900 cursor-pointer hover:underline hover:text-blue-600" onclick="window.location='{{route('member.show', ['modul' => 'pinjaman', 'id' => $peminjaman->member->id])}}'">
                                                            {{ $peminjaman->member->nama_lengkap }}
                                                         </div>
-                                                        <div class="text-xs text-gray-500">{{ $peminjaman->no_hp }}</div>
                                                     </div>
                                                 </div>
                                             </td>
