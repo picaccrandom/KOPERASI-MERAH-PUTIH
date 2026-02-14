@@ -82,9 +82,9 @@
                     </div>
 
                     <div class="flex justify-between">
-                        <span>Administrasi 2%</span>
+                        <span>Administrasi </span>
                         <span class="text-red-600">
-                            - Rp <span id="nominal"> {{ number_format($transaksi->simpananDetails->first()->biaya_admin, 2, ',', '.') }}</span>
+                            Rp <span id="nominal"> {{ number_format($transaksi->simpananDetails->first()->biaya_admin, 2, ',', '.') }}</span>
                         </span>
                     </div>
 
@@ -98,7 +98,7 @@
                         <span class="bg-slate-200 px-3 py-1 text-2xl">Rp. 
                             <span class="border-b border-dashed" id="nominal">
                                 @if ($modul === 'Penarikan')
-                                    {{ number_format(abs($transaksi->simpananDetails->first()->saldo + $transaksi->simpananDetails->first()->biaya_admin), 2, ',', '.') }}
+                                    {{ number_format(abs($transaksi->simpananDetails->first()->saldo), 2, ',', '.') }}
                                 @else
                                     {{ number_format($transaksi->simpananDetails->first()->saldo, 2, ',', '.') }}</span>
                                 @endif

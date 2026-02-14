@@ -8,27 +8,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="{{ asset('img/logo-koperasi.png') }}" type="image/png">
     <style>
-        @media print {
+            @media print {
 
-            /* Sembunyikan semua */
-            body * {
-                visibility: hidden;
-            }
+                /* Sembunyikan semua */
+                body * {
+                    visibility: hidden;
+                }
 
-            /* Tampilkan hanya area print */
-            .print-area,
-            .print-area * {
-                visibility: visible;
-            }
+                /* Tampilkan hanya area print */
+                .print-area,
+                .print-area * {
+                    visibility: visible;
+                }
 
-            /* Posisikan print-area ke kiri atas */
-            .print-area {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
+                /* Posisikan print-area ke kiri atas */
+                .print-area {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                }
             }
-        }
         
         :root {
             --koperasi-red: #e63946;

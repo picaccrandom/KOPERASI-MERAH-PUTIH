@@ -10,7 +10,7 @@ use Carbon\Carbon;
 use App\Models\Obat;
 use App\Models\orderObat;
 use App\Models\RekamMedis;
-use App\Services\AccountingService; 
+use App\Services\AccountingService;
 use App\Models\TransaksiFaskes;
 use App\Models\Account;
 
@@ -22,8 +22,8 @@ class KlinikController extends Controller
     public function index()
     {
         $antrian = PendaftaranKlinik::with(['member', 'transaksiFaskes'])
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(10);
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
         return view('klinik.index', compact('antrian'));
     }
 
@@ -65,12 +65,11 @@ class KlinikController extends Controller
                     'status'        => 'antri'
                 ]);
 
-                AccountingService::catatJurnal($akunKas->id, $biayaDaftar, "PENDAFTARAN: " . $pendaftaran->member->nama_lengkap, 'debit');
-                AccountingService::catatJurnal($akunPendapatan->id, $biayaDaftar, "PENDAPATAN DAFTAR: " . $noReg, 'kredit');
+                AccountingService::catatJurnal($akunKas->kode_akun, $biayaDaftar, "PENDAFTARAN: " . $pendaftaran->member->nama_lengkap, 'debit');
+                AccountingService::catatJurnal($akunPendapatan->kode_akun, $biayaDaftar, "PENDAPATAN DAFTAR: " . $noReg, 'kredit');
             });
 
             return redirect()->route('klinik.index')->with('success', 'Pasien berhasil didaftarkan!');
-
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal Daftar: ' . $e->getMessage())->withInput();
         }
@@ -86,7 +85,7 @@ class KlinikController extends Controller
     /**
      * PROSES SIMPAN REKAM MEDIS
      */
-    public function simpanTindakan(Request $request, $id) 
+    public function simpanTindakan(Request $request, $id)
     {
         $request->validate([
             'diagnosa' => 'required|min:5',
@@ -114,7 +113,7 @@ class KlinikController extends Controller
                         if ($kode) {
                             $obat = Obat::where('kode_obat', $kode)->first();
                             $qty = $request->qty[$index] ?? 1;
-                            
+
                             $resepNames[] = $obat->nama_obat . " (" . $qty . ")";
                             $resepItems[] = [
                                 'kode_obat'  => $obat->kode_obat,
@@ -168,7 +167,6 @@ class KlinikController extends Controller
             });
 
             return redirect()->route('klinik.index')->with('success', 'Pemeriksaan Selesai & Resep Terkirim!');
-
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal Simpan EMR: ' . $e->getMessage())->withInput();
         }
@@ -177,7 +175,8 @@ class KlinikController extends Controller
     /**
      * PROSES BAYAR & CETAK STRUK (UPDATE!)
      */
-    public function bayar($kode_transaksi) {
+    public function bayar($kode_transaksi)
+    {
         try {
             $transaksi = TransaksiFaskes::where('kode_transaksi', $kode_transaksi)->firstOrFail();
             $transaksi->update([
@@ -197,8 +196,7 @@ class KlinikController extends Controller
 
             // Jika request biasa, redirect ke halaman struk
             return redirect()->route('apotek.cetakStruk', $kode_transaksi)
-                             ->with('success', 'Pembayaran Berhasil! Silakan Cetak Struk.');
-
+                ->with('success', 'Pembayaran Berhasil! Silakan Cetak Struk.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal Bayar: ' . $e->getMessage());
         }

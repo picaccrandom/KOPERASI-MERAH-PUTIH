@@ -29,10 +29,10 @@
                 </div>
 
                 <div>
-                    <label class="block font-medium text-gray-700 mb-2 text-2xl">Keterangan</label>
+                    <p></p>
                     <ul class="text-sm flex justify-between gap-2.5 text-center bg-slate-400/20 rounded-md shadow p-2">
                         <li>Status Anggota <hr class="my-1"><span class=" font-semibold uppercase" id="status-member">none</span></li>
-                        <li>Saldo Simpanan (Sukarela)  <hr class="my-1"><span id="saldo-simpanan" class="text-red-500">Rp. 0,00</span></li>
+                        <li>Saldo Simpanan (Sukarela)  <hr class="my-1"><span id="saldo-simpanan" class="text-red-500 font-semibold">Nonaktif</span></li>
                         <li>Riwayat Pinjaman  <hr class="my-1"><span id="riwayat-pinjaman" class="text-orange-500">- kali</span></li>
                     </ul>
                 </div>
@@ -209,7 +209,7 @@
                         const found = limitAnggotas.find(l => Number(l.member_id) === Number(
                             selectedId));
                         // tangkap saldo simpanan data member
-                        const saldoSimpanan = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
+                        let saldoSimpanan = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
                             .reduce((total, p) => {
                                 const saldoSukarela = (p.simpanan_details || [])
                                             .filter(d => d.jenis === 'sukarela')
@@ -217,7 +217,14 @@
 
                                         return total + saldoSukarela;
                                     }, 0);                        
+                        const biayaAdmin = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
+                            .reduce((total, p) => {
+                                const admin = (p.simpanan_details || [])
+                                            .reduce((subTotal, d) => subTotal + Number(d.biaya_admin), 0);
 
+                                        return total + admin;
+                                    }, 0);
+                        saldoSimpanan -= biayaAdmin;
                         // tangkap riwayat peminjaman
                         const riwayatPinjaman = pinjamans.filter(p => Number(p.member_id) === Number(selectedId))
                             .filter(p => p.COA === 'Pinjam').length;
@@ -236,7 +243,7 @@
                         `Maks ${limit.toLocaleString('id-ID')}`);
                         // add keterangan member
                         document.getElementById('status-member').innerHTML = m.status;
-                        document.getElementById('saldo-simpanan').textContent = `Rp. ${Number(saldoSimpanan).toLocaleString('id-ID')},00`;
+                        document.getElementById('saldo-simpanan').textContent = $saldoSimpanan >= 0 ? "Nonaktif" : `Rp. ${Number(saldoSimpanan).toLocaleString('id-ID')},00`;
                         document.getElementById('riwayat-pinjaman').textContent = `${riwayatPinjaman} kali`;
 
                     });

@@ -15,7 +15,7 @@ class AccountSeeder extends Seeder
         // 1. UNIT KANTOR PUSAT (KAS)
         \App\Models\Account::updateOrCreate(
             ['kode_akun' => '1101'],
-            ['nama_akun' => 'Kas Koperasi', 'kategori' => 'Aset', 'saldo_awal' => 0]
+            ['nama_akun' => 'Kas Koperasi', 'kategori' => 'Aset', 'saldo_awal' => 500000000]
         );
 
         // 2. UNIT SIMPAN PINJAM (LIABILITAS & ASET)
@@ -42,7 +42,12 @@ class AccountSeeder extends Seeder
 
         \App\Models\Account::updateOrCreate(
             ['kode_akun' => '4201'],
-            ['nama_akun' => 'Pendapatan Bunga Pinjaman', 'kategori' => 'Pendapatan', 'saldo_awal' => 0]
+            ['nama_akun' => 'Pendapatan Simpan Pinjaman', 'kategori' => 'Pendapatan', 'saldo_awal' => 0]
+        );
+
+        \App\Models\Account::updateOrCreate(
+            ['kode_akun' => '4301'],
+            ['nama_akun' => 'Pendapatan Gerai', 'kategori' => 'Pendapatan', 'saldo_awal' => 0]
         );
 
         \App\Models\Account::updateOrCreate(

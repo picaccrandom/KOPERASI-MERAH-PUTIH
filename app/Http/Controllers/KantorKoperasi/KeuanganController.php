@@ -68,7 +68,7 @@ class KeuanganController extends Controller
                 
                 // Posting ke Akun Beban (Debit)
                 AccountingService::catatJurnal(
-                    $akunBeban->id, 
+                    $akunBeban->kode_akun, 
                     $request->nominal, 
                     strtoupper($request->keterangan), 
                     'debit'
@@ -76,7 +76,7 @@ class KeuanganController extends Controller
 
                 // Posting ke Kas Koperasi (Kredit)
                 AccountingService::catatJurnal(
-                    $kasAccount->id, 
+                    $kasAccount->kode_akun, 
                     $request->nominal, 
                     "PENGELUARAN: " . strtoupper($request->keterangan), 
                     'kredit'

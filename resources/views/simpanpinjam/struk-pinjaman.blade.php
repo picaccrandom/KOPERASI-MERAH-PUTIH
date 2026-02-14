@@ -2,7 +2,7 @@
 
 @section('content')
     {{-- @php
-    dd($angsuran, $pinjaman, $no_transaksi_sp, $loc);
+    dd($angsuran,$modul , $pinjaman, $no_transaksi_sp, $loc);
 @endphp --}}
     <main class="print-area">
         <div class="max-w-4xl mx-auto bg-white border border-black p-6 pt-12 font-mono text-sm relative">
@@ -107,7 +107,7 @@
                         <tr>
                             <td colspan="2">Pelunasan</td>
                             <td class="text-right font-bold" id="pelunasan">Rp
-                                {{ number_format($angsuran->first()->total_pinjaman, 0, ',', '.') }}
+                                {{ $angsuran->isNotEmpty() ? number_format($angsuran->first()->total_pinjaman, 0, ',', '.') : '0' }}
                             </td>
                         </tr>
                         <tr>
@@ -123,7 +123,7 @@
                         </tr>
                         <tr>
                             <td class="py-1 w-6">1.</td>
-                            <td>Administrasi 3%</td>
+                            <td>Administrasi 0.2%</td>
                             <td class="text-right" id="admin">Rp
                                 {{ number_format($pinjaman->Nominal * 0.02, 0, ',', '.') }}</td>
                         </tr>
@@ -132,7 +132,7 @@
                             <td>Materai / MAP / Foto Agunan</td>
                             <td class="text-right" id="materai">Rp 10.000</td>
                         </tr>
-                        <tr>
+                        {{-- <tr>
                             <td class="py-1">3.</td>
                             <td>Angsuran 1 Bulan</td>
                             <td class="text-right" id="angsuran">Rp
@@ -143,10 +143,10 @@
                             <td>Denda</td>
                             <td class="text-right" id="denda">Rp
                                 {{ number_format($angsuran->first()->denda ?? 0, 0, ',', '.') }}</td>
-                        </tr>
+                        </tr> --}}
                         <tr>
-                            <td class="py-1">5.</td>
-                            <td>Mitra 1%</td>
+                            <td class="py-1">3.</td>
+                            <td>Mitra 0,1%</td>
                             <td class="text-right" id="mitra">Rp
                                 {{ number_format($pinjaman->Nominal * 0.01, 0, ',', '.') }}</td>
                         </tr>
@@ -206,8 +206,8 @@
 @section('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            $modul = "{{ $modul }}";
-            if ($modul == 'Pinjaman') {
+            const modul = @json($modul);
+            if (modul == 'Pinjaman') {
                 document.title = "Struk Pinjaman {{ $no_transaksi_sp }}";
     
                 // Dapatkan nilai nominal pinjaman
@@ -220,14 +220,14 @@
                     ',', '.')) || 0;
                 const materai = parseFloat(document.getElementById('materai').textContent.replace(/[^0-9,-]+/g, "")
                     .replace(',', '.')) || 0;
-                const angsuran = parseFloat(document.getElementById('angsuran').textContent.replace(/[^0-9,-]+/g, "")
-                    .replace(',', '.')) || 0;
-                const denda = parseFloat(document.getElementById('denda').textContent.replace(/[^0-9,-]+/g, "").replace(
-                    ',', '.')) || 0;
+                // const angsuran = parseFloat(document.getElementById('angsuran').textContent.replace(/[^0-9,-]+/g, "")
+                //     .replace(',', '.')) || 0;
+                // const denda = parseFloat(document.getElementById('denda').textContent.replace(/[^0-9,-]+/g, "").replace(
+                //     ',', '.')) || 0;
                 const mitra = parseFloat(document.getElementById('mitra').textContent.replace(/[^0-9,-]+/g, "").replace(
                     ',', '.')) || 0;
     
-                const totalPotongan = admin + materai + angsuran + denda + mitra;
+                const totalPotongan = admin + materai + mitra;
     
                 // Tampilkan total potongan
                 document.getElementById('potongan').textContent = '- Rp ' + totalPotongan.toLocaleString('id-ID');
@@ -244,11 +244,7 @@
                 setTimeout(() => {
                     window.close();
                 }, 500);
-            } else {
-                setTimeout(() => {
-                    window.location.href = "{{ route('pinjaman.index') }}";
-                }, 500);
-            }
+            } 
 
         });
     </script>

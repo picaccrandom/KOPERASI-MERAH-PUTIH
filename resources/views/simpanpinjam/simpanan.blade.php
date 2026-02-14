@@ -19,13 +19,13 @@
                 <div class="flex items-center space-x-3">
 
                     <a type="a" href="{{ route('simpanan.create') }}"
-                        class="px-4 py-2 text-2xl bg-red-600 hover:bg-red-700 text-white rounded flex items-center  text-decoration-none shadow-md uppercase font-semibold">
-                        <i class="fa-solid fa-circle-dollar-to-slot mr-4"></i>
+                        class="px-14 py-3 text-2xl bg-red-600 hover:bg-red-700 text-white rounded-2xl flex justify-center items-center  text-decoration-none shadow-md uppercase font-semibold">
+                        <i class="fa-solid fa-circle-dollar-to-slot mr-6"></i>
                         Tambah Simpanan
                     </a>
                     <a type="a" href="{{ route('simpanan.tarik') }}"
-                        class="px-4 py-2 text-2xl bg-orange-600 hover:bg-orange-700 text-white rounded flex items-center  text-decoration-none shadow-md  uppercase font-semibold">
-                        <i class="fa-solid fa-wallet mr-2"></i>
+                        class="px-14 py-3 text-2xl bg-orange-600 hover:bg-orange-700 text-white rounded-2xl flex justify-center items-center  text-decoration-none shadow-md  uppercase font-semibold">
+                        <i class="fa-solid fa-wallet mr-6"></i>
                         Tarik Simpanan
                     </a>
 
@@ -33,18 +33,18 @@
             </div>
         </div>
         <hr class="m-0 p-0 mb-4">
-        <section class="h-[80dvh] px-4 flex gap-2 mb-2" id="form-pencarian">
+        <section class="h-[70dvh] px-4 flex gap-2 mb-2" id="form-pencarian">
             <div class="w-[20%] flex flex-col justify-center items-start gap-y-4">
                 <div class="h-1/2 w-full bg-white  rounded-3xl overflow-hidden shadow-md">
                     {{-- Form Pencarian dan Filter akan ditempatkan di sini --}}
                     <label for="search-data-simpanan"
                         class="uppercase bg-black text-white text-center font-semibold w-full px-4 py-2.5">
                         <i class="fa-solid fa-magnifying-glass mr-2"></i>
-                        Search Member
+                    Search Member
                     </label>
                     <div class="p-4 pt-10 flex flex-col w-full ">
                         <label for="" class="text-slate-400">Masukan Identitas Member</label>
-                        <input type="text" id="search-data-simpanan"
+                        <input type="text" id="search-data-simpanan" autocomplete="off"
                             class="w-full ml-4 px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm w-64"
                             placeholder="Masukkan nama atau NIK member...">
                         <div class="dropdown-menu w-[24%] text-base hidden" id="dropdown-member"></div>
@@ -80,34 +80,40 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div class=" space-y-8">
                             <div>
-                                <p class="text-sm text-gray-500">Nama Lengkap</p>
+                                <p class="text-xl text-white bg-slate-300/90 px-2 font-semibold uppercase  text-gray-500">
+                                    Nama Lengkap</p>
                                 <p class="text-lg font-bold text-gray-800" id="nama-anggota">-</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">NIK</p>
+                                <p class="text-xl text-white bg-slate-300/90 px-2 font-semibold uppercase  text-gray-500">
+                                    NIK</p>
                                 <p class="text-lg text-gray-800" id="nik">-</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">NO. TELP/WA</p>
+                                <p class="text-xl text-white bg-slate-300/90 px-2 font-semibold uppercase ">
+                                    NO. TELP/WA</p>
                                 <p class="text-lg text-gray-800" id="no-telp">-</p>
                             </div>
                         </div>
 
-                        <div class="space-y-3">
+                        <div class="space-y-8">
                             <div>
-                                <p class="text-sm text-gray-500">Total Saldo Keseluruhan</p>
+                                <p class="text-xl text-white bg-slate-300/90 px-2 font-semibold uppercase ">
+                                    Total Saldo Keseluruhan</p>
                                 <p class="text-lg font-bold text-sky-600">
                                     Rp. <span id="total_simpanan">-</span>
                                 </p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">Total Saldo Dapat Diambil</p>
-                                <p class="text-lg font-bold text-red-600">
+                                <p class="text-xl text-white bg-slate-300/90 px-2 font-semibold uppercase ">
+                                    Total Saldo Dapat Diambil</p>
+                                <p class="text-lg font-bold text-green-600">
                                     Rp. <span id="total_sukarela">-</span>
                                 </p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-500">Status</p>
+                                <p class="text-xl text-white bg-slate-300/90 px-2 font-semibold uppercase ">
+                                    Status</p>
                                 <div class="bg-green-600 px-2 shadow-md inline-block rounded-md">
                                     <p class="text-white m-0" id="status">none</p>
                                 </div>
@@ -116,9 +122,11 @@
                     </div>
 
                     <!-- Alamat -->
-                    <div class="mb-6 p-4 bg-gray-50 rounded">
-                        <p class="text-sm text-gray-500 mb-1">ALAMAT</p>
-                        <p class="text-gray-800" id="alamat">-</p>
+                    <div class="mt-2">
+                        <p class="text-sm text-white font-semibold bg-slate-300/90 text-xl px-2 mb-3">ALAMAT</p>
+                        <div class="mb-6 p-4 bg-gray-50 rounded">
+                            <p class="text-gray-800 text-2xl" id="alamat">-</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -150,7 +158,7 @@
                 </div>
             </div>
 
-            <div class="overflow-x-autoflex pb-10 px-10 ">
+            <div class="overflow-x-autoflex pb-10 mx-10 border-x-2 border-slate-200">
                 <div class="w-full h-140 overflow-y-auto">
                     <table class="text-center min-w-full overflow-hidden space-y-4 ">
                         <thead class="bg-black">
@@ -167,12 +175,13 @@
                         </thead>
                         <tbody class="min-h-full">
                             @forelse ($simpanans as $simpanan)
-                                <tr class="[&>td]:text-sm [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
+                                <tr class="[&>td]:text-lg [&>td]:px-6 [&>td]:py-4 border-b hover:bg-gray-50 ">
                                     <td class="font-medium">{{ $loop->iteration }}</td>
                                     <td>
                                         <div class="flex items-center">
                                             <div class="w-full">
-                                                <div class=" text-gray-900 font-semibold">
+                                                <div class=" text-gray-900 font-semibold cursor-pointer hover:text-blue-600"
+                                                    onclick="window.location='{{ route('member.show', ['modul' => 'simpanan', 'id' => $simpanan->member->id]) }}'">
                                                     {{ $simpanan->member->nama_lengkap }}
                                                 </div>
                                             </div>
@@ -240,119 +249,119 @@
                 </div>
             </div>
         </div>
-        @endsection
+    @endsection
 
-        @section('scripts')
-            <script>
-                // SweetAlert untuk konfirmasi hapus
-                document.querySelectorAll('.delete-form').forEach(form => {
-                    form.addEventListener('submit', function(e) {
-                        e.preventDefault();
+    @section('scripts')
+        <script>
+            // SweetAlert untuk konfirmasi hapus
+            document.querySelectorAll('.delete-form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
 
-                        const memberName = this.getAttribute('data-name');
+                    const memberName = this.getAttribute('data-name');
 
-                        Swal.fire({
-                            title: 'Apakah Anda yakin?',
-                            html: `Data simpanan untuk <strong>${memberName}</strong> akan dihapus permanen!`,
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#d33',
-                            cancelButtonColor: '#3085d6',
-                            confirmButtonText: 'Ya, Hapus!',
-                            cancelButtonText: 'Batal'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                this.submit();
-                            }
-                        });
+                    Swal.fire({
+                        title: 'Apakah Anda yakin?',
+                        html: `Data simpanan untuk <strong>${memberName}</strong> akan dihapus permanen!`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Ya, Hapus!',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
                     });
                 });
+            });
 
 
-                // Search fungsi
-                const searchInput = document.getElementById('search-simpanan');
-                const kategoriFilter = document.getElementById('filter-kategori');
-                const members = @json($members);
-                let memberId = 0;
+            // Search fungsi
+            const searchInput = document.getElementById('search-simpanan');
+            const kategoriFilter = document.getElementById('filter-kategori');
+            const members = @json($members);
+            let memberId = 0;
 
 
 
-                document.getElementById('cari-member').addEventListener('click', function() {
-                    if (memberId) {
-                        fetch(`/simpanan/show/${memberId}`, {
-                                method: 'GET',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Content-Type': 'application/json',
-                                    'Accept': 'application/json'
-                                }
-                            })
-                            .then(res => {
-                                if (!res.ok) throw new Error('Gagal mengambil data dari server.');
-                                return res.json();
-                            })
-                            .then(data => {
-                                // Update informasi anggota di halaman
-                                document.getElementById('nama-anggota').textContent = data.member.nama_lengkap;
-                                document.getElementById('nik').textContent = data.member.nik;
-                                document.getElementById('no-telp').textContent = data.member.nomor_hp;
-                                document.getElementById('alamat').textContent = data.member.alamat;
-                                document.getElementById('total_simpanan').textContent = new Intl.NumberFormat('id-ID')
-                                    .format(data.total_simpanan_all);
-                                document.getElementById('total_sukarela').textContent = new Intl.NumberFormat('id-ID')
-                                    .format(data.total_simpanan_sukarela);
-                                // Update status
-                                console.log(data);
-                                const statusElem = document.getElementById('status');
-                                if (data.status === 'aktif') {
-                                    statusElem.textContent = 'Aktif';
-                                    statusElem.parentElement.className =
-                                        'bg-green-600 px-2 shadow-md inline-block rounded-md';
-                                } else {
-                                    statusElem.textContent = 'Nonaktif';
-                                    statusElem.parentElement.className =
-                                        'bg-orange-600 px-2 shadow-md inline-block rounded-md';
-                                }
-                            })
-                            .catch(err => {
-                                swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'Gagal mengambil data anggota. Cek koneksi Anda.',
-                                    timer: 3000,
-                                    showConfirma: true
-                                });
-                                console.error(err);
+            document.getElementById('cari-member').addEventListener('click', function() {
+                if (memberId) {
+                    fetch(`/simpanan/show/${memberId}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(res => {
+                            if (!res.ok) throw new Error('Gagal mengambil data dari server.');
+                            return res.json();
+                        })
+                        .then(data => {
+                            // Update informasi anggota di halaman
+                            document.getElementById('nama-anggota').textContent = data.member.nama_lengkap;
+                            document.getElementById('nik').textContent = data.member.nik;
+                            document.getElementById('no-telp').textContent = data.member.nomor_hp;
+                            document.getElementById('alamat').textContent = data.member.alamat;
+                            document.getElementById('total_simpanan').textContent = new Intl.NumberFormat('id-ID')
+                                .format(data.total_simpanan_all);
+                            document.getElementById('total_sukarela').textContent = new Intl.NumberFormat('id-ID')
+                                .format(data.total_simpanan_sukarela);
+                            // Update status
+                            console.log(data);
+                            const statusElem = document.getElementById('status');
+                            if (data.status === 'aktif') {
+                                statusElem.textContent = 'Aktif';
+                                statusElem.parentElement.className =
+                                    'bg-green-600 px-2 shadow-md inline-block rounded-md';
+                            } else {
+                                statusElem.textContent = 'Nonaktif';
+                                statusElem.parentElement.className =
+                                    'bg-orange-600 px-2 shadow-md inline-block rounded-md';
+                            }
+                        })
+                        .catch(err => {
+                            swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Gagal mengambil data anggota. Cek koneksi Anda.',
+                                timer: 3000,
+                                showConfirma: true
                             });
-                    } else {
-                        swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: 'Silakan pilih member terlebih dahulu dari hasil pencarian!',
-                            timer: 3000,
-                            showConfirma: true
+                            console.error(err);
                         });
-                    }
+                } else {
+                    swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Silakan pilih member terlebih dahulu dari hasil pencarian!',
+                        timer: 3000,
+                        showConfirma: true
+                    });
+                }
 
-                });
+            });
 
-                document.getElementById('search-data-simpanan').addEventListener('input', function() {
-                    const query = this.value.toLowerCase();
-                    const filtered = members.filter(m =>
-                        m.nama_lengkap.toLowerCase().includes(query) ||
-                        m.nik.toLowerCase().includes(query)
-                    );
+            document.getElementById('search-data-simpanan').addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                const filtered = members.filter(m =>
+                    m.nama_lengkap.toLowerCase().includes(query) ||
+                    m.nik.toLowerCase().includes(query)
+                );
 
-                    console.log(filtered);
-                    const dropdown = document.getElementById('dropdown-member');
+                console.log(filtered);
+                const dropdown = document.getElementById('dropdown-member');
 
-                    dropdown.innerHTML = '';
+                dropdown.innerHTML = '';
 
-                    if (filtered.length > 0 && query !== '') {
-                        filtered.forEach(m => {
-                            const option = document.createElement('a');
-                            option.classList.add('dropdown-item', 'cursor-pointer');
-                            option.innerHTML = `<div class="d-flex   justify-content-between align-items-center">
+                if (filtered.length > 0 && query !== '') {
+                    filtered.forEach(m => {
+                        const option = document.createElement('a');
+                        option.classList.add('dropdown-item', 'cursor-pointer');
+                        option.innerHTML = `<div class="d-flex   justify-content-between align-items-center">
                                             <div style="line-height: 1.2;">
                                                 <small class="text-danger fw-bold d-block">${m.nik}</small>
                                                 <strong class="text-dark text-uppercase font-black" style="font-size: 1rem;">${m.nama_lengkap}</strong>
@@ -360,75 +369,75 @@
                                             <i class="fas fa-user-plus text-muted fa-lg"></i>
                                         </div>`;
 
-                            option.addEventListener('click', () => {
-                                document.getElementById('search-data-simpanan').value =
-                                    `${m.nik} - ${m.nama_lengkap}`;
-                                memberId = m.id; // Set the member ID
-                                dropdown.classList.add('hidden');
-                                dropdown.classList.remove('show');
-                            });
-                            dropdown.appendChild(option);
+                        option.addEventListener('click', () => {
+                            document.getElementById('search-data-simpanan').value =
+                                `${m.nik} - ${m.nama_lengkap}`;
+                            memberId = m.id; // Set the member ID
+                            dropdown.classList.add('hidden');
+                            dropdown.classList.remove('show');
                         });
-                        dropdown.classList.remove('hidden');
-                        dropdown.classList.add('show');
+                        dropdown.appendChild(option);
+                    });
+                    dropdown.classList.remove('hidden');
+                    dropdown.classList.add('show');
+                } else {
+                    dropdown.classList.add('hidden');
+                    dropdown.classList.remove('show');
+                }
+            });
+
+
+            function filterTable() {
+                const searchValue = searchInput.value.toLowerCase();
+                const kategoriValue = kategoriFilter.value.toLowerCase();
+                const rows = document.querySelectorAll('table tbody tr');
+
+                rows.forEach(row => {
+                    const namaAnggota = row.cells[1].textContent.toLowerCase();
+                    const kategori = row.cells[2].textContent.toLowerCase();
+                    const tanggal = row.cells[3].textContent.toLowerCase();
+                    const keterangan = row.cells[5].textContent.toLowerCase();
+
+                    const cocokSearch =
+                        namaAnggota.includes(searchValue) ||
+                        kategori.includes(searchValue) ||
+                        tanggal.includes(searchValue) ||
+                        keterangan.includes(searchValue);
+
+                    const cocokKategori =
+                        kategoriValue === '' || kategori.includes(kategoriValue);
+
+                    if (cocokSearch && cocokKategori) {
+                        row.style.display = '';
                     } else {
-                        dropdown.classList.add('hidden');
-                        dropdown.classList.remove('show');
+                        row.style.display = 'none';
                     }
                 });
+            }
 
 
-                function filterTable() {
-                    const searchValue = searchInput.value.toLowerCase();
-                    const kategoriValue = kategoriFilter.value.toLowerCase();
-                    const rows = document.querySelectorAll('table tbody tr');
+            searchInput.addEventListener('input', filterTable);
+            kategoriFilter.addEventListener('change', filterTable);
 
-                    rows.forEach(row => {
-                        const namaAnggota = row.cells[1].textContent.toLowerCase();
-                        const kategori = row.cells[2].textContent.toLowerCase();
-                        const tanggal = row.cells[3].textContent.toLowerCase();
-                        const keterangan = row.cells[5].textContent.toLowerCase();
-
-                        const cocokSearch =
-                            namaAnggota.includes(searchValue) ||
-                            kategori.includes(searchValue) ||
-                            tanggal.includes(searchValue) ||
-                            keterangan.includes(searchValue);
-
-                        const cocokKategori =
-                            kategoriValue === '' || kategori.includes(kategoriValue);
-
-                        if (cocokSearch && cocokKategori) {
-                            row.style.display = '';
-                        } else {
-                            row.style.display = 'none';
-                        }
+            @if (session('success'))
+                {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Sukses',
+                        text: '{{ session('success') }}',
+                        timer: 3000,
+                        showConfirma: false
                     });
                 }
-
-
-                searchInput.addEventListener('input', filterTable);
-                kategoriFilter.addEventListener('change', filterTable);
-
-                @if (session('success'))
-                    {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Sukses',
-                            text: '{{ session('success') }}',
-                            timer: 3000,
-                            showConfirma: false
-                        });
-                    }
-                @elseif (session('error')) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: '{{ session('error') }}',
-                            timer: 3000,
-                            showConfirma: true
-                        });
-                    }
-                @endif
-            </script>
-        @endsection
+            @elseif (session('error')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: '{{ session('error') }}',
+                        timer: 3000,
+                        showConfirma: true
+                    });
+                }
+            @endif
+        </script>
+    @endsection

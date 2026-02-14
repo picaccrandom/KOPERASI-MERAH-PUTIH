@@ -3,8 +3,8 @@
 @section('content')
     <style>
         /* =========================================
-                                                                       2. PANEL PEMBAYARAN STYLING (PERCANTIK)
-                                                                       ========================================= */
+                                                                                       2. PANEL PEMBAYARAN STYLING (PERCANTIK)
+                                                                                       ========================================= */
         .payment-card {
             border-radius: 15px;
             border: none;
@@ -285,6 +285,7 @@
         const barangData = @json($barangs);
         const kreditMember = @json($limitBon);
         const simpananMember = @json($SimpananMember);
+        console.log(simpananMember);
         let limitBonAnggota = 0;
 
         const inputNik = document.getElementById('nik-input');
@@ -351,7 +352,7 @@
 
             // Cari Saldo Simpanan berdasarkan Member ID    
             const simpananList = simpananMember.filter(
-                s => Number(s.transaksi_s_p?.member_id) === Number(m.id)
+                s => Number(s.transaksi?.member_id) === Number(m.id)
             );
 
             // Hitung Total Simpanan 
@@ -362,7 +363,6 @@
             }, {
                 saldo: 0
             }) : null;
-
             if (simpananObj && simpananObj.saldo > 10000) {
                 infoBox.innerHTML +=
                     ` | <i class="fas fa-piggy-bank me-1"></i> Saldo Simpanan: Rp ${simpananObj.saldo.toLocaleString()}`;
@@ -433,7 +433,7 @@
                         if (e.key === 'Enter') {
 
                             isprosesing = true;
-                            
+
                             e.preventDefault();
                             barcode = inputSearchBarang.value;
                             b = barangData.find(item => item.kode_barang === barcode);
@@ -444,7 +444,7 @@
                             }
 
                             setTimeout(() => {
-                                
+
                             }, 1000);
                         }
 
@@ -566,7 +566,8 @@
                 dispKalkulasi.innerText = 'Rp ' + Math.abs(selisih).toLocaleString();
                 dispKalkulasi.className =
                     'kalkulasi-box font-black text-center border-danger text-danger bg-white shadow-sm';
-                labelKet.innerText = (document.getElementById('metode_bayar').value === 'bon') ? 'Sisa Piutang' : 'Kurang';
+                labelKet.innerText = (document.getElementById('metode_bayar').value === 'bon') ?
+                    'Sisa Piutang' : 'Kurang';
             }
         }
 
@@ -594,13 +595,17 @@
 
         document.getElementById('metode_bayar').addEventListener('change', function() {
             const isBon = this.value === 'bon';
-            document.getElementById('nominal-label').textContent = isBon ? 'Split: Bayar Tunai' : 'Dibayar (Tunai)';
+            document.getElementById('nominal-label').textContent = isBon ? 'Split: Bayar Tunai' :
+                'Dibayar (Tunai)';
             document.getElementById('info-bill').classList.toggle('hidden', !isBon);
             document.getElementById('info-ket-bill').classList.toggle('hidden', !isBon);
 
             const isSimpanan = this.value === 'simpanan';
-            document.getElementById('nominal').value = document.getElementById('total_harga').value;
-            document.getElementById('nominal').disabled = isSimpanan;
+            if (isSimpanan) {
+                document.getElementById('info-bill').classList.add('hidden');
+                document.getElementById('nominal').value = document.getElementById('total_harga').value;
+                document.getElementById('nominal').disabled = isSimpanan;
+            }
 
             const isTunai = this.value === 'tunai';
             if (isTunai) {
@@ -608,7 +613,8 @@
             }
 
             if (isBon) {
-                document.getElementById('info-ket-bill').innerText = '*MAKS. PIUTANG: RP ' + limitBonAnggota
+                document.getElementById('info-ket-bill').innerText = '*MAKS. PIUTANG: RP ' +
+                    limitBonAnggota
                     .toLocaleString();
             }
 
@@ -637,7 +643,8 @@
 
             if (metode === 'bon') {
                 if (!document.getElementById('member_id').value) {
-                    return Swal.fire('Wajib Member!', 'Hanya anggota yang bisa mengambil piutang.', 'error');
+                    return Swal.fire('Wajib Member!', 'Hanya anggota yang bisa mengambil piutang.',
+                        'error');
                 }
                 if ((totalHrg - nominalTunai) > limitBonAnggota) {
                     return Swal.fire('Limit BON!', 'Melebihi jatah piutang anggota.', 'error');
@@ -683,7 +690,9 @@
                                     timer: 1500,
                                     showConfirmButton: false
                                 }).then(() => {
-                                    window.location.href = "/cetak-struk/" + res.data
+                                    window.location.reload();
+                                    window.location.href = "/cetak-struk/" + res
+                                        .data
                                         .kode_transaksi;
                                 });
                             } else {
@@ -691,7 +700,8 @@
                             }
                         })
                         .catch(() => {
-                            Swal.fire('Error Sistem', 'Terjadi kesalahan koneksi server.', 'error');
+                            Swal.fire('Error Sistem', 'Terjadi kesalahan koneksi server.',
+                                'error');
                         });
                 }
             });

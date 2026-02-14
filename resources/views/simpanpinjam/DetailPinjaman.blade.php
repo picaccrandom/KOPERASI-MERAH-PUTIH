@@ -23,7 +23,7 @@
             <div class="p-6">
                 
                 <!-- Info Anggota -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 bg-slate-400/20 p-6 rounded-lg">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 bg-slate-400/20 p-6 rounded-lg">
                     <div class="space-y-3">
                         <div>
                             <p class="text-sm text-gray-500">KODE PINJAMAN</p>
@@ -69,6 +69,21 @@
                                     {{ \Carbon\Carbon::parse($pinjaman->where('status', 'belum')->first()->batas_bayar ?? now())->format('d M Y') }}
                                 </p>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="shadow-lg px-6 py-4 rounded-lg">
+                        <div class="mb-4 flex flex-col justify-center items-center">
+                            <p class="text-sm text-gray-800 font-semibold border-b border-slate-400">JUMLAH ANGSURAN MENDATANG</p>
+                            <p class=" font-bold text-green-600 text-7xl uppercase">
+                                {{ $pinjaman->where('status', 'belum')->count() ? number_format($pinjaman->where('status', 'belum')->count() ?? 0, 0, ',', '.') : "Lunas" }}
+                            </p>
+                        </div>
+                        <div class="flex flex-col justify-center items-center">
+                            <p class="text-sm text-gray-800 font-semibold border-b border-b-slate-400">SISA PINJAMAN</p>
+                            <p class="font-bold text-red-600 text-4xl bg-slate-200 px-4 py-2 rounded-md shadow-md">
+                                {{ $pinjaman->where('status', 'belum')->count() ? "Rp. ". number_format(($pinjaman->first()->total_pinjaman ?? 0) - ($pinjaman->where('status', 'lunas')->sum('jumlah_angsuran') ?? 0), 0, ',', '.') : "LUNAS" }}
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -67,9 +67,9 @@ class ApotekController extends Controller
     {
         $obats = Obat::where('stok_apotek', '>', 0)->get();
         $resepMasuks = orderObat::with('pendaftaranKlinik.member')
-                        ->where('status', 'belum')
-                        ->orderBy('tanggal_order', 'desc')
-                        ->get();  
+            ->where('status', 'belum')
+            ->orderBy('tanggal_order', 'desc')
+            ->get();
         return view('apotek.index', compact('obats', 'resepMasuks'));
     }
 
@@ -79,9 +79,9 @@ class ApotekController extends Controller
     public function resepMasukIndex()
     {
         $resepMasuks = orderObat::with(['pendaftaranKlinik.member', 'pendaftaranKlinik.rekamMedis'])
-                        ->where('status', 'belum')
-                        ->orderBy('tanggal_order', 'desc')
-                        ->get();
+            ->where('status', 'belum')
+            ->orderBy('tanggal_order', 'desc')
+            ->get();
         $obats = Obat::all();
         $rekamMedis = RekamMedis::with('pendaftaranKlinik.member')->get();
         return view('apotek.resep_masuk', compact('resepMasuks', 'obats', 'rekamMedis'));
@@ -90,7 +90,7 @@ class ApotekController extends Controller
     /**
      * PROSES BAYAR RESEP KLINIK
      */
-    public function bayarOrder(Request $request) 
+    public function bayarOrder(Request $request)
     {
         $request->validate([
             'resep_obat.*' => 'nullable|exists:obats,kode_obat',
@@ -143,16 +143,13 @@ class ApotekController extends Controller
 
                 $transaksiFaskes->update(['Nominal' => $totalNominal]);
 
-                $akunKas = Account::where('kode_akun', '1101')->first();
-                $akunPendapatan = Account::where('kode_akun', '4101')->first();
-
-                if ($akunKas && $akunPendapatan) {
-                    AccountingService::catatJurnal($akunKas->id, $totalNominal, "Resep: {$noInvoice}", 'debit');
-                    AccountingService::catatJurnal($akunPendapatan->id, $totalNominal, "Pendapatan Apotek", 'kredit');
-                }
+                // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
+                AccountingService::catatJurnal('1101', $totalNominal, "Resep: {$noInvoice}", 'debit');
+                // DEBIT: Kas Pendapatan Apotik(Saldo Bertambah di Akun Kas Pendapat Apotik )
+                AccountingService::catatJurnal('4101', $totalNominal, "Pendapatan Apotek", 'kredit');
 
                 orderObat::where('pendaftaran_klinik_id', $request->pendaftaran_klinik_id)
-                          ->update(['status' => 'selesai']);
+                    ->update(['status' => 'selesai']);
             });
 
             return redirect()->route('apotek.resep')->with('success', 'Resep berhasil diproses!');
@@ -164,7 +161,7 @@ class ApotekController extends Controller
     /**
      * PROSES JUAL RETAIL (Satuan)
      */
-    public function prosesJual(Request $request, $id) 
+    public function prosesJual(Request $request, $id)
     {
         $request->validate(['qty' => 'required|integer|min:1']);
         $obat = Obat::findOrFail($id);
@@ -206,10 +203,10 @@ class ApotekController extends Controller
                 $akunKas = Account::where('kode_akun', '1101')->first();
                 $akunPendapatan = Account::where('kode_akun', '4101')->first();
 
-                if ($akunKas && $akunPendapatan) {
-                    AccountingService::catatJurnal($akunKas->id, $totalBayar, "Jual Retail: {$obat->nama_obat}", 'debit');
-                    AccountingService::catatJurnal($akunPendapatan->id, $totalBayar, "Pendapatan Apotek", 'kredit');
-                }
+                // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
+                AccountingService::catatJurnal('1101', $totalBayar, "Jual Retail Apotik: {$obat->nama_obat}", 'debit');
+                // DEBIT: Kas Pendapatan Apotik(Saldo Bertambah di Akun Kas Pendapat Apotik )
+                AccountingService::catatJurnal('4101', $totalBayar, "Pendapatan Apotek", 'kredit');
             });
 
             return redirect()->route('apotek.index')->with('success', 'Obat terjual!');
@@ -221,7 +218,8 @@ class ApotekController extends Controller
     /**
      * PROSES PEMBAYARAN KERANJANG (Cart)
      */
-    public function prosesPembayaranCart(Request $request) {
+    public function prosesPembayaranCart(Request $request)
+    {
         $cartData = json_decode($request->cart_data, true);
         if (!$cartData) return back()->with('error', 'Keranjang kosong.');
 
@@ -265,12 +263,10 @@ class ApotekController extends Controller
                     ]);
                 }
 
-                $akunKas = Account::where('kode_akun', '1101')->first();
-                $akunPendapatan = Account::where('kode_akun', '4101')->first();
-                if ($akunKas && $akunPendapatan) {
-                    AccountingService::catatJurnal($akunKas->id, $total, "Jual Cart: {$kode_transaksi}", 'debit');
-                    AccountingService::catatJurnal($akunPendapatan->id, $total, "Pendapatan Apotek", 'kredit');
-                }
+                // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
+                AccountingService::catatJurnal('1101', $total, "Jual Cart: {$kode_transaksi}", 'debit');
+                // DEBIT: Kas Pendapatan Apotik(Saldo Bertambah di Akun Kas Pendapat Apotik )
+                AccountingService::catatJurnal('4101', $total, "Pendapatan Apotek", 'kredit');
             });
             return redirect()->route('apotek.index')->with('success', 'Pembayaran Keranjang Berhasil!');
         } catch (\Exception $e) {
@@ -278,7 +274,7 @@ class ApotekController extends Controller
         }
     }
 
-    public function hapusResep($id) 
+    public function hapusResep($id)
     {
         orderObat::findOrFail($id)->delete();
         return back()->with('success', 'Resep dihapus.');
@@ -287,9 +283,9 @@ class ApotekController extends Controller
     public function historiPenjualan()
     {
         $histori = TransaksiFaskes::with(['member'])
-                    ->where('COA', 'Apotek')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(15);
+            ->where('COA', 'Apotek')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         return view('apotek.histori', compact('histori'));
     }
@@ -306,8 +302,8 @@ class ApotekController extends Controller
 
         if (!$transaksi) {
             $transaksi = \App\Models\TransaksiFaskes::with(['member'])
-                        ->where('kode_transaksi', $kode_transaksi)
-                        ->first();
+                ->where('kode_transaksi', $kode_transaksi)
+                ->first();
         }
 
         if (!$transaksi) {
@@ -315,14 +311,14 @@ class ApotekController extends Controller
         }
 
         $details = \App\Models\TransaksiDetail::where('kode_transaksi', $kode_transaksi)->get();
-        
-        if($details->isEmpty()){
+
+        if ($details->isEmpty()) {
             $details = \App\Models\TransaksiObatDetail::where('kode_transaksi', $kode_transaksi)->get();
         }
 
         $totalKotor = $details->sum('subtotal');
         $nominalAkhir = $transaksi->grand_total ?? $transaksi->Nominal;
-        
+
         $nominalDiskon = ($totalKotor > 0) ? ($totalKotor - $nominalAkhir) : 0;
 
         return view('apotek.cetak_struk', compact('transaksi', 'details', 'nominalDiskon'));
