@@ -13,6 +13,7 @@ use App\Http\Controllers\ApotekController;
 use App\Http\Controllers\DistribusiController;
 use App\Http\Controllers\KantorKoperasi\AccountingController;
 use App\Http\Controllers\KantorKoperasi\KeuanganController;
+use App\Http\Controllers\KantorKoperasi\LaporanController;
 
 // ---------------------------------------------------------
 // 1. HALAMAN LOGIN & LOGOUT
@@ -150,8 +151,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/keuangan', [KeuanganController::class, 'index'])->name('keuangan.index');
         Route::post('/keuangan/store', [KeuanganController::class, 'store'])->name('keuangan.store');
 
-        // Pusat Laporan Terpadu
-        Route::get('/pusat-laporan', [KasirController::class, 'pusatLaporan'])->name('kantor.laporan.index');
+        // Pusat Laporan Terpadu (NEW)
+        Route::get('/pusat-laporan', [LaporanController::class, 'index'])->name('kantor.laporan.index');
+        Route::get('/laporan/export', [LaporanController::class, 'export'])->name('kantor.laporan.export');
         
         // Link Laporan Lama
         Route::get('/akuntansi/laba-rugi', [AccountingController::class, 'showLabaRugi'])->name('akuntansi.labarugi');
