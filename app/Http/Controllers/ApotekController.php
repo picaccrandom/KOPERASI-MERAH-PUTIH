@@ -146,7 +146,7 @@ class ApotekController extends Controller
                 // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
                 AccountingService::catatJurnal('1101', $totalNominal, "Resep: {$noInvoice}", 'debit');
                 // DEBIT: Kas Pendapatan Apotik(Saldo Bertambah di Akun Kas Pendapat Apotik )
-                AccountingService::catatJurnal('4101', $totalNominal, "Pendapatan Apotek", 'debit');
+                AccountingService::catatJurnal('4101', $totalNominal, "Pendapatan Apotek", 'kredit');
 
                 orderObat::where('pendaftaran_klinik_id', $request->pendaftaran_klinik_id)
                     ->update(['status' => 'selesai']);
@@ -206,7 +206,7 @@ class ApotekController extends Controller
                 // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
                 AccountingService::catatJurnal('1101', $totalBayar, "Jual Retail Apotik: {$obat->nama_obat}", 'debit');
                 // DEBIT: Kas Pendapatan Apotik(Saldo Bertambah di Akun Kas Pendapat Apotik )
-                AccountingService::catatJurnal('4101', $totalBayar, "Pendapatan Apotek", 'debit');
+                AccountingService::catatJurnal('4101', $totalBayar, "Pendapatan Apotek", 'kredit');
             });
 
             return redirect()->route('apotek.index')->with('success', 'Obat terjual!');
@@ -266,7 +266,7 @@ class ApotekController extends Controller
                 // DEBIT: Kas Koperasi Bertambah (Saldo Bertambah di Akun Kas Koperasi )
                 AccountingService::catatJurnal('1101', $total, "Jual Cart: {$kode_transaksi}", 'debit');
                 // DEBIT: Kas Pendapatan Apotik(Saldo Bertambah di Akun Kas Pendapat Apotik )
-                AccountingService::catatJurnal('4101', $total, "Pendapatan Apotek", 'debit');
+                AccountingService::catatJurnal('4101', $total, "Pendapatan Apotek", 'kredit');
             });
             return redirect()->route('apotek.index')->with('success', 'Pembayaran Keranjang Berhasil!');
         } catch (\Exception $e) {

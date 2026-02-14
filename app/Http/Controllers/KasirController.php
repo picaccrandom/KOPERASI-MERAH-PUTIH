@@ -127,8 +127,8 @@ class KasirController extends Controller
     
                     $request->metode_bayar == "simpanan" ?
                     // DEBIT: Kas Pendapatan Gerai Bertambah (Saldo Bertambah di akun Pendapatan Gerai)
-                    AccountingService::catatJurnal('4301', $transaksi->grand_total, "Pendapatan dari Pembelian Anggota " . $namaMember->nama_lengkap . " untuk Gerai", "debit"):
-                    AccountingService::catatJurnal('4301', $transaksi->grand_total, "Pendapatan Gerai " . $transaksi->kode_transaksi, "debit");
+                    AccountingService::catatJurnal('4301', $transaksi->grand_total, "Pendapatan dari Pembelian Anggota " . $namaMember->nama_lengkap . " untuk Gerai", "kredit"):
+                    AccountingService::catatJurnal('4301', $transaksi->grand_total, "Pendapatan Gerai " . $transaksi->kode_transaksi, "kredit");
                 }
 
 

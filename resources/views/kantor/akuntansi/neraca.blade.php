@@ -9,7 +9,7 @@
     }
 </style>
 
-<div class="p-10 bg-slate-50 min-h-screen">
+<div class="print-area p-10 bg-slate-50 min-h-screen">
     <div class="max-w-6xl mx-auto bg-white border-2 border-slate-800 p-12 shadow-2xl relative">
         <div class="text-center mb-10">
             <h1 class="text-2xl font-black uppercase tracking-widest text-slate-800">Koperasi Merah Putih</h1>

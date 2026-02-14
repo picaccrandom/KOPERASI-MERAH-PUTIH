@@ -126,7 +126,7 @@ class PinjamanController extends Controller
             // DEBIT: Kas koperasi (Saldo bertambah di Akun Kas Koperasi Biaya Administrasi)
             AccountingService::catatJurnal('1101', $administrasi, "Biaya Administrassi(admin, materai, mitra) Penarikan Pinjaman " . $transaksiSP->no_transaksi_sp, "debit");
             // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Administrasi)
-            AccountingService::catatJurnal('4201', $administrasi, "Biaya Administrassi(admin, materai, mitra) Penarikan Pinjaman " . $transaksiSP->no_transaksi_sp, "debit");
+            AccountingService::catatJurnal('4201', $administrasi, "Biaya Administrassi(admin, materai, mitra) Penarikan Pinjaman " . $transaksiSP->no_transaksi_sp, "kredit");
 
             $limitAnggotas = KreditAnggota::where('id', $transaksiSP->member_id);
             $limitAnggotas->decrement('limit', $transaksiSP->Nominal);
@@ -215,7 +215,7 @@ class PinjamanController extends Controller
                 AccountingService::catatJurnal('1101', $denda, "Pendapatan Denda ke-" . $angsuran->angsuran_ke . " Kode " . $angsuran->no_transaksi_sp, "debit");
 
                 // DEBIT: Kas Simpan Pinjam Dari denda (Saldo Bertambah di akun Simpan Pinjam)
-                AccountingService::catatJurnal('4201', $denda, "Pendapatan Denda dari angsuran (" . $transaksi->no_transaksi_sp . ")", "debit");
+                AccountingService::catatJurnal('4201', $denda, "Pendapatan Denda dari angsuran (" . $transaksi->no_transaksi_sp . ")", "kredit");
             }
             
             // 4. Update/kembalikan Limit Kredit Anggota
@@ -229,7 +229,7 @@ class PinjamanController extends Controller
                 AccountingService::catatJurnal('1101', $bunga, "Bunga Pinjaman " . $angsuran->no_transaksi_sp, "debit");
 
                 // DEBIT: Saldo Kas Simpan Pinjam Bertambah Bunga (Saldo Bertambah di akun Simpan Pinjam)
-                AccountingService::catatJurnal('4201', $bunga, "Bunga Pinjaman dari (" . $angsuran->no_transaksi_sp . ")", "debit");
+                AccountingService::catatJurnal('4201', $bunga, "Bunga Pinjaman dari (" . $angsuran->no_transaksi_sp . ")", "kredit");
             }
 
             DB::commit();
@@ -278,7 +278,7 @@ class PinjamanController extends Controller
             AccountingService::catatJurnal('1101', $transaksiSP->Nominal, "Pendapatan Gerai (" . $transaksiSP->no_transaksi_sp . ")", "debit");
 
             // DEBIT: Kas Pendapatan Gerai Bertambah (Saldo Bertambah di akun Pendapatan Gerai)
-            AccountingService::catatJurnal('4301', $transaksiSP->Nominal, "Pendapatan dari Pembelian Anggota " . $transaksiSP->nama . " untuk Gerai", "debit");
+            AccountingService::catatJurnal('4301', $transaksiSP->Nominal, "Pendapatan dari Pembelian Anggota " . $transaksiSP->nama . " untuk Gerai", "kredit");
 
             $status->update(['status' => 'lunas']);
             KreditAnggota::where('member_id', $bon->member_id)->increment('limit', $bon->Nominal);

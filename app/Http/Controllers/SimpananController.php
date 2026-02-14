@@ -137,7 +137,7 @@ class SimpananController extends Controller
                 AccountingService::catatJurnal('4201', (float)$request->nominal, "Setoran Simpanan " . strtoupper($request->jenis) . " - " . $namaMember->nama_lengkap, "debit");
             }
             // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Admin)
-            AccountingService::catatJurnal('4201', $simpanan->biaya_admin, "Biaya Admin Setoran Simpanan " . $transaksi->no_transaksi_sp, "debit");
+            AccountingService::catatJurnal('4201', $simpanan->biaya_admin, "Biaya Admin Setoran Simpanan " . $transaksi->no_transaksi_sp, "kredit");
 
 
             return $transaksi;
@@ -215,7 +215,7 @@ class SimpananController extends Controller
             AccountingService::catatJurnal('1101', $simpanan->biaya_admin, "Biaya Admin Penarikan Simpanan " . $transaksi->no_transaksi_sp, "debit");
 
             // DEBIT: Kas Pendapatan SP (Saldo bertambah di Akun Kas Koperasi Biaya Admin)
-            AccountingService::catatJurnal('4201', $simpanan->biaya_admin, "Biaya Admin Penarikan Simpanan " . $transaksi->no_transaksi_sp, "debit");
+            AccountingService::catatJurnal('4201', $simpanan->biaya_admin, "Biaya Admin Penarikan Simpanan " . $transaksi->no_transaksi_sp, "kredit");
 
             return $transaksi;
         });
