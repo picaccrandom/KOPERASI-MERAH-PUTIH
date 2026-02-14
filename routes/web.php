@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
 
     // --- MODUL SIMPAN PINJAM & PINJAMAN ---
     Route::get('/simpanpinjam', [SimpanPinjamController::class, 'index'])->name('simpanpinjam.index');
+    Route::get('/simpanpinjam/api/statistics', [SimpanPinjamController::class, 'getStatistics'])->name('simpanpinjam.statistics');
     Route::get('/pinjaman/dashboard', [PinjamanController::class, 'dashboardSP'])->name('pinjaman.dashboardSP');
     Route::get('/pinjaman', [PinjamanController::class, 'index'])->name('pinjaman.index');
     Route::get('/pinjaman/create', [PinjamanController::class, 'create'])->name('pinjaman.create');
